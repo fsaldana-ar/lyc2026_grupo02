@@ -47,6 +47,10 @@ def t_newline(t):
 # Ignorar tabulaciones y espacios
 t_ignore = ' \t'
 
+# Ignorar comentarios
+t_ignore_comentario = r'\#\+(?:(?!\#\+).)*?\+\#'
+
+
 # Manejo de errores
 def t_error(t):
     raise Exception(f"Caracter invalido '{t.value[0]}' en la linea: {t.lexer.lineno}")

@@ -13,3 +13,10 @@ d
 e
 21
 4
+
+#+ Todo los siguientes comentarios se ignoran +#
+#+ Comentario +#
+#+ 1 + 2 + 3 +#
+#+ while, if, else +#
+#+ # +#
+#+  +#
