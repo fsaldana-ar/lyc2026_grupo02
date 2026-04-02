@@ -49,6 +49,7 @@ def p_programa(p):
 
 def p_sentencia(p):
     '''sentencia : asignacion
+                 | seleccion
     '''
     print(f'{p.slice[1].type} -> sentencia')
 
@@ -58,6 +59,34 @@ def p_asignacion(p):
     '''
     print(f'VARIABLE ASIGNACION {p.slice[3].type} -> asignacion')
 
+
+# TODO: agregar el cuerpo entre llaves !! y ademas implementar el else
+def p_seleccion(p):
+    '''seleccion : IF A_PARENTESIS condicion_simple C_PARENTESIS A_LLAVE sentencia C_LLAVE
+                 | IF A_PARENTESIS condicion_simple C_PARENTESIS A_LLAVE sentencia C_LLAVE ELSE A_LLAVE sentencia C_LLAVE
+                 | IF A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE sentencia C_LLAVE
+                 | IF A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE sentencia C_LLAVE ELSE A_LLAVE sentencia C_LLAVE
+    '''
+    if len(p) == 8:
+        print(f'if ( {p.slice[3].type} ) {{ {p.slice[6].type} }} -> seleccion')
+    else:
+        print(f'if ( {p.slice[3].type} ) {{ {p.slice[6].type} }} else {{ {p.slice[10].type} }} -> seleccion')
+
+
+def p_condicion_simple(p):
+    'condicion_simple : VARIABLE comparador VARIABLE'
+    print(f'VARIABLE comparador VARIABLE -> condicion_simple')
+
+
+def p_condicion_multiple(p):
+    '''condicion_multiple : NOT condicion_simple
+                          | condicion_simple OR condicion_simple
+                          | condicion_simple AND condicion_simple
+    '''
+    if len(p) == 4:
+        print(f'condicion_simple {p.slice[2].type} condicion_simple -> condicion_multiple')
+    else:
+        print(f'NOT condicion_simple -> condicion_multiple')
 
 
 def p_expresion_menos(p):
@@ -96,6 +125,18 @@ def p_elemento(p):
     '''
     print(f'{p.slice[1].type} -> elemento')
     p[0] = p[1]
+
+
+def p_comparador(p):
+    '''comparador : COMP_IGUAL
+                  | COMP_MAYOR
+                  | COMP_MENOR
+                  | COMP_DISTINTO
+                  | COMP_MAYOR_IGUAL
+                  | COMP_MENOR_IGUAL
+    '''
+    print(f'{p.slice[1].type} -> comparador')
+    #print(f'{p.slice[1].value} -> comparador')
 
 
 # Error rule for syntax errors

@@ -3,6 +3,11 @@ from pathlib import Path
 import re
 
 reserved = {
+    'if': 'IF',
+    'else': 'ELSE',
+    'NOT': 'NOT',
+    'AND': 'AND',
+    'OR': 'OR',
 }
 
 tokens = [
@@ -14,6 +19,14 @@ tokens = [
     'MENOS',
     'DIVISION',
     'MULTIPLICACION',
+    'A_LLAVE',
+    'C_LLAVE',
+    'COMP_IGUAL',
+    'COMP_MAYOR',
+    'COMP_MENOR',
+    'COMP_DISTINTO',
+    'COMP_MAYOR_IGUAL',
+    'COMP_MENOR_IGUAL',
 ] + list(reserved.values())
 
 
@@ -24,6 +37,14 @@ t_DIVISION = r'/'
 t_A_PARENTESIS = r'\('
 t_C_PARENTESIS = r'\)'
 t_ASIGNACION = r':='
+t_COMP_IGUAL = r'=='
+t_COMP_MAYOR = r'>'
+t_COMP_MENOR = r'<'
+t_COMP_DISTINTO = r'<>'
+t_COMP_MAYOR_IGUAL = r'>='
+t_COMP_MENOR_IGUAL = r'<='
+t_A_LLAVE = r'{'
+t_C_LLAVE = r'}'
 
 
 def t_VARIABLE(t):
