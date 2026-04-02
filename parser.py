@@ -61,7 +61,6 @@ def p_asignacion(p):
     print(f'VARIABLE ASIGNACION {p.slice[3].type} -> asignacion')
 
 
-# TODO: agregar el cuerpo entre llaves !! y ademas implementar el else
 def p_seleccion(p):
     '''seleccion : IF A_PARENTESIS condicion_simple C_PARENTESIS A_LLAVE sentencia C_LLAVE
                  | IF A_PARENTESIS condicion_simple C_PARENTESIS A_LLAVE sentencia C_LLAVE ELSE A_LLAVE sentencia C_LLAVE

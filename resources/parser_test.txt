@@ -1,1 +1,48 @@
 c:=d*(e-21)/4
+
+if(a > b){a:=b}
+if(a < b){a:=b}
+
+if(a > b){a:=b} else {a:=a}
+if(a < b){a:=b} else {a:=a}
+
+if(NOT a > b){a:=b}
+if(NOT a < b){a:=b}
+if(NOT a >= b){a:=b} else {a:=a}
+if(NOT a <= b){a:=b}
+if(NOT a <> b){a:=b}
+if(NOT a == b){a:=b} else {a:=a}
+
+if(a > b AND b < a){a:=b}
+if(a < b AND b > a){a:=b} else {a:=a}
+if(a <= b AND b >= a){a:=b}
+if(a == b AND b <> a){a:=b}
+
+if(a > b OR b < a){a:=b}
+if(a < b OR b > a){a:=b} else {a:=a}
+if(a <= b OR b >= a){a:=b}
+if(a == b OR b <> a){a:=b} else {a:=a}
+
+
+while(a > b){a:=b}
+while(a < b){a:=b}
+
+while(a > b){a:=b}
+while(a < b){a:=b}
+
+while(NOT a > b){a:=b}
+while(NOT a < b){a:=b}
+while(NOT a >= b){a:=b}
+while(NOT a <= b){a:=b}
+while(NOT a <> b){a:=b}
+while(NOT a == b){a:=b}
+
+while(a > b AND b < a){a:=b}
+while(a < b AND b > a){a:=b}
+while(a <= b AND b >= a){a:=b}
+while(a == b AND b <> a){a:=b}
+
+while(a > b OR b < a){a:=b}
+while(a < b OR b > a){a:=b}
+while(a <= b OR b >= a){a:=b}
+while(a == b OR b <> a){a:=b}

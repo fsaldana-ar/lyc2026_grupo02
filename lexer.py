@@ -15,7 +15,9 @@ tokens = [
     'A_PARENTESIS',
     'C_PARENTESIS',
     'ASIGNACION',
+    'CTE_STRING',
     'N_ENTERO',
+    'N_FLOTANTE',
     'VARIABLE',
     'MENOS',
     'DIVISION',
@@ -48,15 +50,27 @@ t_A_LLAVE = r'{'
 t_C_LLAVE = r'}'
 
 
-def t_VARIABLE(t):
-    r'[a-zA-Z](\w|_)*'
-    t.type = reserved.get(t.value, 'VARIABLE')
+# TODO: En estas funciones hay que verificar las cotas
+def t_CTE_STRING(t):
+    r'"[\w ]*"'
+    return t
+
+
+def t_N_FLOTANTE(t):
+    r'\d+[.]\d*|[.]\d+'
+    t.value = float(t.value)
     return t
 
 
 def t_N_ENTERO(t):
     r'\d+'
     t.value = int(t.value)
+    return t
+
+
+def t_VARIABLE(t):
+    r'[a-zA-Z](\w|_)*'
+    t.type = reserved.get(t.value, 'VARIABLE')
     return t
 
 
@@ -68,6 +82,7 @@ def t_newline(t):
 
 # Ignorar tabulaciones y espacios
 t_ignore = ' \t'
+
 
 # Ignorar comentarios
 t_ignore_comentario = r'\#\+(?:(?!\#\+).)*?\+\#'
