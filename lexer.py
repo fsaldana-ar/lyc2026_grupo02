@@ -5,6 +5,7 @@ import re
 reserved = {
     'if': 'IF',
     'else': 'ELSE',
+    'while': 'WHILE',
     'NOT': 'NOT',
     'AND': 'AND',
     'OR': 'OR',

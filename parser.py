@@ -50,6 +50,7 @@ def p_programa(p):
 def p_sentencia(p):
     '''sentencia : asignacion
                  | seleccion
+                 | ciclo_while
     '''
     print(f'{p.slice[1].type} -> sentencia')
 
@@ -71,6 +72,13 @@ def p_seleccion(p):
         print(f'if ( {p.slice[3].type} ) {{ {p.slice[6].type} }} -> seleccion')
     else:
         print(f'if ( {p.slice[3].type} ) {{ {p.slice[6].type} }} else {{ {p.slice[10].type} }} -> seleccion')
+
+
+def p_ciclo_while(p):
+    '''ciclo_while : WHILE A_PARENTESIS condicion_simple C_PARENTESIS A_LLAVE sentencia C_LLAVE
+                   | WHILE A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE sentencia C_LLAVE
+    '''
+    print(f'while ( {p.slice[3]} ) {{ {p.slice[6]} }} -> ciclo_while')
 
 
 def p_condicion_simple(p):
