@@ -38,10 +38,12 @@ tokens = [
     'COMP_DISTINTO',
     'COMP_MAYOR_IGUAL',
     'COMP_MENOR_IGUAL',
+    'MAS'
 ] + list(reserved.values())
 
 
 # Expresiones regulares para TOKENS simples
+t_MAS = r'\+'
 t_MENOS = r'-'
 t_MULTIPLICACION = r'\*'
 t_DIVISION = r'/'

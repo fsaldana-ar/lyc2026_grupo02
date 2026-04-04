@@ -26,7 +26,7 @@ diccionarioComparadoresNot = {
 
 precedence = (
     ('right', 'ASIGNACION'),
-    ('right', 'MENOS'),
+    ('right', 'MENOS','MAS'),
     ('left', 'MULTIPLICACION', 'DIVISION'),
     ('left', 'A_PARENTESIS', 'C_PARENTESIS'),
 )
@@ -156,6 +156,10 @@ def p_condicion_multiple(p):
 def p_expresion_menos(p):
     'expresion : expresion MENOS termino'
     print('expresion - termino -> expresion')
+
+def p_expresion_mas(p):
+    'expresion : expresion MAS termino'
+    print('expresion + termino -> expresion')
 
 
 def p_expresion_termino(p):
