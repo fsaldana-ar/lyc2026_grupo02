@@ -32,9 +32,55 @@ precedence = (
 )
 
 
+# def p_start(p):
+#     '''start : programa'''
+#     print('FIN')
+
+# El bloque init es opcional, por eso se agregan dos reglas EN START: una con init y otra sin init
+
 def p_start(p):
-    '''start : programa'''
-    print('FIN')
+    '''start : bloque_init programa
+             | programa'''
+    print('ANÁLISIS FINALIZADO: Programa válido (con o sin INIT).')
+
+def p_bloque_init(p):
+    '''bloque_init : INIT A_LLAVE lista_declaraciones C_LLAVE
+                   | INIT A_LLAVE C_LLAVE'''
+    print('INFO: Bloque INIT procesado.')
+
+
+def p_lista_declaraciones(p):
+    '''lista_declaraciones : lista_declaraciones declaracion
+                           | declaracion
+    '''
+    if len(p) == 3:
+        print(f'lista_declaraciones declaracion -> lista_declaraciones')
+    else:
+        print(f'declaracion -> lista_declaraciones')
+
+
+def p_declaracion(p):
+    '''declaracion : lista_variables DOSPUNTOS tipo
+    '''
+    print(f'lista_variables DOSPUNTOS tipo -> declaracion')
+
+
+def p_lista_variables(p):
+    '''lista_variables : lista_variables COMA VARIABLE
+                       | VARIABLE
+    '''
+    if len(p) == 4:
+        print(f'lista_variables COMA VARIABLE -> lista_variables')
+    else:
+        print(f'VARIABLE -> lista_variables')
+
+
+def p_tipo(p):
+    '''tipo : INT
+            | FLOAT
+            | STRING
+    '''
+    print(f'{p.slice[1].type} -> tipo')
 
 
 def p_programa(p):
@@ -51,9 +97,20 @@ def p_sentencia(p):
     '''sentencia : asignacion
                  | seleccion
                  | ciclo_while
-    '''
+                 | salida
+    '''# agregamos salida a sentencia para poder procesar las sentencias de escritura
     print(f'{p.slice[1].type} -> sentencia')
 
+#REGLA DEL WRITE
+def p_salida(p):
+    '''salida : WRITE A_PARENTESIS contenido_write C_PARENTESIS'''
+    print("REGLA: WRITE reconocido")
+
+def p_contenido_write(p):
+    '''contenido_write : CTE_STRING
+                       | expresion'''
+    # p[0] es el valor que sube, puede ser el texto o el resultado de una cuenta
+    p[0] = p[1]
 
 def p_asignacion(p):
     '''asignacion : VARIABLE ASIGNACION expresion
@@ -157,3 +214,4 @@ def ejecutar_parser():
     path_parser = Path("./resources/parser_test.txt")
     code = path_parser.read_text()
     parser.parse(code)
+

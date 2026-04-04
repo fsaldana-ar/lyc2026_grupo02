@@ -9,12 +9,20 @@ reserved = {
     'NOT': 'NOT',
     'AND': 'AND',
     'OR': 'OR',
+    'init': 'INIT', #---> Para indicar el inicio del programa
+    'read': 'READ',#---> Para indicar que se va a leer una variable
+    'write': 'WRITE',#---> Para indicar que se va a escribir una variable
+    'String': 'STRING',#---> una variable de tipo string en la Declaracion de variables
+    'Int': 'INT',#---> una variable de tipo entero en la Declaracion de variables
+    'Float': 'FLOAT',#---> una variable de tipo flotante en la Declar
 }
 
 tokens = [
     'A_PARENTESIS',
     'C_PARENTESIS',
     'ASIGNACION',
+    'DOSPUNTOS',  #DOS PUNTOS PARA LA LISTA DE VARIABLES
+    'COMA',         # COMA PARA SEPARAR VARIABLES EN LA LISTA DE VARIABLES
     'CTE_STRING',
     'N_ENTERO',
     'N_FLOTANTE',
@@ -40,6 +48,8 @@ t_DIVISION = r'/'
 t_A_PARENTESIS = r'\('
 t_C_PARENTESIS = r'\)'
 t_ASIGNACION = r':='
+t_DOSPUNTOS = r':'
+t_COMA = r','
 t_COMP_IGUAL = r'=='
 t_COMP_MAYOR = r'>'
 t_COMP_MENOR = r'<'
@@ -52,19 +62,36 @@ t_C_LLAVE = r'}'
 
 # TODO: En estas funciones hay que verificar las cotas
 def t_CTE_STRING(t):
-    r'"[\w ]*"'
+    r'\"[^"]*\"' # Captura desde la primera " hasta la segunda " y permite cualquier caracter ej: "hol@"
+    # Extraemos el contenido sin las comillas
+    contenido = t.value[1:-1]
+
+    # Validamos el largo hasta 50 caracteres(Cota de 50)
+    if len(contenido) > 50:
+        raise Exception(f"ERROR LÉXICO: String de {len(contenido)} caracteres supera el máximo de 50. Línea {t.lexer.lineno}")
+
+    # Si llega acá, está todo bien. Guardamos el valor limpio.
+    t.value = contenido
     return t
 
 
 def t_N_FLOTANTE(t):
     r'\d+[.]\d*|[.]\d+'
-    t.value = float(t.value)
+    valor = float(t.value)
+    # Validamos la cota de flotantes 32 bits
+    if valor < -3.4e38 or valor > 3.4e38:
+        raise Exception(f"ERROR El número {valor} fuera de rango para un Float de 32 bits") 
+    t.value=valor
     return t
 
 
 def t_N_ENTERO(t):
     r'\d+'
-    t.value = int(t.value)
+    valor = int(t.value)
+    # Validamos la cota de enteros 16 bits    
+    if valor < -32768 or valor > 32767:
+        raise Exception(f"ERROR El número {valor} fuera de rango para un Int de 16 bits")
+    t.value = valor
     return t
 
 

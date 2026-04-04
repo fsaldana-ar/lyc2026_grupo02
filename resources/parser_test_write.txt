@@ -1,0 +1,4 @@
+write("ewr")
+write(var1)
+write(a+b)
+write("Hola Mundo")

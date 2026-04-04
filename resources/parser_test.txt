@@ -46,3 +46,8 @@ while(a > b OR b < a){a:=b}
 while(a < b OR b > a){a:=b}
 while(a <= b OR b >= a){a:=b}
 while(a == b OR b <> a){a:=b}
+
+write("ewr")
+write(var1)
+write(a+b)
+write("Hola Mundo")
