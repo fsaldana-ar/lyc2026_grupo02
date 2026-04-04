@@ -27,6 +27,7 @@ tokens = [
     'N_ENTERO',
     'N_FLOTANTE',
     'VARIABLE',
+    'MAS',
     'MENOS',
     'DIVISION',
     'MULTIPLICACION',
@@ -37,8 +38,7 @@ tokens = [
     'COMP_MENOR',
     'COMP_DISTINTO',
     'COMP_MAYOR_IGUAL',
-    'COMP_MENOR_IGUAL',
-    'MAS'
+    'COMP_MENOR_IGUAL'
 ] + list(reserved.values())
 
 
