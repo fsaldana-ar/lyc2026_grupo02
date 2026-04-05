@@ -124,10 +124,10 @@ def p_asignacion(p):
 
 
 def p_seleccion(p):
-    '''seleccion : IF A_PARENTESIS condicion_simple C_PARENTESIS A_LLAVE sentencia C_LLAVE
-                 | IF A_PARENTESIS condicion_simple C_PARENTESIS A_LLAVE sentencia C_LLAVE ELSE A_LLAVE sentencia C_LLAVE
-                 | IF A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE sentencia C_LLAVE
-                 | IF A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE sentencia C_LLAVE ELSE A_LLAVE sentencia C_LLAVE
+    '''seleccion : IF A_PARENTESIS condicion_simple C_PARENTESIS A_LLAVE programa C_LLAVE
+                 | IF A_PARENTESIS condicion_simple C_PARENTESIS A_LLAVE programa C_LLAVE ELSE A_LLAVE programa C_LLAVE
+                 | IF A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE programa C_LLAVE
+                 | IF A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE programa C_LLAVE ELSE A_LLAVE programa C_LLAVE
     '''
     if len(p) == 8:
         print(f'if ( {p.slice[3].type} ) {{ {p.slice[6].type} }} -> seleccion')
@@ -136,8 +136,8 @@ def p_seleccion(p):
 
 
 def p_ciclo_while(p):
-    '''ciclo_while : WHILE A_PARENTESIS condicion_simple C_PARENTESIS A_LLAVE sentencia C_LLAVE
-                   | WHILE A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE sentencia C_LLAVE
+    '''ciclo_while : WHILE A_PARENTESIS condicion_simple C_PARENTESIS A_LLAVE programa C_LLAVE
+                   | WHILE A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE programa C_LLAVE
     '''
     print(f'while ( {p.slice[3]} ) {{ {p.slice[6]} }} -> ciclo_while')
 
