@@ -100,6 +100,7 @@ def p_sentencia(p):
                  | seleccion
                  | ciclo_while
                  | salida
+                 | read
     '''# agregamos salida a sentencia para poder procesar las sentencias de escritura
     print(f'{p.slice[1].type} -> sentencia')
 
@@ -225,3 +226,6 @@ def ejecutar_parser():
     code = path_parser.read_text()
     parser.parse(code)
 
+def p_read(p):
+    '''read : READ A_PARENTESIS VARIABLE C_PARENTESIS'''
+    print(f'READ ( {p[3]} ) -> read')

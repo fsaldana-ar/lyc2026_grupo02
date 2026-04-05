@@ -104,3 +104,7 @@ while(a == b OR b <> a){a:=b}
 write("ewr")
 write(var1)
 write("Hola Mundo")
+
+read(x)
+read(variable)
+read(a)
