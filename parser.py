@@ -32,21 +32,24 @@ precedence = (
 )
 
 
-# def p_start(p):
-#     '''start : programa'''
-#     print('FIN')
-
-# El bloque init es opcional, por eso se agregan dos reglas EN START: una con init y otra sin init
-
 def p_start(p):
     '''start : bloque_init programa
-             | programa'''
-    print('ANÁLISIS FINALIZADO: Programa válido (con o sin INIT).')
+             | programa
+    '''
+    if len(p) == 3:
+        print(f'bloque_init programa -> start')
+    else:
+        print('programa -> start')
+
 
 def p_bloque_init(p):
     '''bloque_init : INIT A_LLAVE lista_declaraciones C_LLAVE
-                   | INIT A_LLAVE C_LLAVE'''
-    print('INFO: Bloque INIT procesado.')
+                   | INIT A_LLAVE C_LLAVE
+    '''
+    if len(p) == 4:
+        print(f'init {{ }} -> init')
+    else:
+        print(f'init {{ lista_declaraciones }} -> init')
 
 
 def p_lista_declaraciones(p):
@@ -60,8 +63,7 @@ def p_lista_declaraciones(p):
 
 
 def p_declaracion(p):
-    '''declaracion : lista_variables DOSPUNTOS tipo
-    '''
+    'declaracion : lista_variables DOSPUNTOS tipo'
     print(f'lista_variables DOSPUNTOS tipo -> declaracion')
 
 
@@ -101,16 +103,19 @@ def p_sentencia(p):
     '''# agregamos salida a sentencia para poder procesar las sentencias de escritura
     print(f'{p.slice[1].type} -> sentencia')
 
-#REGLA DEL WRITE
+
 def p_salida(p):
-    '''salida : WRITE A_PARENTESIS contenido_write C_PARENTESIS'''
-    print("REGLA: WRITE reconocido")
+    'salida : WRITE A_PARENTESIS contenido_write C_PARENTESIS'
+    print(f'write( contenido ) -> salida')
+
 
 def p_contenido_write(p):
     '''contenido_write : CTE_STRING
-                       | expresion'''
+                       | VARIABLE'''
+    print(f'{p.slice[1].type} -> contenido_write')
     # p[0] es el valor que sube, puede ser el texto o el resultado de una cuenta
     p[0] = p[1]
+
 
 def p_asignacion(p):
     '''asignacion : VARIABLE ASIGNACION expresion
@@ -156,6 +161,7 @@ def p_condicion_multiple(p):
 def p_expresion_menos(p):
     'expresion : expresion MENOS termino'
     print('expresion - termino -> expresion')
+
 
 def p_expresion_mas(p):
     'expresion : expresion MAS termino'

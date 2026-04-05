@@ -1,6 +1,12 @@
 *- PALABRAS RESERVADAS -*
 if
 else
+init
+read
+write
+Int
+Float
+String
 while
 NOT
 AND
@@ -9,13 +15,13 @@ OR
 *- OPERADORES-*
 :=
 -
++
 *
 /
 (
 )
 {
 }
-+
 
 *- VARIABLES / CONSTANTES -*
 c
@@ -30,6 +36,9 @@ e
 "string"
 "string09"
 "string 09 "
+"Hol@, Mundo"
+"Hola % Mundo"
+"        s t r i n g      "
 
 #+ Todo los siguientes comentarios se ignoran +#
 #+ Comentario +#

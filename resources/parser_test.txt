@@ -1,3 +1,11 @@
+init{
+    a,b : Int
+    c,d : Float
+    e,f : String
+    g,h,i,j : Int
+    k,l:Float
+}
+
 c:=d*(e-21)/4
 c:=d*(e+21)/2
 
@@ -50,5 +58,4 @@ while(a == b OR b <> a){a:=b}
 
 write("ewr")
 write(var1)
-write(a+b)
 write("Hola Mundo")
