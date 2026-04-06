@@ -41,6 +41,8 @@ tokens = [
     'COMP_MENOR_IGUAL'
 ] + list(reserved.values())
 
+states = (('COMMENT', 'exclusive'),)
+
 
 # Expresiones regulares para TOKENS simples
 t_MAS = r'\+'
@@ -99,6 +101,8 @@ def t_N_ENTERO(t):
 
 def t_VARIABLE(t):
     r'[a-zA-Z](\w|_)*'
+    if len(t.value) > 25:
+        raise Exception(f"ERROR LÉXICO: Identificador '{t.value}' de {len(t.value)} caracteres supera el máximo de 25. Línea {t.lexer.lineno}")
     t.type = reserved.get(t.value, 'VARIABLE')
     return t
 
@@ -112,9 +116,29 @@ def t_newline(t):
 # Ignorar tabulaciones y espacios
 t_ignore = ' \t'
 
+# Comentarios con estados para permitir anidamiento de un nivel
+def t_COMMENT(t):
+    r'\#\+'
+    t.lexer.comment_level = 1
+    t.lexer.begin('COMMENT')
 
-# Ignorar comentarios
-t_ignore_comentario = r'\#\+(?:(?!\#\+).)*?\+\#'
+def t_COMMENT_content(t):
+    r'[^\+\#]+'
+
+def t_COMMENT_nested(t):
+    r'\#\+'
+    t.lexer.comment_level += 1
+
+def t_COMMENT_end(t):
+    r'\+\#'
+    t.lexer.comment_level -= 1
+    if t.lexer.comment_level == 0:
+        t.lexer.begin('INITIAL')
+
+t_COMMENT_ignore = ' \t\n'
+
+def t_COMMENT_error(t):
+    pass
 
 
 # Manejo de errores

@@ -101,6 +101,8 @@ while(a <= b OR b >= a){
 }
 while(a == b OR b <> a){a:=b}
 
+# holas
+
 write("ewr")
 write(var1)
 write("Hola Mundo")

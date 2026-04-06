@@ -5,6 +5,37 @@ from lexer import tokens
 import ply.yacc as yacc  # analizador sintactico
 from pathlib import Path
 
+symbol_table = {}
+
+numeric_types = {'int', 'float'}
+
+def check_declared_variable(name):
+    if name not in symbol_table:
+        raise Exception(f"Variable '{name}' no declarada")
+    return symbol_table[name]['type']
+
+
+def are_comparable_types(left_type, right_type):
+    return left_type == right_type or ({left_type, right_type} <= numeric_types)
+
+
+def arithmetic_result_type(left_type, right_type):
+    if left_type == right_type:
+        return left_type
+    if {left_type, right_type} <= numeric_types:
+        return 'float'
+    raise Exception(f"Tipos incompatibles en operación aritmética: {left_type} vs {right_type}")
+
+
+def assignment_compatible(var_type, expr_type):
+    return var_type == expr_type or (var_type == 'float' and expr_type == 'int')
+
+
+def check_compatible_types(left_type, right_type, context):
+    if not are_comparable_types(left_type, right_type):
+        raise Exception(f"Tipo incompatible en {context}: {left_type} vs {right_type}")
+
+
 diccionarioComparadores = {
     ">=":   "BLT",
     ">":   "BLE",
@@ -64,7 +95,10 @@ def p_lista_declaraciones(p):
 
 def p_declaracion(p):
     'declaracion : lista_variables DOSPUNTOS tipo'
-    print(f'lista_variables DOSPUNTOS tipo -> declaracion')
+    for var in p[1]:
+        if var in symbol_table and symbol_table[var]['kind'] == 'variable':
+            raise Exception(f"Variable '{var}' ya declarada")
+        symbol_table[var] = {'type': p[3], 'kind': 'variable'}
 
 
 def p_lista_variables(p):
@@ -72,9 +106,9 @@ def p_lista_variables(p):
                        | VARIABLE
     '''
     if len(p) == 4:
-        print(f'lista_variables COMA VARIABLE -> lista_variables')
+        p[0] = p[1] + [p[3]]
     else:
-        print(f'VARIABLE -> lista_variables')
+        p[0] = [p[1]]
 
 
 def p_tipo(p):
@@ -82,7 +116,7 @@ def p_tipo(p):
             | FLOAT
             | STRING
     '''
-    print(f'{p.slice[1].type} -> tipo')
+    p[0] = p.slice[1].type.lower()
 
 
 def p_programa(p):
@@ -113,15 +147,24 @@ def p_salida(p):
 def p_contenido_write(p):
     '''contenido_write : CTE_STRING
                        | VARIABLE'''
+    if p.slice[1].type == 'CTE_STRING':
+        symbol_table[p[1]] = {'type': 'string', 'kind': 'constant', 'value': p[1]}
+        p[0] = 'string'
+    else:
+        p[0] = check_declared_variable(p[1])
     print(f'{p.slice[1].type} -> contenido_write')
     # p[0] es el valor que sube, puede ser el texto o el resultado de una cuenta
-    p[0] = p[1]
+    # p[0] = p[1]
 
 
 def p_asignacion(p):
     '''asignacion : VARIABLE ASIGNACION expresion
     '''
-    print(f'VARIABLE ASIGNACION {p.slice[3].type} -> asignacion')
+    var_type = check_declared_variable(p[1])
+    expr_type = p[3]
+    if not assignment_compatible(var_type, expr_type):
+        raise Exception(f"Tipo incompatible en asignación: {var_type} vs {expr_type}")
+    print(f'VARIABLE ASIGNACION expresion -> asignacion')
 
 
 def p_seleccion(p):
@@ -145,6 +188,10 @@ def p_ciclo_while(p):
 
 def p_condicion_simple(p):
     'condicion_simple : VARIABLE comparador VARIABLE'
+    left_type = check_declared_variable(p[1])
+    right_type = check_declared_variable(p[3])
+    check_compatible_types(left_type, right_type, 'condición')
+    p[0] = 'bool'
     print(f'VARIABLE comparador VARIABLE -> condicion_simple')
 
 
@@ -154,52 +201,70 @@ def p_condicion_multiple(p):
                           | condicion_simple AND condicion_simple
     '''
     if len(p) == 4:
+        p[0] = 'bool'
         print(f'condicion_simple {p.slice[2].type} condicion_simple -> condicion_multiple')
     else:
+        p[0] = 'bool'
         print(f'NOT condicion_simple -> condicion_multiple')
 
 
 def p_expresion_menos(p):
     'expresion : expresion MENOS termino'
+    p[0] = arithmetic_result_type(p[1], p[3])
     print('expresion - termino -> expresion')
 
 
 def p_expresion_mas(p):
     'expresion : expresion MAS termino'
+    p[0] = arithmetic_result_type(p[1], p[3])
     print('expresion + termino -> expresion')
 
 
 def p_expresion_termino(p):
     'expresion : termino'
+    p[0] = p[1]
     print('termino -> expresion')
 
 
 def p_termino_multiplicacion(p):
     'termino : termino MULTIPLICACION elemento'
+    p[0] = arithmetic_result_type(p[1], p[3])
     print('termino * elemento -> termino')
 
 
 def p_termino_division(p):
     'termino : termino DIVISION elemento'
+    p[0] = arithmetic_result_type(p[1], p[3])
     print('termino / elemento -> termino')
 
 
 def p_termino_elemento(p):
     'termino : elemento'
+    p[0] = p[1]
     print('elemento -> termino')
 
 
 def p_elemento_expresion(p):
     'elemento : A_PARENTESIS expresion C_PARENTESIS'
+    p[0] = p[2]
     print('( expresion ) -> elemento')
 
 
 def p_elemento(p):
     '''elemento : N_ENTERO
+                | N_FLOTANTE
                 | VARIABLE
     '''
+    if p.slice[1].type in ['N_ENTERO', 'N_FLOTANTE']:
+        tipo = 'int' if p.slice[1].type == 'N_ENTERO' else 'float'
+        symbol_table[p[1]] = {'type': tipo, 'kind': 'constant', 'value': p[1]}
+        p[0] = tipo
+    else:  # VARIABLE
+        if p[1] not in symbol_table:
+            raise Exception(f"Variable '{p[1]}' no declarada")
+        p[0] = symbol_table[p[1]]['type']
     print(f'{p.slice[1].type} -> elemento')
-    p[0] = p[1]
+    # p[0] = p[1]
 
 
 def p_comparador(p):
@@ -222,10 +287,17 @@ def p_error(p):
 def ejecutar_parser():
     # Build the parser
     parser = yacc.yacc()
-    path_parser = Path("./resources/parser_test.txt")
+    path_parser = Path("./resources/test.txt")
     code = path_parser.read_text()
     parser.parse(code)
+    # Write symbol table
+    with open('symbol-table.txt', 'w') as f:
+        for name, attrs in symbol_table.items():
+            value_str = f" = {attrs['value']}" if 'value' in attrs else ""
+            f.write(f"{name}: {attrs['type']} ({attrs['kind']}){value_str}\n")
 
 def p_read(p):
     '''read : READ A_PARENTESIS VARIABLE C_PARENTESIS'''
+    check_declared_variable(p[3])
+    p[0] = symbol_table[p[3]]['type']
     print(f'READ ( {p[3]} ) -> read')
