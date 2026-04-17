@@ -1,0 +1,19 @@
+Nombre                        TipoDato                      Valor                         Longitud                      
+variable_a                    -                             -                             -                             
+variable_b                    -                             -                             -                             
+variable_c                    -                             -                             -                             
+c                             -                             -                             -                             
+d                             -                             -                             -                             
+e                             -                             -                             -                             
+_21                           -                             21                            -                             
+_4                            -                             4                             -                             
+_19.1                         -                             19.1                          -                             
+_18.                          -                             18.                           -                             
+_.17                          -                             .17                           -                             
+_                             -                                                           0                             
+_string                       -                             string                        6                             
+_string09                     -                             string09                      8                             
+_string 09                    -                             string 09                     10                            
+_Hol@, Mundo                  -                             Hol@, Mundo                   11                            
+_Hola % Mundo                 -                             Hola % Mundo                  12                            
+_        s t r i n g          -                                     s t r i n g           25                            

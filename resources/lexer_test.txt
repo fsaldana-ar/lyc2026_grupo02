@@ -1,4 +1,4 @@
-*- PALABRAS RESERVADAS -*
+#+ PALABRAS RESERVADAS +#
 if
 else
 init
@@ -12,7 +12,7 @@ NOT
 AND
 OR
 
-*- OPERADORES-*
+#+ OPERADORES +#
 :=
 -
 +
@@ -23,7 +23,10 @@ OR
 {
 }
 
-*- VARIABLES / CONSTANTES -*
+#+ VARIABLES / CONSTANTES +#
+variable_a
+variable_b
+variable_c
 c
 d
 e

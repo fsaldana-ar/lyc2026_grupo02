@@ -2,6 +2,15 @@ import ply.lex as lex
 from pathlib import Path
 import re
 
+class Simbolo:
+    def __init__(self, nombre = "", tipo = "-", valor = "-", longitud = "-"):
+        self.nombre = nombre
+        self.tipo = tipo
+        self.valor = valor
+        self.longitud = longitud
+
+tabla_simbolos = {}
+
 reserved = {
     'if': 'IF',
     'else': 'ELSE',
@@ -62,7 +71,7 @@ t_A_LLAVE = r'{'
 t_C_LLAVE = r'}'
 
 
-# TODO: En estas funciones hay que verificar las cotas
+# TODO: Mirar que hacer en caso de que se tenga una cte_string son nada => ""
 def t_CTE_STRING(t):
     r'\"[^"]*\"' # Captura desde la primera " hasta la segunda " y permite cualquier caracter ej: "hol@"
     # Extraemos el contenido sin las comillas
@@ -74,6 +83,14 @@ def t_CTE_STRING(t):
 
     # Si llega acá, está todo bien. Guardamos el valor limpio.
     t.value = contenido
+
+    # creo el simbolo
+    simbolo = Simbolo()
+    simbolo.nombre = "_" + t.value
+    simbolo.valor = t.value
+    simbolo.longitud = len(t.value)
+
+    tabla_simbolos[simbolo.nombre] = simbolo
     return t
 
 
@@ -82,8 +99,15 @@ def t_N_FLOTANTE(t):
     valor = float(t.value)
     # Validamos la cota de flotantes 32 bits
     if valor < -3.4e38 or valor > 3.4e38:
-        raise Exception(f"ERROR El número {valor} fuera de rango para un Float de 32 bits") 
-    t.value=valor
+        raise Exception(f"ERROR El número {valor} fuera de rango para un Float de 32 bits")
+    
+    # creo el simbolo
+    simbolo = Simbolo()
+    simbolo.nombre = "_" + t.value
+    simbolo.valor = t.value
+
+    tabla_simbolos[simbolo.nombre] = simbolo
+    t.value = valor
     return t
 
 
@@ -93,6 +117,13 @@ def t_N_ENTERO(t):
     # Validamos la cota de enteros 16 bits    
     if valor < -32768 or valor > 32767:
         raise Exception(f"ERROR El número {valor} fuera de rango para un Int de 16 bits")
+
+    # creo el simbolo
+    simbolo = Simbolo()
+    simbolo.nombre = "_" + t.value
+    simbolo.valor = t.value
+    
+    tabla_simbolos[simbolo.nombre] = simbolo
     t.value = valor
     return t
 
@@ -100,6 +131,14 @@ def t_N_ENTERO(t):
 def t_VARIABLE(t):
     r'[a-zA-Z](\w|_)*'
     t.type = reserved.get(t.value, 'VARIABLE')
+
+    # verifico que es una variable
+    if t.type == "VARIABLE":
+        # creo el simbolo
+        simbolo = Simbolo()
+        simbolo.nombre = t.value
+        tabla_simbolos[simbolo.nombre] = simbolo
+    
     return t
 
 
@@ -135,3 +174,16 @@ def ejecutar_lexer():
         if not token:
             break
         print(f'TOKEN: {token.type} LEXEMA: {token.value}')
+    
+    with open('tabla_simbolos.txt', 'wt') as f:
+        # info de la cabecera
+        nombre = "Nombre"
+        tipo = "TipoDato"
+        valor = "Valor"
+        longitud = "Longitud"
+        espacio = 30
+
+        f.write(f'{nombre: <{espacio}}{tipo: <{espacio}}{valor: <{espacio}}{longitud: <{espacio}}\n')
+
+        for (k,v) in tabla_simbolos.items():
+            f.write(f'{k: <{espacio}}{v.tipo: <{espacio}}{v.valor: <{espacio}}{v.longitud: <{espacio}}\n')
