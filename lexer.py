@@ -24,6 +24,10 @@ reserved = {
     'String': 'STRING',#---> una variable de tipo string en la Declaracion de variables
     'Int': 'INT',#---> una variable de tipo entero en la Declaracion de variables
     'Float': 'FLOAT',#---> una variable de tipo flotante en la Declar
+
+    # Temas especiales
+    'MOD': 'MOD',
+    'DIV': 'DIV',
 }
 
 tokens = [

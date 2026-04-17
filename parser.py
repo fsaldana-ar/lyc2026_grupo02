@@ -158,6 +158,17 @@ def p_condicion_multiple(p):
         print(f'NOT condicion_simple -> condicion_multiple')
 
 
+# Temas especiales
+def p_modulo(p):
+    'modulo : expresion MOD expresion'
+    print(f'expresion MOD expresion -> modulo')
+
+
+def p_division(p):
+    'division : expresion DIV expresion'
+    print(f'expresion DIV expresion -> division')
+
+
 def p_expresion_menos(p):
     'expresion : expresion MENOS termino'
     print('expresion - termino -> expresion')
@@ -191,6 +202,26 @@ def p_termino_elemento(p):
 def p_elemento_expresion(p):
     'elemento : A_PARENTESIS expresion C_PARENTESIS'
     print('( expresion ) -> elemento')
+
+
+def p_elemento_modulo(p):
+    '''elemento : modulo
+                | A_PARENTESIS modulo C_PARENTESIS
+    '''
+    if len(p) == 2:
+        print('modulo -> elemento')
+    else:
+        print('( modulo ) -> elemento')
+
+
+def p_elemento_division(p):
+    '''elemento : division
+                | A_PARENTESIS division C_PARENTESIS
+    '''
+    if len(p) == 2:
+        print('division -> elemento')
+    else:
+        print('( division ) -> elemento')
 
 
 def p_elemento(p):
