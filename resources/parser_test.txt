@@ -116,3 +116,20 @@ a := 35 + (b DIV c) * 100
 a := 1 + 2 + 3 DIV 4 + 5 + 6
 
 a := (10 DIV 3) + (10 MOD 3)
+
+WHILE x IN [1,2,3]
+DO
+    write(x)
+ENDWHILE
+
+WHILE x IN [1+1, 2+2, 3+3]
+DO
+   write(x)
+ENDWHILE
+
+WHILE x IN [1,2,3,4]
+DO
+   if(x > a){
+     write(x)
+   }
+ENDWHILE

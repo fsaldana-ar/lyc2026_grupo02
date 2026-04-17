@@ -11,6 +11,11 @@ while
 NOT
 AND
 OR
+MOD
+DIV
+IN
+DO
+ENDWHILE
 
 #+ OPERADORES +#
 :=
@@ -22,6 +27,8 @@ OR
 )
 {
 }
+[
+]
 
 #+ VARIABLES / CONSTANTES +#
 variable_a

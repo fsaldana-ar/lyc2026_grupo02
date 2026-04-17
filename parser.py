@@ -99,6 +99,7 @@ def p_sentencia(p):
     '''sentencia : asignacion
                  | seleccion
                  | ciclo_while
+                 | ciclo_especial
                  | salida
     '''# agregamos salida a sentencia para poder procesar las sentencias de escritura
     print(f'{p.slice[1].type} -> sentencia')
@@ -142,6 +143,7 @@ def p_ciclo_while(p):
     print(f'while ( {p.slice[3]} ) {{ {p.slice[6]} }} -> ciclo_while')
 
 
+# TODO: mirar si esto deberia ser expresion en lugar de variable
 def p_condicion_simple(p):
     'condicion_simple : VARIABLE comparador VARIABLE'
     print(f'VARIABLE comparador VARIABLE -> condicion_simple')
@@ -167,6 +169,21 @@ def p_modulo(p):
 def p_division(p):
     'division : expresion DIV expresion'
     print(f'expresion DIV expresion -> division')
+
+
+def p_ciclo_especial(p):
+    'ciclo_especial : WHILE VARIABLE IN A_CORCHETE lista_expresiones C_CORCHETE DO programa ENDWHILE'
+    print(f'WHILE VARIABLE IN [ lista_expresiones ] DO programa ENDWHILE -> ciclo_especial')
+
+
+def p_lista_expresiones(p):
+    '''lista_expresiones : lista_expresiones COMA expresion
+                         | expresion
+    '''
+    if len(p) == 4:
+        print(f'lista_expresiones COMA expresion -> lista_expresiones')
+    else:
+        print(f'expresion -> lista_expresiones')
 
 
 def p_expresion_menos(p):

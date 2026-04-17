@@ -28,6 +28,10 @@ reserved = {
     # Temas especiales
     'MOD': 'MOD',
     'DIV': 'DIV',
+    'IN': 'IN',
+    'DO': 'DO',
+    'WHILE': 'WHILE',
+    'ENDWHILE': 'ENDWHILE',
 }
 
 tokens = [
@@ -51,7 +55,9 @@ tokens = [
     'COMP_MENOR',
     'COMP_DISTINTO',
     'COMP_MAYOR_IGUAL',
-    'COMP_MENOR_IGUAL'
+    'COMP_MENOR_IGUAL',
+    'A_CORCHETE',
+    'C_CORCHETE',
 ] + list(reserved.values())
 
 
@@ -73,6 +79,8 @@ t_COMP_MAYOR_IGUAL = r'>='
 t_COMP_MENOR_IGUAL = r'<='
 t_A_LLAVE = r'{'
 t_C_LLAVE = r'}'
+t_A_CORCHETE = r'\['
+t_C_CORCHETE = r'\]'
 
 
 # TODO: Mirar que hacer en caso de que se tenga una cte_string son nada => ""
