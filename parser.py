@@ -135,6 +135,7 @@ def p_sentencia(p):
                  | ciclo_while
                  | salida
                  | read
+                 | print
     '''# agregamos salida a sentencia para poder procesar las sentencias de escritura
     print(f'{p.slice[1].type} -> sentencia')
 
@@ -301,3 +302,18 @@ def p_read(p):
     check_declared_variable(p[3])
     p[0] = symbol_table[p[3]]['type']
     print(f'READ ( {p[3]} ) -> read')
+
+def p_print(p):
+    '''print : PRINT A_PARENTESIS contenido_write C_PARENTESIS'''
+    print(f'PRINT ( {p.slice[3].type} ) -> print')
+
+def p_list_expressions_single(p):
+    '''list_expressions : expresion'''
+    p[0] = [p[1]]
+
+def p_list_expressions_multiple(p):
+    '''list_expressions : list_expressions COMA expresion'''
+    p[0] = p[1] + [p[3]]
+
+def p_ciclo_while_in(p):
+    '''ciclo_while : WHILE VARIABLE IN CORCHETE_ABIERTO list_expressions CORCHETE_CERRADO DO programa ENDWHILE'''

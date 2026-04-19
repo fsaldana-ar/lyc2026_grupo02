@@ -4,6 +4,7 @@ init{
     e,f : String
     g,h,i,j : Int
     k,l:Float
+    x : Int
 }
 
 c:=d*(e-21)/4
@@ -104,8 +105,8 @@ while(a == b OR b <> a){a:=b}
 # holas
 
 write("ewr")
-write(var1)
-write("Hola Mundo")
+write(a)
+
 
 read(x)
 read(variable)

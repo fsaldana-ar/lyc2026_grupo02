@@ -9,20 +9,24 @@ reserved = {
     'NOT': 'NOT',
     'AND': 'AND',
     'OR': 'OR',
-    'init': 'INIT', #---> Para indicar el inicio del programa
-    'read': 'READ',#---> Para indicar que se va a leer una variable
-    'write': 'WRITE',#---> Para indicar que se va a escribir una variable
-    'String': 'STRING',#---> una variable de tipo string en la Declaracion de variables
-    'Int': 'INT',#---> una variable de tipo entero en la Declaracion de variables
-    'Float': 'FLOAT',#---> una variable de tipo flotante en la Declar
+    'init': 'INIT', 
+    'read': 'READ',
+    'write': 'WRITE',
+    'String': 'STRING',
+    'Int': 'INT',
+    'Float': 'FLOAT',
+    'in': 'IN',
+    'do': 'DO',
+    'endwhile': 'ENDWHILE',
+    'print': 'PRINT'
 }
 
 tokens = [
     'A_PARENTESIS',
     'C_PARENTESIS',
     'ASIGNACION',
-    'DOSPUNTOS',  #DOS PUNTOS PARA LA LISTA DE VARIABLES
-    'COMA',         # COMA PARA SEPARAR VARIABLES EN LA LISTA DE VARIABLES
+    'DOSPUNTOS',
+    'COMA',
     'CTE_STRING',
     'N_ENTERO',
     'N_FLOTANTE',
@@ -38,7 +42,9 @@ tokens = [
     'COMP_MENOR',
     'COMP_DISTINTO',
     'COMP_MAYOR_IGUAL',
-    'COMP_MENOR_IGUAL'
+    'COMP_MENOR_IGUAL',
+    'CORCHETE_ABIERTO',
+    'CORCHETE_CERRADO',
 ] + list(reserved.values())
 
 states = (('COMMENT', 'exclusive'),)
@@ -62,7 +68,8 @@ t_COMP_MAYOR_IGUAL = r'>='
 t_COMP_MENOR_IGUAL = r'<='
 t_A_LLAVE = r'{'
 t_C_LLAVE = r'}'
-
+t_CORCHETE_ABIERTO = r'\['
+t_CORCHETE_CERRADO = r'\]'
 
 # TODO: En estas funciones hay que verificar las cotas
 def t_CTE_STRING(t):

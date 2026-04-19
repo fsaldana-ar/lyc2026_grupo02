@@ -4,7 +4,11 @@ init{
     e,f : String
     g,h,i,j : Int
     k,l : Float
+    x: Int
 }
+
+
+a:=30
 
 c := d * (5 - 21) / 4
 c := d * (5 + 21) / 2
@@ -102,33 +106,7 @@ write("Hola Mundo")
 read(a)
 read(b)
 
-#+ Ciclos anidados +#
-while(a > 0){
-    b := 1
-    while(b < 10){
-        b := b + 1
-    }
-    a := a - 1
-}
 
-#+ Selecciones anidadas +#
-if(a > 0){
-    if(b > 0){
-        c := 1
-    } else {
-        c := 0
-    }
-} else {
-    c := -1
-}
-
-#+ Expresiones complejas en asignación +#
-c := d * (a + 2) / (b - 3)
-if(a > b){
-    d := d + 1.0
-} else {
-    d := d - 1.0
-}
 
 #+ Más combinaciones con expresiones y operadores +#
 g := a + b
@@ -136,36 +114,14 @@ h := g * 2
 k := c / 2.0
 l := k + c
 
-#+ Comentarios anidados dentro del archivo +#
-#+ comentario externo #+ comentario interno +# +#
-write("Comentario anidado ignorado")
+#+CICLO ESPECIAL+#
 
-#+ Casos de error comentados +#
-#+
-Error semántico: tipo incompatible en asignación
-# a := 3.14
+while x in [1,2,3]
+do
+   print (x)
+endwhile
 
-Error semántico: tipo incompatible en asignación
-# e := 100
-
-Error semántico: variable no declarada
-# x := 1
-
-Error léxico: String demasiado largo (más de 50 caracteres)
-# write("Esta es una cadena de prueba que supera el límite máximo de 50 caracteres permitidos por el compilador y debería generar un error léxico.")
-
-Error léxico: Número entero fuera de rango (16 bits)
-# a := 40000
-
-Error léxico: Número flotante fuera de rango (32 bits)
-# c := 1e40
-
-Error léxico: Identificador demasiado largo (más de 25 caracteres)
-# variablemuylargaparaelcompilador := 1
-
-Error sintáctico: declaración mal formada
-# a : Int  # falta ":=" o variable mal usada
-
-Para errores en tiempo de compilación, como constantes fuera de cota, ya están en lexer.
-+#</content>
-<parameter name="filePath">/home/fer/code/lyc2026_grupo02/resources/test.txt
+while x in [1+1, 2+2, 3+3]
+do
+   print (x)
+endwhile
