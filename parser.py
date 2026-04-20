@@ -77,14 +77,6 @@ def p_lista_variables(p):
         print(f'VARIABLE -> lista_variables')
 
 
-def p_tipo(p):
-    '''tipo : INT
-            | FLOAT
-            | STRING
-    '''
-    print(f'{p.slice[1].type} -> tipo')
-
-
 def p_programa(p):
     '''programa : programa sentencia
                 | sentencia
@@ -101,25 +93,27 @@ def p_sentencia(p):
                  | ciclo_while
                  | ciclo_especial
                  | salida
-    '''# agregamos salida a sentencia para poder procesar las sentencias de escritura
+                 | entrada
+    '''
     print(f'{p.slice[1].type} -> sentencia')
 
 
 def p_salida(p):
-    'salida : WRITE A_PARENTESIS contenido_write C_PARENTESIS'
-    print(f'write( contenido ) -> salida')
-
-
-def p_contenido_write(p):
-    '''contenido_write : CTE_STRING
-                       | VARIABLE'''
-    print(f'{p.slice[1].type} -> contenido_write')
+    '''salida : WRITE A_PARENTESIS VARIABLE C_PARENTESIS
+              | WRITE A_PARENTESIS CTE_STRING C_PARENTESIS'''
+    print(f'write( {p.slice[3].type} ) -> salida')
     # p[0] es el valor que sube, puede ser el texto o el resultado de una cuenta
     p[0] = p[1]
 
 
+def p_entrada(p):
+    'entrada : READ A_PARENTESIS VARIABLE C_PARENTESIS'
+    print(f'read ( variable ) -> read')
+
+
 def p_asignacion(p):
     '''asignacion : VARIABLE ASIGNACION expresion
+                  | VARIABLE ASIGNACION CTE_STRING
     '''
     print(f'VARIABLE ASIGNACION {p.slice[3].type} -> asignacion')
 
@@ -143,10 +137,9 @@ def p_ciclo_while(p):
     print(f'while ( {p.slice[3]} ) {{ {p.slice[6]} }} -> ciclo_while')
 
 
-# TODO: mirar si esto deberia ser expresion en lugar de variable
 def p_condicion_simple(p):
-    'condicion_simple : VARIABLE comparador VARIABLE'
-    print(f'VARIABLE comparador VARIABLE -> condicion_simple')
+    'condicion_simple : expresion comparador expresion'
+    print(f'expresion comparador expresion -> condicion_simple')
 
 
 def p_condicion_multiple(p):
@@ -173,7 +166,7 @@ def p_division(p):
 
 def p_ciclo_especial(p):
     'ciclo_especial : WHILE VARIABLE IN A_CORCHETE lista_expresiones C_CORCHETE DO programa ENDWHILE'
-    print(f'WHILE VARIABLE IN [ lista_expresiones ] DO programa ENDWHILE -> ciclo_especial')
+    print(f'while VARIABLE in [ lista_expresiones ] do programa endwhile -> ciclo_especial')
 
 
 def p_lista_expresiones(p):
@@ -242,11 +235,20 @@ def p_elemento_division(p):
 
 
 def p_elemento(p):
-    '''elemento : N_ENTERO
+    '''elemento : N_FLOTANTE
+                | N_ENTERO
                 | VARIABLE
     '''
     print(f'{p.slice[1].type} -> elemento')
     p[0] = p[1]
+
+
+def p_tipo(p):
+    '''tipo : INT
+            | FLOAT
+            | STRING
+    '''
+    print(f'{p.slice[1].type} -> tipo')
 
 
 def p_comparador(p):
@@ -269,7 +271,7 @@ def p_error(p):
 def ejecutar_parser():
     # Build the parser
     parser = yacc.yacc()
-    path_parser = Path("./resources/parser_test.txt")
+    path_parser = Path("./resources/test.txt")
     code = path_parser.read_text()
     parser.parse(code)
 

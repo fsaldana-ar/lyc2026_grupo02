@@ -12,80 +12,89 @@ class Simbolo:
 tabla_simbolos = {}
 
 reserved = {
+    'init': 'INIT',
+    
+    'read': 'READ',
+    'write': 'WRITE',
+    
     'if': 'IF',
     'else': 'ELSE',
-    'while': 'WHILE',
-    'NOT': 'NOT',
-    'AND': 'AND',
-    'OR': 'OR',
-    'init': 'INIT', #---> Para indicar el inicio del programa
-    'read': 'READ',#---> Para indicar que se va a leer una variable
-    'write': 'WRITE',#---> Para indicar que se va a escribir una variable
-    'String': 'STRING',#---> una variable de tipo string en la Declaracion de variables
-    'Int': 'INT',#---> una variable de tipo entero en la Declaracion de variables
-    'Float': 'FLOAT',#---> una variable de tipo flotante en la Declar
+    'or': 'OR',
+    'not': 'NOT',
+    'and': 'AND',
 
-    # Temas especiales
-    'MOD': 'MOD',
-    'DIV': 'DIV',
-    'IN': 'IN',
-    'DO': 'DO',
-    'WHILE': 'WHILE',
-    'ENDWHILE': 'ENDWHILE',
+    'mod': 'MOD',
+    'div': 'DIV',
+
+    'while': 'WHILE',
+    'in': 'IN',
+    'do': 'DO',
+    'endwhile': 'ENDWHILE',
+    
+    'Int': 'INT',
+    'Float': 'FLOAT',
+    'String': 'STRING',
 }
 
 tokens = [
-    'A_PARENTESIS',
-    'C_PARENTESIS',
+    'COMA',
+    'DOSPUNTOS',
     'ASIGNACION',
-    'DOSPUNTOS',  #DOS PUNTOS PARA LA LISTA DE VARIABLES
-    'COMA',         # COMA PARA SEPARAR VARIABLES EN LA LISTA DE VARIABLES
-    'CTE_STRING',
+    
+    'VARIABLE',
     'N_ENTERO',
     'N_FLOTANTE',
-    'VARIABLE',
+    'CTE_STRING',
+    
     'MAS',
     'MENOS',
     'DIVISION',
     'MULTIPLICACION',
-    'A_LLAVE',
-    'C_LLAVE',
+
     'COMP_IGUAL',
     'COMP_MAYOR',
     'COMP_MENOR',
     'COMP_DISTINTO',
     'COMP_MAYOR_IGUAL',
     'COMP_MENOR_IGUAL',
+
+    'A_LLAVE',
+    'C_LLAVE',
     'A_CORCHETE',
     'C_CORCHETE',
+    'A_PARENTESIS',
+    'C_PARENTESIS',
 ] + list(reserved.values())
 
 
 # Expresiones regulares para TOKENS simples
+t_COMA = r','
+t_DOSPUNTOS = r':'
+t_ASIGNACION = r':='
+
 t_MAS = r'\+'
 t_MENOS = r'-'
-t_MULTIPLICACION = r'\*'
 t_DIVISION = r'/'
-t_A_PARENTESIS = r'\('
-t_C_PARENTESIS = r'\)'
-t_ASIGNACION = r':='
-t_DOSPUNTOS = r':'
-t_COMA = r','
+t_MULTIPLICACION = r'\*'
+
 t_COMP_IGUAL = r'=='
 t_COMP_MAYOR = r'>'
 t_COMP_MENOR = r'<'
 t_COMP_DISTINTO = r'<>'
 t_COMP_MAYOR_IGUAL = r'>='
 t_COMP_MENOR_IGUAL = r'<='
+
 t_A_LLAVE = r'{'
 t_C_LLAVE = r'}'
 t_A_CORCHETE = r'\['
 t_C_CORCHETE = r'\]'
+t_A_PARENTESIS = r'\('
+t_C_PARENTESIS = r'\)'
 
 
-# TODO: Mirar que hacer en caso de que se tenga una cte_string son nada => ""
 def t_CTE_STRING(t):
     r'\"[^"]*\"' # Captura desde la primera " hasta la segunda " y permite cualquier caracter ej: "hol@"
+    
     # Extraemos el contenido sin las comillas
     contenido = t.value[1:-1]
 
@@ -108,10 +117,12 @@ def t_CTE_STRING(t):
 
 def t_N_FLOTANTE(t):
     r'\d+[.]\d*|[.]\d+'
+    
     valor = float(t.value)
+    
     # Validamos la cota de flotantes 32 bits
     if valor < -3.4e38 or valor > 3.4e38:
-        raise Exception(f"ERROR El número {valor} fuera de rango para un Float de 32 bits")
+        raise Exception(f"ERROR: El número {valor} esta fuera de rango para un Float de 32 bits")
     
     # creo el simbolo
     simbolo = Simbolo()
@@ -125,10 +136,12 @@ def t_N_FLOTANTE(t):
 
 def t_N_ENTERO(t):
     r'\d+'
+
     valor = int(t.value)
-    # Validamos la cota de enteros 16 bits    
+
+    # Validamos la cota de enteros 16 bits
     if valor < -32768 or valor > 32767:
-        raise Exception(f"ERROR El número {valor} fuera de rango para un Int de 16 bits")
+        raise Exception(f"ERROR: El número {valor} esta fuera de rango para un Int de 16 bits")
 
     # creo el simbolo
     simbolo = Simbolo()
@@ -142,10 +155,15 @@ def t_N_ENTERO(t):
 
 def t_VARIABLE(t):
     r'[a-zA-Z](\w|_)*'
+    
     t.type = reserved.get(t.value, 'VARIABLE')
 
     # verifico que es una variable
     if t.type == "VARIABLE":
+        # verifico la longitud
+        if len(t.value) > 20:
+            raise Exception(f"ERROR: La variable \"{t.value}\" esta fuera de rango para nombres de variables. Línea {t.lexer.lineno}")
+
         # creo el simbolo
         simbolo = Simbolo()
         simbolo.nombre = t.value
@@ -178,7 +196,7 @@ lexer = lex.lex(reflags=re.DOTALL)
 
 
 def ejecutar_lexer():
-    path_lexter = Path('./resources/lexer_test.txt')
+    path_lexter = Path('./resources/test.txt')
     data = path_lexter.read_text()
     lexer.input(data)
     while True:
@@ -187,15 +205,20 @@ def ejecutar_lexer():
             break
         print(f'TOKEN: {token.type} LEXEMA: {token.value}')
     
+    # guardamos la tabla de simbolos
     with open('tabla_simbolos.txt', 'wt') as f:
         # info de la cabecera
         nombre = "Nombre"
         tipo = "TipoDato"
         valor = "Valor"
         longitud = "Longitud"
-        espacio = 30
+        max_len_nombre = 51
+        max_len_tipo = 10
+        max_len_valor = max_len_nombre
+        
+        # escribimos la cabecera
+        f.write(f'{nombre: <{max_len_nombre}}{tipo: <{max_len_tipo}}{valor: <{max_len_valor}}{longitud}\n')
 
-        f.write(f'{nombre: <{espacio}}{tipo: <{espacio}}{valor: <{espacio}}{longitud: <{espacio}}\n')
-
+        # escribimos el resto de los datos
         for (k,v) in tabla_simbolos.items():
-            f.write(f'{k: <{espacio}}{v.tipo: <{espacio}}{v.valor: <{espacio}}{v.longitud: <{espacio}}\n')
+            f.write(f'{k: <{max_len_nombre}}{v.tipo: <{max_len_tipo}}{v.valor: <{max_len_valor}}{v.longitud}\n')
