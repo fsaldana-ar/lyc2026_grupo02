@@ -133,10 +133,13 @@ def p_sentencia(p):
     '''sentencia : asignacion
                  | seleccion
                  | ciclo_while
+                 | ciclo_especial
                  | salida
                  | read
                  | print
     '''# agregamos salida a sentencia para poder procesar las sentencias de escritura
+                 | entrada
+    '''
     print(f'{p.slice[1].type} -> sentencia')
 
 
@@ -158,8 +161,14 @@ def p_contenido_write(p):
     # p[0] = p[1]
 
 
+def p_entrada(p):
+    'entrada : READ A_PARENTESIS VARIABLE C_PARENTESIS'
+    print(f'read ( variable ) -> read')
+
+
 def p_asignacion(p):
     '''asignacion : VARIABLE ASIGNACION expresion
+                  | VARIABLE ASIGNACION CTE_STRING
     '''
     var_type = check_declared_variable(p[1])
     expr_type = p[3]
@@ -209,6 +218,32 @@ def p_condicion_multiple(p):
         print(f'NOT condicion_simple -> condicion_multiple')
 
 
+# Temas especiales
+def p_modulo(p):
+    'modulo : expresion MOD expresion'
+    print(f'expresion MOD expresion -> modulo')
+
+
+def p_division(p):
+    'division : expresion DIV expresion'
+    print(f'expresion DIV expresion -> division')
+
+
+def p_ciclo_especial(p):
+    'ciclo_especial : WHILE VARIABLE IN A_CORCHETE lista_expresiones C_CORCHETE DO programa ENDWHILE'
+    print(f'while VARIABLE in [ lista_expresiones ] do programa endwhile -> ciclo_especial')
+
+
+def p_lista_expresiones(p):
+    '''lista_expresiones : lista_expresiones COMA expresion
+                         | expresion
+    '''
+    if len(p) == 4:
+        print(f'lista_expresiones COMA expresion -> lista_expresiones')
+    else:
+        print(f'expresion -> lista_expresiones')
+
+
 def p_expresion_menos(p):
     'expresion : expresion MENOS termino'
     p[0] = arithmetic_result_type(p[1], p[3])
@@ -251,6 +286,26 @@ def p_elemento_expresion(p):
     print('( expresion ) -> elemento')
 
 
+def p_elemento_modulo(p):
+    '''elemento : modulo
+                | A_PARENTESIS modulo C_PARENTESIS
+    '''
+    if len(p) == 2:
+        print('modulo -> elemento')
+    else:
+        print('( modulo ) -> elemento')
+
+
+def p_elemento_division(p):
+    '''elemento : division
+                | A_PARENTESIS division C_PARENTESIS
+    '''
+    if len(p) == 2:
+        print('division -> elemento')
+    else:
+        print('( division ) -> elemento')
+
+
 def p_elemento(p):
     '''elemento : N_ENTERO
                 | N_FLOTANTE
@@ -266,6 +321,14 @@ def p_elemento(p):
         p[0] = symbol_table[p[1]]['type']
     print(f'{p.slice[1].type} -> elemento')
     # p[0] = p[1]
+
+
+def p_tipo(p):
+    '''tipo : INT
+            | FLOAT
+            | STRING
+    '''
+    print(f'{p.slice[1].type} -> tipo')
 
 
 def p_comparador(p):
