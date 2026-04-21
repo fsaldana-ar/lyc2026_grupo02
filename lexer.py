@@ -27,28 +27,19 @@ reserved = {
     'div': 'DIV',
 
     'while': 'WHILE',
-    'NOT': 'NOT',
-    'AND': 'AND',
-    'OR': 'OR',
-    'init': 'INIT', 
-    'read': 'READ',
-    'write': 'WRITE',
-    'String': 'STRING',
-    'Int': 'INT',
-    'Float': 'FLOAT',
     'in': 'IN',
     'do': 'DO',
     'endwhile': 'ENDWHILE',
-    'print': 'PRINT'
+    
+    'Int': 'INT',
+    'Float': 'FLOAT',
+    'String': 'STRING',
 }
 
 tokens = [
     'COMA',
     'DOSPUNTOS',
     'ASIGNACION',
-    'DOSPUNTOS',
-    'COMA',
-    'CTE_STRING',
     
     'VARIABLE',
     'N_ENTERO',
@@ -66,8 +57,6 @@ tokens = [
     'COMP_DISTINTO',
     'COMP_MAYOR_IGUAL',
     'COMP_MENOR_IGUAL',
-    'CORCHETE_ABIERTO',
-    'CORCHETE_CERRADO',
 
     'A_LLAVE',
     'C_LLAVE',
@@ -76,8 +65,6 @@ tokens = [
     'A_PARENTESIS',
     'C_PARENTESIS',
 ] + list(reserved.values())
-
-states = (('COMMENT', 'exclusive'),)
 
 
 # Expresiones regulares para TOKENS simples
@@ -99,8 +86,6 @@ t_COMP_MENOR_IGUAL = r'<='
 
 t_A_LLAVE = r'{'
 t_C_LLAVE = r'}'
-t_CORCHETE_ABIERTO = r'\['
-t_CORCHETE_CERRADO = r'\]'
 t_A_CORCHETE = r'\['
 t_C_CORCHETE = r'\]'
 t_A_PARENTESIS = r'\('
@@ -170,8 +155,7 @@ def t_N_ENTERO(t):
 
 def t_VARIABLE(t):
     r'[a-zA-Z](\w|_)*'
-    if len(t.value) > 25:
-        raise Exception(f"ERROR LÉXICO: Identificador '{t.value}' de {len(t.value)} caracteres supera el máximo de 25. Línea {t.lexer.lineno}")
+    
     t.type = reserved.get(t.value, 'VARIABLE')
 
     # verifico que es una variable
@@ -197,29 +181,9 @@ def t_newline(t):
 # Ignorar tabulaciones y espacios
 t_ignore = ' \t'
 
-# Comentarios con estados para permitir anidamiento de un nivel
-def t_COMMENT(t):
-    r'\#\+'
-    t.lexer.comment_level = 1
-    t.lexer.begin('COMMENT')
 
-def t_COMMENT_content(t):
-    r'[^\+\#]+'
-
-def t_COMMENT_nested(t):
-    r'\#\+'
-    t.lexer.comment_level += 1
-
-def t_COMMENT_end(t):
-    r'\+\#'
-    t.lexer.comment_level -= 1
-    if t.lexer.comment_level == 0:
-        t.lexer.begin('INITIAL')
-
-t_COMMENT_ignore = ' \t\n'
-
-def t_COMMENT_error(t):
-    pass
+# Ignorar comentarios
+t_ignore_comentario = r'\#\+(?:(?!\#\+).)*?\+\#'
 
 
 # Manejo de errores
