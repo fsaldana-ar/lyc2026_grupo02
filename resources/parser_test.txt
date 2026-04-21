@@ -1,1 +1,113 @@
+init{
+    a,b : Int
+    c,d : Float
+    e,f : String
+    g,h,i,j : Int
+    k,l:Float
+    x : Int
+}
+
 c:=d*(e-21)/4
+c:=d*(e+21)/2
+
+if(a > b){a:=b}
+if(a < b){
+    a:=a
+    b:=b
+}
+
+if(a > b){a:=b} else {a:=a}
+if(a < b){a:=b} else {
+    a:=a
+    b:=b
+}
+
+if(NOT a > b){a:=b}
+if(NOT a < b){
+    a:=a
+    b:=b
+}
+if(NOT a >= b){a:=b} else {a:=a}
+if(NOT a <= b){a:=b}
+if(NOT a <> b){a:=b}
+if(NOT a == b){a:=b} else {
+    a:=a
+    b:=b
+}
+
+if(a > b AND b < a){
+    a:=a
+    b:=b
+}
+if(a < b AND b > a){a:=b} else {
+    a:=a
+    b:=b
+}
+if(a <= b AND b >= a){a:=b}
+if(a == b AND b <> a){a:=b}
+
+if(a > b OR b < a){a:=b}
+if(a < b OR b > a){a:=b} else {
+    a:=a
+    b:=b
+}
+if(a <= b OR b >= a){
+    a:=a
+    b:=b
+}
+if(a == b OR b <> a){a:=b} else {a:=a}
+
+
+while(a > b){a:=b}
+while(a < b){
+    a:=a
+    b:=b
+}
+
+while(a > b){a:=b}
+while(a < b){
+    a:=a
+    b:=b
+}
+
+while(NOT a > b){a:=b}
+while(NOT a < b){
+    a:=a
+    b:=b
+}
+while(NOT a >= b){a:=b}
+while(NOT a <= b){
+    a:=a
+    b:=b
+}
+while(NOT a <> b){a:=b}
+while(NOT a == b){a:=b}
+
+while(a > b AND b < a){a:=b}
+while(a < b AND b > a){
+    a:=a
+    b:=b
+}
+while(a <= b AND b >= a){a:=b}
+while(a == b AND b <> a){
+    a:=a
+    b:=b
+}
+
+while(a > b OR b < a){a:=b}
+while(a < b OR b > a){a:=b}
+while(a <= b OR b >= a){
+    a:=a
+    b:=b
+}
+while(a == b OR b <> a){a:=b}
+
+# holas
+
+write("ewr")
+write(a)
+
+
+read(x)
+read(variable)
+read(a)
