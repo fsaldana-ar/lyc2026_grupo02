@@ -1,35 +1,84 @@
 # parser.out -> se genera solo
 
-# Se importan los tokens generado previamente en el lexer
-from lexer import tokens
+from lexer import tokens, tabla_simbolos
 import ply.yacc as yacc  # analizador sintactico
 from pathlib import Path
 
-diccionarioComparadores = {
-    ">=":   "BLT",
-    ">":   "BLE",
-    "<=":   "BGT",
-    "<":   "BGE",
-    "<>":   "BEQ",
-    "==":   "BNE"
-}
-
-diccionarioComparadoresNot = {
-    ">=":   "BGE",
-    ">":   "BGT",
-    "<=":   "BLE",
-    "<":   "BLT",
-    "<>":   "BNE",
-    "==":   "BEQ"
-}
-
+tercetos = []
+label_count = 0
 
 precedence = (
     ('right', 'ASIGNACION'),
-    ('right', 'MENOS','MAS'),
+    ('right', 'MENOS', 'MAS'),
     ('left', 'MULTIPLICACION', 'DIVISION'),
     ('left', 'A_PARENTESIS', 'C_PARENTESIS'),
 )
+
+
+def new_terceto(op, arg1, arg2):
+    index = len(tercetos) + 1
+    tercetos.append((op, arg1, arg2))
+    return index
+
+
+def new_label():
+    global label_count
+    label_count += 1
+    return f'L{label_count}'
+
+
+def format_operand(value):
+    if isinstance(value, int):
+        return f'[{value}]'
+    if isinstance(value, list):
+        return '[' + ', '.join(format_operand(v) for v in value) + ']'
+    return str(value)
+
+
+def write_intermediate_code(filename='intermediate-code.txt'):
+    with open(filename, 'wt', encoding='utf-8') as f:
+        for idx, terceto in enumerate(tercetos, start=1):
+            op, arg1, arg2 = terceto
+            f.write(f'[{idx}] ({op},{format_operand(arg1)},{format_operand(arg2)})\n')
+
+
+def write_symbol_table(filename='symbol-table.txt'):
+    with open(filename, 'wt', encoding='utf-8') as f:
+        nombre = 'Nombre'
+        tipo = 'TipoDato'
+        valor = 'Valor'
+        longitud = 'Longitud'
+        max_len_nombre = 30
+        max_len_tipo = 10
+        max_len_valor = 30
+        f.write(f'{nombre: <{max_len_nombre}}{tipo: <{max_len_tipo}}{valor: <{max_len_valor}}{longitud}\n')
+        for (k, v) in sorted(tabla_simbolos.items()):
+            longitud_str = v.longitud if k.startswith('_') else '-'
+            f.write(f'{k: <{max_len_nombre}}{v.tipo: <{max_len_tipo}}{str(v.valor): <{max_len_valor}}{longitud_str}\n')
+
+
+def check_variable_declarada(nombre, lineno=None):
+    simbolo = tabla_simbolos.get(nombre)
+    if not simbolo or simbolo.tipo == '-' or simbolo.tipo == '':
+        linea = f' linea {lineno}' if lineno else ''
+        raise Exception(f'ERROR SEMÁNTICO: variable "{nombre}" no declarada.{linea}')
+    return simbolo.tipo
+
+
+def is_numeric(tipo):
+    return tipo in ('Int', 'Float')
+
+
+def compatibilidad_numerica(tipo1, tipo2):
+    if not is_numeric(tipo1) or not is_numeric(tipo2):
+        return False
+    return True
+
+
+def obtener_tipo_aritmetico(tipo1, tipo2):
+    if 'Float' in (tipo1, tipo2):
+        return 'Float'
+    return 'Int'
 
 
 def p_start(p):
@@ -37,7 +86,7 @@ def p_start(p):
              | programa
     '''
     if len(p) == 3:
-        print(f'bloque_init programa -> start')
+        print('bloque_init programa -> start')
     else:
         print('programa -> start')
 
@@ -47,9 +96,9 @@ def p_bloque_init(p):
                    | INIT A_LLAVE C_LLAVE
     '''
     if len(p) == 4:
-        print(f'init {{ }} -> init')
+        print('init { } -> init')
     else:
-        print(f'init {{ lista_declaraciones }} -> init')
+        print('init { lista_declaraciones } -> init')
 
 
 def p_lista_declaraciones(p):
@@ -57,14 +106,22 @@ def p_lista_declaraciones(p):
                            | declaracion
     '''
     if len(p) == 3:
-        print(f'lista_declaraciones declaracion -> lista_declaraciones')
+        print('lista_declaraciones declaracion -> lista_declaraciones')
     else:
-        print(f'declaracion -> lista_declaraciones')
+        print('declaracion -> lista_declaraciones')
 
 
 def p_declaracion(p):
     'declaracion : lista_variables DOSPUNTOS tipo'
-    print(f'lista_variables DOSPUNTOS tipo -> declaracion')
+    print('lista_variables DOSPUNTOS tipo -> declaracion')
+    tipo = p[3]['tipo']
+    for var in p[1]:
+        simbolo = tabla_simbolos.get(var)
+        if simbolo is None:
+            raise Exception(f'ERROR SEMÁNTICO: variable "{var}" no declarada en la sección de declaración')
+        if simbolo.tipo != '-':
+            raise Exception(f'ERROR SEMÁNTICO: variable "{var}" ya declarada')
+        simbolo.tipo = tipo
 
 
 def p_lista_variables(p):
@@ -72,9 +129,11 @@ def p_lista_variables(p):
                        | VARIABLE
     '''
     if len(p) == 4:
-        print(f'lista_variables COMA VARIABLE -> lista_variables')
+        print('lista_variables COMA VARIABLE -> lista_variables')
+        p[0] = p[1] + [p[3]]
     else:
-        print(f'VARIABLE -> lista_variables')
+        print('VARIABLE -> lista_variables')
+        p[0] = [p[1]]
 
 
 def p_programa(p):
@@ -82,9 +141,13 @@ def p_programa(p):
                 | sentencia
     '''
     if len(p) == 3:
-        print(f'programa sentencia -> programa')
+        print('programa sentencia -> programa')
+        p[0] = p[1]
+        if p[2] is not None:
+            p[0].append(p[2])
     else:
-        print(f'sentencia -> programa')
+        print('sentencia -> programa')
+        p[0] = [p[1]] if p[1] is not None else []
 
 
 def p_sentencia(p):
@@ -96,19 +159,27 @@ def p_sentencia(p):
                  | entrada
     '''
     print(f'{p.slice[1].type} -> sentencia')
+    p[0] = p[1]
 
 
 def p_salida(p):
     '''salida : WRITE A_PARENTESIS VARIABLE C_PARENTESIS
               | WRITE A_PARENTESIS CTE_STRING C_PARENTESIS'''
     print(f'write( {p.slice[3].type} ) -> salida')
-    # p[0] es el valor que sube, puede ser el texto o el resultado de una cuenta
-    p[0] = p[1]
+    if p.slice[3].type == 'VARIABLE':
+        tipo = check_variable_declarada(p[3], p.lineno(3))
+        arg = p[3]
+    else:
+        arg = f'"{p[3]}"'
+        tipo = 'String'
+    p[0] = new_terceto('WRITE', arg, '-')
 
 
 def p_entrada(p):
     'entrada : READ A_PARENTESIS VARIABLE C_PARENTESIS'
-    print(f'read ( variable ) -> read')
+    print('read ( variable ) -> read')
+    check_variable_declarada(p[3], p.lineno(3))
+    p[0] = new_terceto('READ', p[3], '-')
 
 
 def p_asignacion(p):
@@ -116,6 +187,15 @@ def p_asignacion(p):
                   | VARIABLE ASIGNACION CTE_STRING
     '''
     print(f'VARIABLE ASIGNACION {p.slice[3].type} -> asignacion')
+    left = p[1]
+    left_tipo = check_variable_declarada(left, p.lineno(1))
+    if p.slice[3].type == 'CTE_STRING':
+        right = {'ref': f'"{p[3]}"', 'tipo': 'String'}
+    else:
+        right = p[3]
+    if left_tipo != right['tipo']:
+        raise Exception(f'ERROR SEMÁNTICO: asignación incompatible para "{left}". Esperado {left_tipo} pero se obtuvo {right["tipo"]}. Línea {p.lineno(1)}')
+    p[0] = new_terceto(':=', left, right['ref'])
 
 
 def p_seleccion(p):
@@ -126,8 +206,28 @@ def p_seleccion(p):
     '''
     if len(p) == 8:
         print(f'if ( {p.slice[3].type} ) {{ {p.slice[6].type} }} -> seleccion')
+        else_label = new_label()
+        end_label = new_label()
+        new_terceto('IF_FALSE', p[3]['ref'], else_label)
+        # cuerpo verdadero
+        if p[6] is not None:
+            pass
+        new_terceto('GOTO', end_label, '-')
+        new_terceto('LABEL', else_label, '-')
+        new_terceto('LABEL', end_label, '-')
     else:
         print(f'if ( {p.slice[3].type} ) {{ {p.slice[6].type} }} else {{ {p.slice[10].type} }} -> seleccion')
+        else_label = new_label()
+        end_label = new_label()
+        new_terceto('IF_FALSE', p[3]['ref'], else_label)
+        if p[6] is not None:
+            pass
+        new_terceto('GOTO', end_label, '-')
+        new_terceto('LABEL', else_label, '-')
+        if p[10] is not None:
+            pass
+        new_terceto('LABEL', end_label, '-')
+    p[0] = None
 
 
 def p_ciclo_while(p):
@@ -135,11 +235,25 @@ def p_ciclo_while(p):
                    | WHILE A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE programa C_LLAVE
     '''
     print(f'while ( {p.slice[3]} ) {{ {p.slice[6]} }} -> ciclo_while')
+    start_label = new_label()
+    end_label = new_label()
+    new_terceto('LABEL', start_label, '-')
+    new_terceto('IF_FALSE', p[3]['ref'], end_label)
+    if p[6] is not None:
+        pass
+    new_terceto('GOTO', start_label, '-')
+    new_terceto('LABEL', end_label, '-')
+    p[0] = None
 
 
 def p_condicion_simple(p):
     'condicion_simple : expresion comparador expresion'
-    print(f'expresion comparador expresion -> condicion_simple')
+    print('expresion comparador expresion -> condicion_simple')
+    left = p[1]
+    right = p[3]
+    if left['tipo'] != right['tipo'] and not (is_numeric(left['tipo']) and is_numeric(right['tipo'])):
+        raise Exception(f'ERROR SEMÁNTICO: comparador incompatible entre {left["tipo"]} y {right["tipo"]}. Línea {p.lineno(2)}')
+    p[0] = {'ref': new_terceto(p[2], left['ref'], right['ref']), 'tipo': 'Bool'}
 
 
 def p_condicion_multiple(p):
@@ -149,24 +263,44 @@ def p_condicion_multiple(p):
     '''
     if len(p) == 4:
         print(f'condicion_simple {p.slice[2].type} condicion_simple -> condicion_multiple')
+        left = p[1]
+        right = p[3]
+        op = p[2].upper()
+        p[0] = {'ref': new_terceto(op, left['ref'], right['ref']), 'tipo': 'Bool'}
     else:
-        print(f'NOT condicion_simple -> condicion_multiple')
+        print('NOT condicion_simple -> condicion_multiple')
+        p[0] = {'ref': new_terceto('NOT', p[2]['ref'], '-'), 'tipo': 'Bool'}
 
 
 # Temas especiales
 def p_modulo(p):
     'modulo : expresion MOD expresion'
-    print(f'expresion MOD expresion -> modulo')
+    print('expresion MOD expresion -> modulo')
+    left = p[1]
+    right = p[3]
+    if not compatibilidad_numerica(left['tipo'], right['tipo']):
+        raise Exception(f'ERROR SEMÁNTICO: modulo incompatible entre {left["tipo"]} y {right["tipo"]}. Línea {p.lineno(2)}')
+    resultado = obtener_tipo_aritmetico(left['tipo'], right['tipo'])
+    p[0] = {'ref': new_terceto('MOD', left['ref'], right['ref']), 'tipo': resultado}
 
 
 def p_division(p):
     'division : expresion DIV expresion'
-    print(f'expresion DIV expresion -> division')
+    print('expresion DIV expresion -> division')
+    left = p[1]
+    right = p[3]
+    if not compatibilidad_numerica(left['tipo'], right['tipo']):
+        raise Exception(f'ERROR SEMÁNTICO: div incompatible entre {left["tipo"]} y {right["tipo"]}. Línea {p.lineno(2)}')
+    resultado = obtener_tipo_aritmetico(left['tipo'], right['tipo'])
+    p[0] = {'ref': new_terceto('DIV', left['ref'], right['ref']), 'tipo': resultado}
 
 
 def p_ciclo_especial(p):
     'ciclo_especial : WHILE VARIABLE IN A_CORCHETE lista_expresiones C_CORCHETE DO programa ENDWHILE'
-    print(f'while VARIABLE in [ lista_expresiones ] do programa endwhile -> ciclo_especial')
+    print('while VARIABLE in [ lista_expresiones ] do programa endwhile -> ciclo_especial')
+    check_variable_declarada(p[2], p.lineno(2))
+    new_terceto('WHILE_IN', p[2], p[5]['refs'])
+    p[0] = None
 
 
 def p_lista_expresiones(p):
@@ -174,44 +308,69 @@ def p_lista_expresiones(p):
                          | expresion
     '''
     if len(p) == 4:
-        print(f'lista_expresiones COMA expresion -> lista_expresiones')
+        print('lista_expresiones COMA expresion -> lista_expresiones')
+        p[0] = {'refs': p[1]['refs'] + [p[3]['ref']]}
     else:
-        print(f'expresion -> lista_expresiones')
+        print('expresion -> lista_expresiones')
+        p[0] = {'refs': [p[1]['ref']]}
 
 
 def p_expresion_menos(p):
     'expresion : expresion MENOS termino'
     print('expresion - termino -> expresion')
+    left = p[1]
+    right = p[3]
+    if not compatibilidad_numerica(left['tipo'], right['tipo']):
+        raise Exception(f'ERROR SEMÁNTICO: operación '-' incompatible entre {left["tipo"]} y {right["tipo"]}. Línea {p.lineno(2)}')
+    p[0] = {'ref': new_terceto('-', left['ref'], right['ref']), 'tipo': obtener_tipo_aritmetico(left['tipo'], right['tipo'])}
 
 
 def p_expresion_mas(p):
     'expresion : expresion MAS termino'
     print('expresion + termino -> expresion')
+    left = p[1]
+    right = p[3]
+    if not compatibilidad_numerica(left['tipo'], right['tipo']):
+        raise Exception(f"ERROR SEMÁNTICO: operación '+' incompatible entre {left['tipo']} y {right['tipo']}. Línea {p.lineno(2)}")
+    p[0] = {'ref': new_terceto('+', left['ref'], right['ref']), 'tipo': obtener_tipo_aritmetico(left['tipo'], right['tipo'])}
 
 
 def p_expresion_termino(p):
     'expresion : termino'
     print('termino -> expresion')
+    p[0] = p[1]
 
 
 def p_termino_multiplicacion(p):
     'termino : termino MULTIPLICACION elemento'
     print('termino * elemento -> termino')
+    left = p[1]
+    right = p[3]
+    if not compatibilidad_numerica(left['tipo'], right['tipo']):
+        raise Exception(f'ERROR SEMÁNTICO: operación '*' incompatible entre {left["tipo"]} y {right["tipo"]}. Línea {p.lineno(2)}')
+    p[0] = {'ref': new_terceto('*', left['ref'], right['ref']), 'tipo': obtener_tipo_aritmetico(left['tipo'], right['tipo'])}
 
 
 def p_termino_division(p):
     'termino : termino DIVISION elemento'
     print('termino / elemento -> termino')
+    left = p[1]
+    right = p[3]
+    if not compatibilidad_numerica(left['tipo'], right['tipo']):
+        raise Exception(f"ERROR SEMÁNTICO: operación '/' incompatible entre {left['tipo']} y {right['tipo']}. Línea {p.lineno(2)}")
+    p[0] = {'ref': new_terceto('/', left['ref'], right['ref']), 'tipo': obtener_tipo_aritmetico(left['tipo'], right['tipo'])}
 
 
 def p_termino_elemento(p):
     'termino : elemento'
     print('elemento -> termino')
+    p[0] = p[1]
 
 
 def p_elemento_expresion(p):
     'elemento : A_PARENTESIS expresion C_PARENTESIS'
     print('( expresion ) -> elemento')
+    p[0] = p[2]
 
 
 def p_elemento_modulo(p):
@@ -220,8 +379,10 @@ def p_elemento_modulo(p):
     '''
     if len(p) == 2:
         print('modulo -> elemento')
+        p[0] = p[1]
     else:
         print('( modulo ) -> elemento')
+        p[0] = p[2]
 
 
 def p_elemento_division(p):
@@ -230,17 +391,31 @@ def p_elemento_division(p):
     '''
     if len(p) == 2:
         print('division -> elemento')
+        p[0] = p[1]
     else:
         print('( division ) -> elemento')
+        p[0] = p[2]
 
 
 def p_elemento(p):
     '''elemento : N_FLOTANTE
                 | N_ENTERO
+                | CTE_STRING
                 | VARIABLE
     '''
     print(f'{p.slice[1].type} -> elemento')
-    p[0] = p[1]
+    token_type = p.slice[1].type
+    if token_type == 'VARIABLE':
+        tipo = check_variable_declarada(p[1], p.lineno(1))
+        p[0] = {'ref': p[1], 'tipo': tipo}
+    elif token_type == 'N_FLOTANTE':
+        p[0] = {'ref': str(p[1]), 'tipo': 'Float'}
+    elif token_type == 'N_ENTERO':
+        p[0] = {'ref': str(p[1]), 'tipo': 'Int'}
+    elif token_type == 'CTE_STRING':
+        p[0] = {'ref': f'"{p[1]}"', 'tipo': 'String'}
+    else:
+        p[0] = {'ref': str(p[1]), 'tipo': '-'}
 
 
 def p_tipo(p):
@@ -249,6 +424,7 @@ def p_tipo(p):
             | STRING
     '''
     print(f'{p.slice[1].type} -> tipo')
+    p[0] = {'tipo': p[1]}
 
 
 def p_comparador(p):
@@ -260,7 +436,7 @@ def p_comparador(p):
                   | COMP_MENOR_IGUAL
     '''
     print(f'{p.slice[1].type} -> comparador')
-    #print(f'{p.slice[1].value} -> comparador')
+    p[0] = p[1]
 
 
 # Error rule for syntax errors
@@ -269,9 +445,10 @@ def p_error(p):
 
 
 def ejecutar_parser():
-    # Build the parser
     parser = yacc.yacc()
-    path_parser = Path("./resources/test.txt")
+    path_parser = Path('./resources/test.txt')
     code = path_parser.read_text()
     parser.parse(code)
+    write_symbol_table('symbol-table.txt')
+    write_intermediate_code('intermediate-code.txt')
 

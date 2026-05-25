@@ -108,6 +108,7 @@ def t_CTE_STRING(t):
     # creo el simbolo
     simbolo = Simbolo()
     simbolo.nombre = "_" + t.value
+    simbolo.tipo = 'String'
     simbolo.valor = t.value
     simbolo.longitud = len(t.value)
 
@@ -127,6 +128,7 @@ def t_N_FLOTANTE(t):
     # creo el simbolo
     simbolo = Simbolo()
     simbolo.nombre = "_" + t.value
+    simbolo.tipo = 'Float'
     simbolo.valor = t.value
 
     tabla_simbolos[simbolo.nombre] = simbolo
@@ -146,6 +148,7 @@ def t_N_ENTERO(t):
     # creo el simbolo
     simbolo = Simbolo()
     simbolo.nombre = "_" + t.value
+    simbolo.tipo = 'Int'
     simbolo.valor = t.value
     
     tabla_simbolos[simbolo.nombre] = simbolo
@@ -164,10 +167,14 @@ def t_VARIABLE(t):
         if len(t.value) > 20:
             raise Exception(f"ERROR: La variable \"{t.value}\" esta fuera de rango para nombres de variables. Línea {t.lexer.lineno}")
 
-        # creo el simbolo
-        simbolo = Simbolo()
-        simbolo.nombre = t.value
-        tabla_simbolos[simbolo.nombre] = simbolo
+        # sólo creo el símbolo si no existe aún
+        if t.value not in tabla_simbolos:
+            simbolo = Simbolo()
+            simbolo.nombre = t.value
+            simbolo.tipo = '-'
+            simbolo.valor = '-'
+            simbolo.longitud = len(t.value)
+            tabla_simbolos[simbolo.nombre] = simbolo
     
     return t
 
@@ -204,21 +211,3 @@ def ejecutar_lexer():
         if not token:
             break
         print(f'TOKEN: {token.type} LEXEMA: {token.value}')
-    
-    # guardamos la tabla de simbolos
-    with open('tabla_simbolos.txt', 'wt') as f:
-        # info de la cabecera
-        nombre = "Nombre"
-        tipo = "TipoDato"
-        valor = "Valor"
-        longitud = "Longitud"
-        max_len_nombre = 51
-        max_len_tipo = 10
-        max_len_valor = max_len_nombre
-        
-        # escribimos la cabecera
-        f.write(f'{nombre: <{max_len_nombre}}{tipo: <{max_len_tipo}}{valor: <{max_len_valor}}{longitud}\n')
-
-        # escribimos el resto de los datos
-        for (k,v) in tabla_simbolos.items():
-            f.write(f'{k: <{max_len_nombre}}{v.tipo: <{max_len_tipo}}{v.valor: <{max_len_valor}}{v.longitud}\n')
