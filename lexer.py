@@ -1,15 +1,7 @@
 import ply.lex as lex
 from pathlib import Path
 import re
-
-class Simbolo:
-    def __init__(self, nombre = "", tipo = "-", valor = "-", longitud = "-"):
-        self.nombre = nombre
-        self.tipo = tipo
-        self.valor = valor
-        self.longitud = longitud
-
-tabla_simbolos = {}
+from i_token import Itoken
 
 reserved = {
     'init': 'INIT',
@@ -105,13 +97,9 @@ def t_CTE_STRING(t):
     # Si llega acá, está todo bien. Guardamos el valor limpio.
     t.value = contenido
 
-    # creo el simbolo
-    simbolo = Simbolo()
-    simbolo.nombre = "_" + t.value
-    simbolo.valor = t.value
-    simbolo.longitud = len(t.value)
-
-    tabla_simbolos[simbolo.nombre] = simbolo
+    # creo y almaceno el token
+    token = Itoken("_" + t.value,t.value)
+    Itoken.set_token(token)
     return t
 
 
@@ -124,12 +112,9 @@ def t_N_FLOTANTE(t):
     if valor < -3.4e38 or valor > 3.4e38:
         raise Exception(f"ERROR: El número {valor} esta fuera de rango para un Float de 32 bits")
     
-    # creo el simbolo
-    simbolo = Simbolo()
-    simbolo.nombre = "_" + t.value
-    simbolo.valor = t.value
-
-    tabla_simbolos[simbolo.nombre] = simbolo
+    # creo y almaceno el token
+    token = Itoken("_" + t.value,t.value)
+    Itoken.set_token(token)
     t.value = valor
     return t
 
@@ -143,12 +128,9 @@ def t_N_ENTERO(t):
     if valor < -32768 or valor > 32767:
         raise Exception(f"ERROR: El número {valor} esta fuera de rango para un Int de 16 bits")
 
-    # creo el simbolo
-    simbolo = Simbolo()
-    simbolo.nombre = "_" + t.value
-    simbolo.valor = t.value
-    
-    tabla_simbolos[simbolo.nombre] = simbolo
+    # creo y almaceno el token
+    token = Itoken("_" + t.value,t.value)
+    Itoken.set_token(token)
     t.value = valor
     return t
 
@@ -163,11 +145,10 @@ def t_VARIABLE(t):
         # verifico la longitud
         if len(t.value) > 20:
             raise Exception(f"ERROR: La variable \"{t.value}\" esta fuera de rango para nombres de variables. Línea {t.lexer.lineno}")
-
-        # creo el simbolo
-        simbolo = Simbolo()
-        simbolo.nombre = t.value
-        tabla_simbolos[simbolo.nombre] = simbolo
+        
+        # creo y almaceno el token
+        token = Itoken(t.value,"-")
+        Itoken.set_token(token)
     
     return t
 
@@ -220,5 +201,5 @@ def ejecutar_lexer():
         f.write(f'{nombre: <{max_len_nombre}}{tipo: <{max_len_tipo}}{valor: <{max_len_valor}}{longitud}\n')
 
         # escribimos el resto de los datos
-        for (k,v) in tabla_simbolos.items():
+        for (k,v) in Itoken.get_token_dict().items():
             f.write(f'{k: <{max_len_nombre}}{v.tipo: <{max_len_tipo}}{v.valor: <{max_len_valor}}{v.longitud}\n')
