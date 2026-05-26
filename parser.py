@@ -6,6 +6,7 @@ from pathlib import Path
 
 tercetos = []
 label_count = 0
+EMPTY_OPERAND = '_'  # Constante para operandos vacíos en tercetos
 
 precedence = (
     ('right', 'ASIGNACION'),
@@ -172,14 +173,14 @@ def p_salida(p):
     else:
         arg = f'"{p[3]}"'
         tipo = 'String'
-    p[0] = new_terceto('WRITE', arg, '-')
+    p[0] = new_terceto('WRITE', arg, EMPTY_OPERAND)
 
 
 def p_entrada(p):
     'entrada : READ A_PARENTESIS VARIABLE C_PARENTESIS'
     print('read ( variable ) -> read')
     check_variable_declarada(p[3], p.lineno(3))
-    p[0] = new_terceto('READ', p[3], '-')
+    p[0] = new_terceto('READ', p[3], EMPTY_OPERAND)
 
 
 def p_asignacion(p):
@@ -212,9 +213,9 @@ def p_seleccion(p):
         # cuerpo verdadero
         if p[6] is not None:
             pass
-        new_terceto('GOTO', end_label, '-')
-        new_terceto('LABEL', else_label, '-')
-        new_terceto('LABEL', end_label, '-')
+        new_terceto('GOTO', end_label, EMPTY_OPERAND)
+        new_terceto('LABEL', else_label, EMPTY_OPERAND)
+        new_terceto('LABEL', end_label, EMPTY_OPERAND)
     else:
         print(f'if ( {p.slice[3].type} ) {{ {p.slice[6].type} }} else {{ {p.slice[10].type} }} -> seleccion')
         else_label = new_label()
@@ -222,11 +223,11 @@ def p_seleccion(p):
         new_terceto('IF_FALSE', p[3]['ref'], else_label)
         if p[6] is not None:
             pass
-        new_terceto('GOTO', end_label, '-')
-        new_terceto('LABEL', else_label, '-')
+        new_terceto('GOTO', end_label, EMPTY_OPERAND)
+        new_terceto('LABEL', else_label, EMPTY_OPERAND)
         if p[10] is not None:
             pass
-        new_terceto('LABEL', end_label, '-')
+        new_terceto('LABEL', end_label, EMPTY_OPERAND)
     p[0] = None
 
 
@@ -237,12 +238,12 @@ def p_ciclo_while(p):
     print(f'while ( {p.slice[3]} ) {{ {p.slice[6]} }} -> ciclo_while')
     start_label = new_label()
     end_label = new_label()
-    new_terceto('LABEL', start_label, '-')
+    new_terceto('LABEL', start_label, EMPTY_OPERAND)
     new_terceto('IF_FALSE', p[3]['ref'], end_label)
     if p[6] is not None:
         pass
-    new_terceto('GOTO', start_label, '-')
-    new_terceto('LABEL', end_label, '-')
+    new_terceto('GOTO', start_label, EMPTY_OPERAND)
+    new_terceto('LABEL', end_label, EMPTY_OPERAND)
     p[0] = None
 
 
@@ -269,7 +270,7 @@ def p_condicion_multiple(p):
         p[0] = {'ref': new_terceto(op, left['ref'], right['ref']), 'tipo': 'Bool'}
     else:
         print('NOT condicion_simple -> condicion_multiple')
-        p[0] = {'ref': new_terceto('NOT', p[2]['ref'], '-'), 'tipo': 'Bool'}
+        p[0] = {'ref': new_terceto('NOT', p[2]['ref'], EMPTY_OPERAND), 'tipo': 'Bool'}
 
 
 # Temas especiales
