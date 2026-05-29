@@ -52,3 +52,7 @@ if (a < b){
 } else {
     c := d
 }
+
+read(a)
+write(b)
+write("Test")

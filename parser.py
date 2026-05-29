@@ -120,12 +120,16 @@ def p_salida(p):
     '''salida : WRITE A_PARENTESIS VARIABLE C_PARENTESIS
               | WRITE A_PARENTESIS CTE_STRING C_PARENTESIS'''
     print(f'write( {p.slice[3].type} ) -> salida')
-    p[0] = p[1]
+    if p.slice[3].type == "CTE_STRING":
+        terceto.crear_terceto('WRITE',f'"{p[3]}"')
+    else:
+        terceto.crear_terceto('WRITE',p[3])
 
 
 def p_entrada(p):
     'entrada : READ A_PARENTESIS VARIABLE C_PARENTESIS'
     print(f'read ( variable ) -> read')
+    terceto.crear_terceto('READ',p[3])
 
 
 def p_asignacion(p):
