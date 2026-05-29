@@ -39,6 +39,10 @@ terceto = Terceto()
 # para indices de tercetos con expresiones
 indice_terceto_expresion = []
 
+# para indices de selecciones if
+indice_comienzo_seleccion = []
+indice_comienzo_seleccion_else = []
+
 
 def p_start(p):
     '''start : bloque_init programa
@@ -128,16 +132,28 @@ def p_asignacion(p):
     terceto.crear_terceto(':=',p[1],f'[{indice}]')
 
 
+def p_seleccion_else(p):
+    'seleccion_else : ELSE'
+    indice = terceto.crear_terceto('BI')
+    indice_comienzo_seleccion_else.append(indice)
+
+
 def p_seleccion(p):
     '''seleccion : IF A_PARENTESIS condicion_simple C_PARENTESIS A_LLAVE programa C_LLAVE
-                 | IF A_PARENTESIS condicion_simple C_PARENTESIS A_LLAVE programa C_LLAVE ELSE A_LLAVE programa C_LLAVE
+                 | IF A_PARENTESIS condicion_simple C_PARENTESIS A_LLAVE programa C_LLAVE seleccion_else A_LLAVE programa C_LLAVE
                  | IF A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE programa C_LLAVE
-                 | IF A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE programa C_LLAVE ELSE A_LLAVE programa C_LLAVE
+                 | IF A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE programa C_LLAVE seleccion_else A_LLAVE programa C_LLAVE
     '''
     if len(p) == 8:
         print(f'if ( {p.slice[3].type} ) {{ {p.slice[6].type} }} -> seleccion')
+        indice = terceto.get_indice()
+        terceto.modificar_terceto(indice_comienzo_seleccion.pop(),None,f'[{indice}]')
     else:
         print(f'if ( {p.slice[3].type} ) {{ {p.slice[6].type} }} else {{ {p.slice[10].type} }} -> seleccion')
+        indice = terceto.get_indice()
+        indice_else = indice_comienzo_seleccion_else.pop()
+        terceto.modificar_terceto(indice_comienzo_seleccion.pop(),None,f'[{indice_else + 1}]')
+        terceto.modificar_terceto(indice_else,None,f'[{indice}]')
 
 
 def p_ciclo_while(p):
@@ -150,6 +166,10 @@ def p_ciclo_while(p):
 def p_condicion_simple(p):
     'condicion_simple : expresion comparador expresion'
     print(f'expresion comparador expresion -> condicion_simple')
+    terceto.crear_terceto('CMP')
+    indice = terceto.crear_terceto(diccionarioComparadores.get(p[2]))
+    indice_comienzo_seleccion.append(indice)
+    p[0] = p[2]
 
 
 def p_condicion_multiple(p):
@@ -284,6 +304,7 @@ def p_comparador(p):
     '''
     print(f'{p.slice[1].type} -> comparador')
     #print(f'{p.slice[1].value} -> comparador')
+    p[0] = p[1]
 
 
 # Error rule for syntax errors
