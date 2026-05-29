@@ -177,7 +177,7 @@ lexer = lex.lex(reflags=re.DOTALL)
 
 
 def ejecutar_lexer():
-    path_lexter = Path('./resources/test.txt')
+    path_lexter = Path('./resources/test_tercetos.txt')
     data = path_lexter.read_text()
     lexer.input(data)
     while True:
@@ -187,7 +187,7 @@ def ejecutar_lexer():
         print(f'TOKEN: {token.type} LEXEMA: {token.value}')
     
     # guardamos la tabla de simbolos
-    with open('tabla_simbolos.txt', 'wt') as f:
+    with open('symbol-table.txt', 'wt') as f:
         # info de la cabecera
         nombre = "Nombre"
         tipo = "TipoDato"

@@ -4,6 +4,7 @@
 from lexer import tokens
 import ply.yacc as yacc  # analizador sintactico
 from pathlib import Path
+from terceto import Terceto
 
 diccionarioComparadores = {
     ">=":   "BLT",
@@ -30,6 +31,13 @@ precedence = (
     ('left', 'MULTIPLICACION', 'DIVISION'),
     ('left', 'A_PARENTESIS', 'C_PARENTESIS'),
 )
+
+
+# Variables para la creacion de codigo intermedio
+terceto = Terceto()
+
+# para indices de tercetos con expresiones
+indice_terceto_expresion = []
 
 
 def p_start(p):
@@ -116,6 +124,8 @@ def p_asignacion(p):
                   | VARIABLE ASIGNACION CTE_STRING
     '''
     print(f'VARIABLE ASIGNACION {p.slice[3].type} -> asignacion')
+    indice = terceto.get_indice() - 1
+    terceto.crear_terceto(':=',p[1],f'[{indice}]')
 
 
 def p_seleccion(p):
@@ -182,11 +192,17 @@ def p_lista_expresiones(p):
 def p_expresion_menos(p):
     'expresion : expresion MENOS termino'
     print('expresion - termino -> expresion')
+    t1 = indice_terceto_expresion.pop()
+    t2 = indice_terceto_expresion.pop()
+    indice_terceto_expresion.append(terceto.crear_terceto('-',f'[{t2}]',f'[{t1}]'))
 
 
 def p_expresion_mas(p):
     'expresion : expresion MAS termino'
     print('expresion + termino -> expresion')
+    t1 = indice_terceto_expresion.pop()
+    t2 = indice_terceto_expresion.pop()
+    indice_terceto_expresion.append(terceto.crear_terceto('+',f'[{t2}]',f'[{t1}]'))
 
 
 def p_expresion_termino(p):
@@ -197,11 +213,17 @@ def p_expresion_termino(p):
 def p_termino_multiplicacion(p):
     'termino : termino MULTIPLICACION elemento'
     print('termino * elemento -> termino')
+    t1 = indice_terceto_expresion.pop()
+    t2 = indice_terceto_expresion.pop()
+    indice_terceto_expresion.append(terceto.crear_terceto('*',f'[{t2}]',f'[{t1}]'))
 
 
 def p_termino_division(p):
     'termino : termino DIVISION elemento'
     print('termino / elemento -> termino')
+    t1 = indice_terceto_expresion.pop()
+    t2 = indice_terceto_expresion.pop()
+    indice_terceto_expresion.append(terceto.crear_terceto('/',f'[{t2}]',f'[{t1}]'))
 
 
 def p_termino_elemento(p):
@@ -240,6 +262,7 @@ def p_elemento(p):
                 | VARIABLE
     '''
     print(f'{p.slice[1].type} -> elemento')
+    indice_terceto_expresion.append(terceto.crear_terceto(p[1]))
     p[0] = p[1]
 
 
@@ -271,7 +294,7 @@ def p_error(p):
 def ejecutar_parser():
     # Build the parser
     parser = yacc.yacc()
-    path_parser = Path("./resources/test.txt")
+    path_parser = Path("./resources/test_tercetos.txt")
     code = path_parser.read_text()
     parser.parse(code)
-
+    terceto.almacenar_tercetos()

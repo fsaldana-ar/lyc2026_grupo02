@@ -1,0 +1,17 @@
+#+ ************** Declaracion de variables ************** +#
+init {
+    a, b, c, d : Int
+    e, f, g, h : Float
+    nombre : String
+}
+
+#+ ************** Ciclos Especiales Validos ************** +#
+
+#+ a := b +#
+#+ a := b + c +#
+#+ a := b - c +#
+#+ a := b * c +#
+#+ a := b / c +#
+#+ a := b + c - b * d + a - c / d +#
+#+ a := a + b * c / d - a / b + c +#
+#+ a := b + c - ( a * b + c / d) + 1 * 0 +#
