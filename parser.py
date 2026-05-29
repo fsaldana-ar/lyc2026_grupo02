@@ -40,8 +40,14 @@ terceto = Terceto()
 indice_terceto_expresion = []
 
 # para indices de selecciones if
+flag_ciclo_seleccion = False
 indice_comienzo_seleccion = []
 indice_comienzo_seleccion_else = []
+
+# para indices de ciclo while
+flag_ciclo_while = False
+indice_etiqueta_ciclo_while = []
+indice_comienzo_ciclo_while = []
 
 
 def p_start(p):
@@ -114,7 +120,6 @@ def p_salida(p):
     '''salida : WRITE A_PARENTESIS VARIABLE C_PARENTESIS
               | WRITE A_PARENTESIS CTE_STRING C_PARENTESIS'''
     print(f'write( {p.slice[3].type} ) -> salida')
-    # p[0] es el valor que sube, puede ser el texto o el resultado de una cuenta
     p[0] = p[1]
 
 
@@ -132,6 +137,12 @@ def p_asignacion(p):
     terceto.crear_terceto(':=',p[1],f'[{indice}]')
 
 
+def p_comienzo_seleccion_if(p):
+    'comienzo_seleccion_if : IF'
+    global flag_ciclo_seleccion
+    flag_ciclo_seleccion = True
+
+
 def p_seleccion_else(p):
     'seleccion_else : ELSE'
     indice = terceto.crear_terceto('BI')
@@ -139,10 +150,10 @@ def p_seleccion_else(p):
 
 
 def p_seleccion(p):
-    '''seleccion : IF A_PARENTESIS condicion_simple C_PARENTESIS A_LLAVE programa C_LLAVE
-                 | IF A_PARENTESIS condicion_simple C_PARENTESIS A_LLAVE programa C_LLAVE seleccion_else A_LLAVE programa C_LLAVE
-                 | IF A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE programa C_LLAVE
-                 | IF A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE programa C_LLAVE seleccion_else A_LLAVE programa C_LLAVE
+    '''seleccion : comienzo_seleccion_if A_PARENTESIS condicion_simple C_PARENTESIS A_LLAVE programa C_LLAVE
+                 | comienzo_seleccion_if A_PARENTESIS condicion_simple C_PARENTESIS A_LLAVE programa C_LLAVE seleccion_else A_LLAVE programa C_LLAVE
+                 | comienzo_seleccion_if A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE programa C_LLAVE
+                 | comienzo_seleccion_if A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE programa C_LLAVE seleccion_else A_LLAVE programa C_LLAVE
     '''
     if len(p) == 8:
         print(f'if ( {p.slice[3].type} ) {{ {p.slice[6].type} }} -> seleccion')
@@ -156,11 +167,23 @@ def p_seleccion(p):
         terceto.modificar_terceto(indice_else,None,f'[{indice}]')
 
 
+def p_comienzo_ciclo_while(p):
+    'comienzo_ciclo_while : WHILE'
+    global flag_ciclo_while
+    flag_ciclo_while = True
+    indice = terceto.crear_terceto('WHILE')
+    indice_etiqueta_ciclo_while.append(indice)
+
+
 def p_ciclo_while(p):
-    '''ciclo_while : WHILE A_PARENTESIS condicion_simple C_PARENTESIS A_LLAVE programa C_LLAVE
-                   | WHILE A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE programa C_LLAVE
+    '''ciclo_while : comienzo_ciclo_while A_PARENTESIS condicion_simple C_PARENTESIS A_LLAVE programa C_LLAVE
+                   | comienzo_ciclo_while A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE programa C_LLAVE
     '''
     print(f'while ( {p.slice[3]} ) {{ {p.slice[6]} }} -> ciclo_while')
+    indice = terceto.crear_terceto('BI')
+    terceto.modificar_terceto(indice,None,f'[{indice_etiqueta_ciclo_while.pop()}]')
+    indice = terceto.get_indice()
+    terceto.modificar_terceto(indice_comienzo_ciclo_while.pop(),None,f'[{indice}]')
 
 
 def p_condicion_simple(p):
@@ -168,7 +191,16 @@ def p_condicion_simple(p):
     print(f'expresion comparador expresion -> condicion_simple')
     terceto.crear_terceto('CMP')
     indice = terceto.crear_terceto(diccionarioComparadores.get(p[2]))
-    indice_comienzo_seleccion.append(indice)
+
+    global flag_ciclo_seleccion
+    global flag_ciclo_while
+
+    if flag_ciclo_seleccion:
+        flag_ciclo_seleccion = False
+        indice_comienzo_seleccion.append(indice)
+    if flag_ciclo_while:
+        flag_ciclo_while = False
+        indice_comienzo_ciclo_while.append(indice)
     p[0] = p[2]
 
 
@@ -181,6 +213,8 @@ def p_condicion_multiple(p):
         print(f'condicion_simple {p.slice[2].type} condicion_simple -> condicion_multiple')
     else:
         print(f'NOT condicion_simple -> condicion_multiple')
+        indice = terceto.get_indice()
+        terceto.modificar_terceto(indice - 1,diccionarioComparadoresNot.get(p[2]))
 
 
 # Temas especiales

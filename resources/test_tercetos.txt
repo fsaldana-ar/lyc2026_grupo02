@@ -16,7 +16,28 @@ init {
 #+ a := a + b * c / d - a / b + c +#
 #+ a := b + c - ( a * b + c / d) + 1 * 0 +#
 
-if (a == b){
+
+while(a>b){
+    if(c == b){
+        while(c <> d){
+            a:= d
+        }
+    }
+    
+    a:=b
+}
+
+while(a < b){
+    while(c > d){
+        while(a<>c){
+            a:=b
+        }
+        a:=c
+    }
+    a:=d
+}
+
+if (not a == b){
     a := d
 }
 
