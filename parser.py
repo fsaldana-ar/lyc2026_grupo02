@@ -6,6 +6,13 @@ import ply.yacc as yacc  # analizador sintactico
 from pathlib import Path
 from terceto import Terceto
 
+# TODO: 
+# hacer la verificacion de variables declaradas
+# hacer la verificacion de tipos en operaciones aritmeticas y comparaciones
+# hacer el codigo intermedio para condiciones multiples
+# hacer el codigo intermedio para ciclo while especial
+# hacer el archivo de test unico, verificando la generacion de los tercetos
+
 diccionarioComparadores = {
     ">=":   "BLT",
     ">":   "BLE",
@@ -225,11 +232,17 @@ def p_condicion_multiple(p):
 def p_modulo(p):
     'modulo : expresion MOD expresion'
     print(f'expresion MOD expresion -> modulo')
+    t1 = indice_terceto_expresion.pop()
+    t2 = indice_terceto_expresion.pop()
+    terceto.crear_terceto('MOD',f'[{t2}]',f'[{t1}]')
 
 
 def p_division(p):
     'division : expresion DIV expresion'
     print(f'expresion DIV expresion -> division')
+    t1 = indice_terceto_expresion.pop()
+    t2 = indice_terceto_expresion.pop()
+    terceto.crear_terceto('DIV',f'[{t2}]',f'[{t1}]')
 
 
 def p_ciclo_especial(p):
@@ -341,7 +354,6 @@ def p_comparador(p):
                   | COMP_MENOR_IGUAL
     '''
     print(f'{p.slice[1].type} -> comparador')
-    #print(f'{p.slice[1].value} -> comparador')
     p[0] = p[1]
 
 
