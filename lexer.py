@@ -1,6 +1,6 @@
+import re
 import ply.lex as lex
 from pathlib import Path
-import re
 from i_token import Itoken
 
 reserved = {
@@ -84,6 +84,9 @@ t_A_PARENTESIS = r'\('
 t_C_PARENTESIS = r'\)'
 
 
+itoken = Itoken()
+
+
 def t_CTE_STRING(t):
     r'\"[^"]*\"' # Captura desde la primera " hasta la segunda " y permite cualquier caracter ej: "hol@"
     
@@ -98,8 +101,7 @@ def t_CTE_STRING(t):
     t.value = contenido
 
     # creo y almaceno el token
-    token = Itoken("_" + t.value,t.value)
-    Itoken.set_token(token)
+    itoken.crear_token("_" + t.value,t.value,"cte_str",len(t.value))
     return t
 
 
@@ -113,8 +115,7 @@ def t_N_FLOTANTE(t):
         raise Exception(f"ERROR: El número {valor} esta fuera de rango para un Float de 32 bits")
     
     # creo y almaceno el token
-    token = Itoken("_" + t.value,t.value)
-    Itoken.set_token(token)
+    itoken.crear_token("_" + t.value,t.value,"cte_float")
     t.value = valor
     return t
 
@@ -129,8 +130,7 @@ def t_N_ENTERO(t):
         raise Exception(f"ERROR: El número {valor} esta fuera de rango para un Int de 16 bits")
 
     # creo y almaceno el token
-    token = Itoken("_" + t.value,t.value)
-    Itoken.set_token(token)
+    itoken.crear_token("_" + t.value,t.value,"cte_int")
     t.value = valor
     return t
 
@@ -147,8 +147,7 @@ def t_VARIABLE(t):
             raise Exception(f"ERROR: La variable \"{t.value}\" esta fuera de rango para nombres de variables. Línea {t.lexer.lineno}")
         
         # creo y almaceno el token
-        token = Itoken(t.value,"-")
-        Itoken.set_token(token)
+        itoken.crear_token(t.value,"-")
     
     return t
 
@@ -186,20 +185,5 @@ def ejecutar_lexer():
             break
         print(f'TOKEN: {token.type} LEXEMA: {token.value}')
     
-    # guardamos la tabla de simbolos
-    with open('symbol-table.txt', 'wt') as f:
-        # info de la cabecera
-        nombre = "Nombre"
-        tipo = "TipoDato"
-        valor = "Valor"
-        longitud = "Longitud"
-        max_len_nombre = 51
-        max_len_tipo = 10
-        max_len_valor = max_len_nombre
-        
-        # escribimos la cabecera
-        f.write(f'{nombre: <{max_len_nombre}}{tipo: <{max_len_tipo}}{valor: <{max_len_valor}}{longitud}\n')
-
-        # escribimos el resto de los datos
-        for (k,v) in Itoken.get_token_dict().items():
-            f.write(f'{k: <{max_len_nombre}}{v.tipo: <{max_len_tipo}}{v.valor: <{max_len_valor}}{v.longitud}\n')
+    # guardamos los tokens y su informacion en la tabla de simbolos
+    itoken.almacenar_tokens()

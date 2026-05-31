@@ -4,10 +4,10 @@
 from lexer import tokens
 import ply.yacc as yacc  # analizador sintactico
 from pathlib import Path
+from i_token import Itoken
 from terceto import Terceto
 
-# TODO: 
-# hacer la verificacion de variables declaradas
+# TODO:
 # hacer la verificacion de tipos en operaciones aritmeticas y comparaciones
 # hacer el codigo intermedio para condiciones multiples
 # hacer el codigo intermedio para ciclo while especial
@@ -39,6 +39,7 @@ precedence = (
     ('left', 'A_PARENTESIS', 'C_PARENTESIS'),
 )
 
+itoken = Itoken()
 
 # Variables para la creacion de codigo intermedio
 terceto = Terceto()
@@ -91,6 +92,16 @@ def p_declaracion(p):
     'declaracion : lista_variables DOSPUNTOS tipo'
     print(f'lista_variables DOSPUNTOS tipo -> declaracion')
 
+    for v in p[1]:
+        token = itoken.get_token(v)
+
+        if token == None:
+            raise Exception(f'Erro: Variable "{v}" no declarada en la sección de declaración')
+        if itoken.get_tipo(v) != '-':
+            raise Exception(f'Error: Variable "{v}" ya declarada')
+        
+        itoken.set_tipo(v,p[3])
+
 
 def p_lista_variables(p):
     '''lista_variables : lista_variables COMA VARIABLE
@@ -98,8 +109,10 @@ def p_lista_variables(p):
     '''
     if len(p) == 4:
         print(f'lista_variables COMA VARIABLE -> lista_variables')
+        p[0] = p[1] + [p[3]]
     else:
         print(f'VARIABLE -> lista_variables')
+        p[0] = [p[1]]
 
 
 def p_programa(p):
@@ -130,12 +143,14 @@ def p_salida(p):
     if p.slice[3].type == "CTE_STRING":
         terceto.crear_terceto('WRITE',f'"{p[3]}"')
     else:
+        verificar_variable_declarada(p,p[3])
         terceto.crear_terceto('WRITE',p[3])
 
 
 def p_entrada(p):
     'entrada : READ A_PARENTESIS VARIABLE C_PARENTESIS'
     print(f'read ( variable ) -> read')
+    verificar_variable_declarada(p,p[3])
     terceto.crear_terceto('READ',p[3])
 
 
@@ -144,6 +159,7 @@ def p_asignacion(p):
                   | VARIABLE ASIGNACION CTE_STRING
     '''
     print(f'VARIABLE ASIGNACION {p.slice[3].type} -> asignacion')
+    verificar_variable_declarada(p,p[1])
     indice = terceto.get_indice() - 1
     terceto.crear_terceto(':=',p[1],f'[{indice}]')
 
@@ -245,6 +261,7 @@ def p_division(p):
     terceto.crear_terceto('DIV',f'[{t2}]',f'[{t1}]')
 
 
+# TODO: verificar la variable utilizada
 def p_ciclo_especial(p):
     'ciclo_especial : WHILE VARIABLE IN A_CORCHETE lista_expresiones C_CORCHETE DO programa ENDWHILE'
     print(f'while VARIABLE in [ lista_expresiones ] do programa endwhile -> ciclo_especial')
@@ -333,6 +350,9 @@ def p_elemento(p):
                 | VARIABLE
     '''
     print(f'{p.slice[1].type} -> elemento')
+    if p.slice[1].type == "VARIABLE":
+        verificar_variable_declarada(p,p[1])
+    
     indice_terceto_expresion.append(terceto.crear_terceto(p[1]))
     p[0] = p[1]
 
@@ -343,6 +363,7 @@ def p_tipo(p):
             | STRING
     '''
     print(f'{p.slice[1].type} -> tipo')
+    p[0] = p[1]
 
 
 def p_comparador(p):
@@ -357,6 +378,13 @@ def p_comparador(p):
     p[0] = p[1]
 
 
+def verificar_variable_declarada(p,var):
+    token = itoken.get_token(var)
+
+    if token == None or itoken.get_tipo(var) == "-":
+        raise Exception(f'Error: Variable "{var}" no declarada. Linea: {p.lineno(1)}')
+
+
 # Error rule for syntax errors
 def p_error(p):
     raise Exception(f"Error en la linea {p.lineno or ''} at {p.value or ''}")
@@ -364,8 +392,10 @@ def p_error(p):
 
 def ejecutar_parser():
     # Build the parser
+    itoken.cargar_tokens()
     parser = yacc.yacc()
     path_parser = Path("./resources/test_tercetos.txt")
     code = path_parser.read_text()
     parser.parse(code)
+    itoken.almacenar_tokens()
     terceto.almacenar_tercetos()
