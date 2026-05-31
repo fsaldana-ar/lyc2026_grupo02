@@ -140,6 +140,7 @@ def p_salida(p):
     '''salida : WRITE A_PARENTESIS VARIABLE C_PARENTESIS
               | WRITE A_PARENTESIS CTE_STRING C_PARENTESIS'''
     print(f'write( {p.slice[3].type} ) -> salida')
+
     if p.slice[3].type == "CTE_STRING":
         terceto.crear_terceto('WRITE',f'"{p[3]}"')
     else:
@@ -150,6 +151,7 @@ def p_salida(p):
 def p_entrada(p):
     'entrada : READ A_PARENTESIS VARIABLE C_PARENTESIS'
     print(f'read ( variable ) -> read')
+    
     verificar_variable_declarada(p,p[3])
     terceto.crear_terceto('READ',p[3])
 
@@ -159,7 +161,19 @@ def p_asignacion(p):
                   | VARIABLE ASIGNACION CTE_STRING
     '''
     print(f'VARIABLE ASIGNACION {p.slice[3].type} -> asignacion')
+
     verificar_variable_declarada(p,p[1])
+    tipo_a = itoken.get_tipo(p[1])
+
+    if p.slice[3].type == 'CTE_STRING':
+        tipo_b = 'cte_string'
+    else:
+        tipo_b = p[3]['tipo']
+    
+    if tipo_a != tipo_b:
+        if tipo_a == 'String' and tipo_b != 'cte_string':
+            raise Exception(f'Error: Asignación incompatible para "{p[1]}". Esperado {tipo_a} pero se obtuvo {tipo_b}. Línea {p.lineno(1)}')
+    
     indice = terceto.get_indice() - 1
     terceto.crear_terceto(':=',p[1],f'[{indice}]')
 
@@ -207,6 +221,7 @@ def p_ciclo_while(p):
                    | comienzo_ciclo_while A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE programa C_LLAVE
     '''
     print(f'while ( {p.slice[3]} ) {{ {p.slice[6]} }} -> ciclo_while')
+
     indice = terceto.crear_terceto('BI')
     terceto.modificar_terceto(indice,None,f'[{indice_etiqueta_ciclo_while.pop()}]')
     indice = terceto.get_indice()
@@ -216,6 +231,7 @@ def p_ciclo_while(p):
 def p_condicion_simple(p):
     'condicion_simple : expresion comparador expresion'
     print(f'expresion comparador expresion -> condicion_simple')
+
     terceto.crear_terceto('CMP')
     indice = terceto.crear_terceto(diccionarioComparadores.get(p[2]))
 
@@ -248,6 +264,13 @@ def p_condicion_multiple(p):
 def p_modulo(p):
     'modulo : expresion MOD expresion'
     print(f'expresion MOD expresion -> modulo')
+
+    if not es_tipo_numerico(p[1]) or not es_tipo_numerico(p[3]):
+        raise Exception(f'Error: Operación "{p[2]}" incompatible entre {p[1]['tipo']} y {p[3]['tipo']}. Línea {p.lineno(2)}')
+    
+    tipo_dato = obtener_tipo_dato(p[1],p[3])
+    p[0] = {'tipo': tipo_dato}
+
     t1 = indice_terceto_expresion.pop()
     t2 = indice_terceto_expresion.pop()
     terceto.crear_terceto('MOD',f'[{t2}]',f'[{t1}]')
@@ -256,6 +279,13 @@ def p_modulo(p):
 def p_division(p):
     'division : expresion DIV expresion'
     print(f'expresion DIV expresion -> division')
+
+    if not es_tipo_numerico(p[1]) or not es_tipo_numerico(p[3]):
+        raise Exception(f'Error: Operación "{p[2]}" incompatible entre {p[1]['tipo']} y {p[3]['tipo']}. Línea {p.lineno(2)}')
+    
+    tipo_dato = obtener_tipo_dato(p[1],p[3])
+    p[0] = {'tipo': tipo_dato}
+
     t1 = indice_terceto_expresion.pop()
     t2 = indice_terceto_expresion.pop()
     terceto.crear_terceto('DIV',f'[{t2}]',f'[{t1}]')
@@ -280,6 +310,13 @@ def p_lista_expresiones(p):
 def p_expresion_menos(p):
     'expresion : expresion MENOS termino'
     print('expresion - termino -> expresion')
+
+    if not es_tipo_numerico(p[1]) or not es_tipo_numerico(p[3]):
+        raise Exception(f'Error: Operación "{p[2]}" incompatible entre {p[1]['tipo']} y {p[3]['tipo']}. Línea {p.lineno(2)}')
+    
+    tipo_dato = obtener_tipo_dato(p[1],p[3])
+    p[0] = {'tipo': tipo_dato}
+
     t1 = indice_terceto_expresion.pop()
     t2 = indice_terceto_expresion.pop()
     indice_terceto_expresion.append(terceto.crear_terceto('-',f'[{t2}]',f'[{t1}]'))
@@ -288,6 +325,13 @@ def p_expresion_menos(p):
 def p_expresion_mas(p):
     'expresion : expresion MAS termino'
     print('expresion + termino -> expresion')
+    
+    if not es_tipo_numerico(p[1]) or not es_tipo_numerico(p[3]):
+        raise Exception(f'Error: Operación "{p[2]}" incompatible entre {p[1]['tipo']} y {p[3]['tipo']}. Línea {p.lineno(2)}')
+    
+    tipo_dato = obtener_tipo_dato(p[1],p[3])
+    p[0] = {'tipo': tipo_dato}
+
     t1 = indice_terceto_expresion.pop()
     t2 = indice_terceto_expresion.pop()
     indice_terceto_expresion.append(terceto.crear_terceto('+',f'[{t2}]',f'[{t1}]'))
@@ -296,11 +340,19 @@ def p_expresion_mas(p):
 def p_expresion_termino(p):
     'expresion : termino'
     print('termino -> expresion')
+    p[0] = p[1]
 
 
 def p_termino_multiplicacion(p):
     'termino : termino MULTIPLICACION elemento'
     print('termino * elemento -> termino')
+
+    if not es_tipo_numerico(p[1]) or not es_tipo_numerico(p[3]):
+        raise Exception(f'Error: Operación "{p[2]}" incompatible entre {p[1]['tipo']} y {p[3]['tipo']}. Línea {p.lineno(2)}')
+    
+    tipo_dato = obtener_tipo_dato(p[1],p[3])
+    p[0] = {'tipo': tipo_dato}
+
     t1 = indice_terceto_expresion.pop()
     t2 = indice_terceto_expresion.pop()
     indice_terceto_expresion.append(terceto.crear_terceto('*',f'[{t2}]',f'[{t1}]'))
@@ -309,6 +361,13 @@ def p_termino_multiplicacion(p):
 def p_termino_division(p):
     'termino : termino DIVISION elemento'
     print('termino / elemento -> termino')
+
+    if not es_tipo_numerico(p[1]) or not es_tipo_numerico(p[3]):
+        raise Exception(f'Error: Operación "{p[2]}" incompatible entre {p[1]['tipo']} y {p[3]['tipo']}. Línea {p.lineno(2)}')
+    
+    tipo_dato = obtener_tipo_dato(p[1],p[3])
+    p[0] = {'tipo': tipo_dato}
+    
     t1 = indice_terceto_expresion.pop()
     t2 = indice_terceto_expresion.pop()
     indice_terceto_expresion.append(terceto.crear_terceto('/',f'[{t2}]',f'[{t1}]'))
@@ -317,11 +376,13 @@ def p_termino_division(p):
 def p_termino_elemento(p):
     'termino : elemento'
     print('elemento -> termino')
+    p[0] = p[1]
 
 
 def p_elemento_expresion(p):
     'elemento : A_PARENTESIS expresion C_PARENTESIS'
     print('( expresion ) -> elemento')
+    p[0] = p[2]
 
 
 def p_elemento_modulo(p):
@@ -330,8 +391,10 @@ def p_elemento_modulo(p):
     '''
     if len(p) == 2:
         print('modulo -> elemento')
+        p[0] = p[1]
     else:
         print('( modulo ) -> elemento')
+        p[0] = p[2]
 
 
 def p_elemento_division(p):
@@ -340,8 +403,10 @@ def p_elemento_division(p):
     '''
     if len(p) == 2:
         print('division -> elemento')
+        p[0] = p[1]
     else:
         print('( division ) -> elemento')
+        p[0] = p[2]
 
 
 def p_elemento(p):
@@ -350,11 +415,17 @@ def p_elemento(p):
                 | VARIABLE
     '''
     print(f'{p.slice[1].type} -> elemento')
-    if p.slice[1].type == "VARIABLE":
+
+    if p.slice[1].type == 'VARIABLE':
         verificar_variable_declarada(p,p[1])
+        tipo_dato = itoken.get_tipo(p[1])
+    elif p.slice[1].type == 'N_FLOTANTE':
+        tipo_dato = 'Float'
+    elif p.slice[1].type == 'N_ENTERO':
+        tipo_dato = 'Int'
     
     indice_terceto_expresion.append(terceto.crear_terceto(p[1]))
-    p[0] = p[1]
+    p[0] = {'tipo': tipo_dato}
 
 
 def p_tipo(p):
@@ -376,6 +447,16 @@ def p_comparador(p):
     '''
     print(f'{p.slice[1].type} -> comparador')
     p[0] = p[1]
+
+
+def es_tipo_numerico(var):
+    return var['tipo'] in ('Int','Float')
+
+
+def obtener_tipo_dato(var1, var2):
+    if 'Float' in (var1['tipo'],var2['tipo']):
+        return 'Float'
+    return 'Int'
 
 
 def verificar_variable_declarada(p,var):
