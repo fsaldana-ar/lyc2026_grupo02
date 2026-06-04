@@ -1,0 +1,32 @@
+init {
+    a, b, c, x, res : Int
+    nombre : String
+}
+
+if (a < b) {
+    a := b
+}
+
+if (a == b) {
+    c := 1
+} else {
+    c := 2
+}
+
+if (a < b) {
+    if (b < c) {
+        a := 0
+    }
+}
+
+while (a < b) {
+    a := a + 1
+}
+
+while x in [1,2,3] do
+    if (x mod 2 == 0) {
+        write("P")
+    } else {
+        write("I")
+    }
+endwhile

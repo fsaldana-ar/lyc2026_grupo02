@@ -36,11 +36,32 @@ def format_operand(value):
     return str(value)
 
 
+def emit(op, arg1, arg2):
+    """Emit a terceto and return its index."""
+    return new_terceto(op, arg1, arg2)
+
+
+def backpatch(idx, target):
+    """Backpatch the jump at terceto index `idx` to point to `target`.
+
+    Assumes the jump instruction stores its destination in arg1.
+    """
+    op, a1, a2 = tercetos[idx - 1]
+    tercetos[idx - 1] = (op, target, a2)
+
+
 def write_intermediate_code(filename='intermediate-code.txt'):
     with open(filename, 'wt', encoding='utf-8') as f:
         for idx, terceto in enumerate(tercetos, start=1):
             op, arg1, arg2 = terceto
             f.write(f'[{idx}] ({op},{format_operand(arg1)},{format_operand(arg2)})\n')
+
+
+# transform_labels_to_jumps removed: backpatch-based emission used instead
+
+
+def _jump_for_op(op):
+    return {'<': 'BGE', '>': 'BLE', '==': 'BNE', '<>': 'BEQ', '<=': 'BGT', '>=': 'BLT'}.get(op, 'BEQ')
 
 
 def write_symbol_table(filename='symbol-table.txt'):
@@ -74,6 +95,7 @@ def compatibilidad_numerica(tipo1, tipo2):
     if not is_numeric(tipo1) or not is_numeric(tipo2):
         return False
     return True
+
 
 
 def obtener_tipo_aritmetico(tipo1, tipo2):
@@ -205,29 +227,55 @@ def p_seleccion(p):
                  | IF A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE programa C_LLAVE
                  | IF A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE programa C_LLAVE ELSE A_LLAVE programa C_LLAVE
     '''
+    # Generación con backpatching: emitir CMP y salto condicional que se parchea
+    def _jump_for_op(op):
+        return {'<': 'BGE', '>': 'BLE', '==': 'BNE', '<>': 'BEQ', '<=': 'BGT', '>=': 'BLT'}.get(op, 'BEQ')
+
     if len(p) == 8:
         print(f'if ( {p.slice[3].type} ) {{ {p.slice[6].type} }} -> seleccion')
-        else_label = new_label()
-        end_label = new_label()
-        new_terceto('IF_FALSE', p[3]['ref'], else_label)
-        # cuerpo verdadero
+        cond = p[3]
+        if isinstance(cond, dict) and 'op' in cond:
+            cmp_idx = emit('CMP', cond['left'], cond['right'])
+            b_idx = emit(_jump_for_op(cond['op']), 0, EMPTY_OPERAND)
+        else:
+            cmp_idx = emit('CMP', cond['ref'], 0)
+            b_idx = emit('BEQ', 0, EMPTY_OPERAND)
+
+        # cuerpo verdadero (ya genera sus tercetos)
         if p[6] is not None:
             pass
-        new_terceto('GOTO', end_label, EMPTY_OPERAND)
-        new_terceto('LABEL', else_label, EMPTY_OPERAND)
-        new_terceto('LABEL', end_label, EMPTY_OPERAND)
+
+        # parchear salto al final del if
+        end_pos = len(tercetos) + 1
+        backpatch(b_idx, end_pos)
     else:
         print(f'if ( {p.slice[3].type} ) {{ {p.slice[6].type} }} else {{ {p.slice[10].type} }} -> seleccion')
-        else_label = new_label()
-        end_label = new_label()
-        new_terceto('IF_FALSE', p[3]['ref'], else_label)
+        cond = p[3]
+        if isinstance(cond, dict) and 'op' in cond:
+            cmp_idx = emit('CMP', cond['left'], cond['right'])
+            b_else = emit(_jump_for_op(cond['op']), 0, EMPTY_OPERAND)
+        else:
+            cmp_idx = emit('CMP', cond['ref'], 0)
+            b_else = emit('BEQ', 0, EMPTY_OPERAND)
+
+        # cuerpo then
         if p[6] is not None:
             pass
-        new_terceto('GOTO', end_label, EMPTY_OPERAND)
-        new_terceto('LABEL', else_label, EMPTY_OPERAND)
+
+        # salto incondicional al final
+        bi_idx = emit('BI', 0, EMPTY_OPERAND)
+
+        # parchear b_else al inicio del else
+        else_pos = len(tercetos) + 1
+        backpatch(b_else, else_pos)
+
+        # cuerpo else
         if p[10] is not None:
             pass
-        new_terceto('LABEL', end_label, EMPTY_OPERAND)
+
+        # parchear BI al final
+        end_pos = len(tercetos) + 1
+        backpatch(bi_idx, end_pos)
     p[0] = None
 
 
@@ -236,14 +284,26 @@ def p_ciclo_while(p):
                    | WHILE A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE programa C_LLAVE
     '''
     print(f'while ( {p.slice[3]} ) {{ {p.slice[6]} }} -> ciclo_while')
-    start_label = new_label()
-    end_label = new_label()
-    new_terceto('LABEL', start_label, EMPTY_OPERAND)
-    new_terceto('IF_FALSE', p[3]['ref'], end_label)
+    # punto de inicio de la evaluación
+    start_pos = len(tercetos) + 1
+    cond = p[3]
+    if isinstance(cond, dict) and 'op' in cond:
+        cmp_idx = emit('CMP', cond['left'], cond['right'])
+        b_idx = emit(_jump_for_op(cond['op']), 0, EMPTY_OPERAND)
+    else:
+        cmp_idx = emit('CMP', cond['ref'], 0)
+        b_idx = emit('BEQ', 0, EMPTY_OPERAND)
+
+    # cuerpo
     if p[6] is not None:
         pass
-    new_terceto('GOTO', start_label, EMPTY_OPERAND)
-    new_terceto('LABEL', end_label, EMPTY_OPERAND)
+
+    # salto incondicional al inicio de la evaluación
+    emit('BI', start_pos, EMPTY_OPERAND)
+
+    # parchear salto condicional al final
+    end_pos = len(tercetos) + 1
+    backpatch(b_idx, end_pos)
     p[0] = None
 
 
@@ -254,7 +314,9 @@ def p_condicion_simple(p):
     right = p[3]
     if left['tipo'] != right['tipo'] and not (is_numeric(left['tipo']) and is_numeric(right['tipo'])):
         raise Exception(f'ERROR SEMÁNTICO: comparador incompatible entre {left["tipo"]} y {right["tipo"]}. Línea {p.lineno(2)}')
-    p[0] = {'ref': new_terceto(p[2], left['ref'], right['ref']), 'tipo': 'Bool'}
+    # No emitimos aquí un terceto del comparador: devolvemos la estructura para que
+    # las reglas que generan saltos (if/while) emitan un CMP y el branch correspondiente.
+    p[0] = {'tipo': 'Bool', 'left': left['ref'], 'right': right['ref'], 'op': p[2]}
 
 
 def p_condicion_multiple(p):
@@ -300,7 +362,68 @@ def p_ciclo_especial(p):
     'ciclo_especial : WHILE VARIABLE IN A_CORCHETE lista_expresiones C_CORCHETE DO programa ENDWHILE'
     print('while VARIABLE in [ lista_expresiones ] do programa endwhile -> ciclo_especial')
     check_variable_declarada(p[2], p.lineno(2))
-    new_terceto('WHILE_IN', p[2], p[5]['refs'])
+
+    # Helper: normaliza cada elemento de la lista a un operando válido de terceto
+    def make_operand(ref):
+        # si ya es un índice de terceto entero, retornarlo
+        try:
+            if isinstance(ref, int):
+                return ref
+            s = str(ref)
+            # si es un entero literal representado como string -> crear CONST
+            try:
+                v = int(s)
+                return new_terceto('CONST', v, EMPTY_OPERAND)
+            except Exception:
+                pass
+            # si es float literal
+            try:
+                v = float(s)
+                return new_terceto('CONST', v, EMPTY_OPERAND)
+            except Exception:
+                pass
+            # si es una constante string ya con comillas (p_elemento produce '"text"')
+            if s.startswith('"') and s.endswith('"'):
+                return new_terceto('CONST', s, EMPTY_OPERAND)
+            # en cualquier otro caso (nombre de variable o referencia a terceto) devolver tal cual
+            return ref
+        except Exception:
+            return ref
+
+    elems = p[5]['refs']
+    # construir la estructura de lista encadenando con operador '-' (formato intermedio elegido)
+    if len(elems) == 0:
+        list_root = EMPTY_OPERAND
+    elif len(elems) == 1:
+        list_root = make_operand(elems[0])
+    else:
+        left = make_operand(elems[0])
+        right = make_operand(elems[1])
+        t = new_terceto('-', left, right)
+        for e in elems[2:]:
+            t = new_terceto('-', t, make_operand(e))
+        list_root = t
+
+    # Asignaciones e inicializaciones temporales
+    emit(':=', '@list', list_root)
+    emit(':=', '@idx', 0)
+    emit('LENGTH', '@len', '@list')
+
+    # Control del bucle: CMP @idx,@len  ; BGE fin (backpatch)
+    cmp_idx = emit('CMP', '@idx', '@len')
+    bge_idx = emit('BGE', 0, EMPTY_OPERAND)
+
+    # cuerpo del bucle
+    if p[7] is not None:
+        pass
+
+    # incremento y salto al inicio de la comparación
+    emit('INC', '@idx', 1)
+    emit('BI', cmp_idx, EMPTY_OPERAND)
+
+    # parchear BGE al final
+    end_pos = len(tercetos) + 1
+    backpatch(bge_idx, end_pos)
     p[0] = None
 
 
@@ -450,6 +573,11 @@ def ejecutar_parser():
     path_parser = Path('./resources/test.txt')
     code = path_parser.read_text()
     parser.parse(code)
+    # transformar labels/gotos a CMP + saltos numéricos antes de escribir
+    try:
+        transform_labels_to_jumps()
+    except Exception:
+        pass
     write_symbol_table('symbol-table.txt')
     write_intermediate_code('intermediate-code.txt')
 
