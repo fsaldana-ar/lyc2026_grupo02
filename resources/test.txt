@@ -1,6 +1,6 @@
 #+ ************** Declaracion de variables ************** +#
 init {
-    x, res : Int
+    x, res, a, b, c, d, e, f, g, h : Int
     altura : Float
     nombre : String
 }
@@ -25,3 +25,23 @@ while x in [1, 2, 3, 4] do
         nombre := "ResultadoPar"
     }
 endwhile
+
+
+#+ 4. Ciclo Especial anilada +#
+while (a <> b and c == d){
+    if(not e<f){
+        read(a)
+    }
+    else{
+        if(g > h or 1 + 1 == 0){
+            a:=a
+        }
+    }
+    write(nombre)
+    
+    while(f == 0 or g <> 0){
+        if(a+b*c < 3 and (h div 0) == 1){
+            write(nombre)
+        }
+    }
+}

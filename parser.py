@@ -104,6 +104,12 @@ def obtener_tipo_aritmetico(tipo1, tipo2):
     return 'Int'
 
 
+def condicion_to_ref(cond):
+    """Convierte una condicion_simple (con 'op') a un índice de terceto."""
+    if 'ref' in cond:
+        return cond['ref']
+    return new_terceto('CMP', cond['left'], cond['right'])
+
 def p_start(p):
     '''start : bloque_init programa
              | programa
@@ -329,10 +335,13 @@ def p_condicion_multiple(p):
         left = p[1]
         right = p[3]
         op = p[2].upper()
-        p[0] = {'ref': new_terceto(op, left['ref'], right['ref']), 'tipo': 'Bool'}
+        left_ref  = condicion_to_ref(left)
+        right_ref = condicion_to_ref(right)
+        p[0] = {'ref': new_terceto(op, left_ref, right_ref), 'tipo': 'Bool'}
     else:
         print('NOT condicion_simple -> condicion_multiple')
-        p[0] = {'ref': new_terceto('NOT', p[2]['ref'], EMPTY_OPERAND), 'tipo': 'Bool'}
+        cond_ref = condicion_to_ref(p[2])
+        p[0] = {'ref': new_terceto('NOT', cond_ref, EMPTY_OPERAND), 'tipo': 'Bool'}
 
 
 # Temas especiales

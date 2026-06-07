@@ -7,7 +7,15 @@ _4                            Int       4                             -
 _9                            Int       9                             -
 _HolaMundo                    String    HolaMundo                     9
 _ResultadoPar                 String    ResultadoPar                  12
+a                             Int       -                             -
 altura                        Float     -                             -
+b                             Int       -                             -
+c                             Int       -                             -
+d                             Int       -                             -
+e                             Int       -                             -
+f                             Int       -                             -
+g                             Int       -                             -
+h                             Int       -                             -
 nombre                        String    -                             -
 res                           Int       -                             -
 x                             Int       -                             -
