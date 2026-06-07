@@ -367,40 +367,33 @@ def p_division(p):
     p[0] = {'ref': new_terceto('DIV', left['ref'], right['ref']), 'tipo': resultado}
 
 
-def p_ciclo_especial(p):
-    'ciclo_especial : WHILE VARIABLE IN A_CORCHETE lista_expresiones C_CORCHETE DO programa ENDWHILE'
-    print('while VARIABLE in [ lista_expresiones ] do programa endwhile -> ciclo_especial')
+def p_ciclo_especial_header(p):
+    'ciclo_especial_header : WHILE VARIABLE IN A_CORCHETE lista_expresiones C_CORCHETE DO'
     check_variable_declarada(p[2], p.lineno(2))
 
-    # Helper: normaliza cada elemento de la lista a un operando válido de terceto
     def make_operand(ref):
-        # si ya es un índice de terceto entero, retornarlo
         try:
             if isinstance(ref, int):
                 return ref
             s = str(ref)
-            # si es un entero literal representado como string -> crear CONST
             try:
                 v = int(s)
                 return new_terceto('CONST', v, EMPTY_OPERAND)
             except Exception:
                 pass
-            # si es float literal
             try:
                 v = float(s)
                 return new_terceto('CONST', v, EMPTY_OPERAND)
             except Exception:
                 pass
-            # si es una constante string ya con comillas (p_elemento produce '"text"')
             if s.startswith('"') and s.endswith('"'):
                 return new_terceto('CONST', s, EMPTY_OPERAND)
-            # en cualquier otro caso (nombre de variable o referencia a terceto) devolver tal cual
             return ref
         except Exception:
             return ref
 
     elems = p[5]['refs']
-    # construir la estructura de lista encadenando con operador '-' (formato intermedio elegido)
+
     if len(elems) == 0:
         list_root = EMPTY_OPERAND
     elif len(elems) == 1:
@@ -413,28 +406,26 @@ def p_ciclo_especial(p):
             t = new_terceto('-', t, make_operand(e))
         list_root = t
 
-    # Asignaciones e inicializaciones temporales
     emit(':=', '@list', list_root)
     emit(':=', '@idx', 0)
     emit('LENGTH', '@len', '@list')
-
-    # Control del bucle: CMP @idx,@len  ; BGE fin (backpatch)
     cmp_idx = emit('CMP', '@idx', '@len')
     bge_idx = emit('BGE', 0, EMPTY_OPERAND)
 
-    # cuerpo del bucle
-    if p[7] is not None:
-        pass
+    # Pasamos los índices necesarios para el cierre
+    p[0] = (cmp_idx, bge_idx)
 
-    # incremento y salto al inicio de la comparación
+
+def p_ciclo_especial(p):
+    'ciclo_especial : ciclo_especial_header programa ENDWHILE'
+    cmp_idx, bge_idx = p[1]
+
     emit('INC', '@idx', 1)
     emit('BI', cmp_idx, EMPTY_OPERAND)
 
-    # parchear BGE al final
     end_pos = len(tercetos) + 1
     backpatch(bge_idx, end_pos)
     p[0] = None
-
 
 def p_lista_expresiones(p):
     '''lista_expresiones : lista_expresiones COMA expresion
