@@ -1,19 +1,29 @@
 #+ ************** Declaracion de variables ************** +#
-
-init{
-    a,b : Int
-    c,d : Float
-    e,f : String
-    g,h,i,j : Int
-    k,l:Float
+init {
+    a, b, c, d : Int
+    e, f, g, h : Float
+    i,j,k:String
+    nombre : String
     #+ Sin tipo de dato +#
     #+ aa : +#
     #+ Excede longitud de nombre +#
     #+ aaaaaaaaaaaaaaaaaaaaa : Float +#
 }
 
+#+ ************** Comentarios ************** +#
+
+#+ a := b +#
+#+ a := b + c +#
+#+ a := b - c +#
+#+ a := b * c +#
+#+ a := b / c +#
+#+ a := b + c - b * d + a - c / d +#
+#+ a := a + b * c / d - a / b + c +#
+#+ a := b + c - ( a * b + c / d) + 1 * 0 +#
+
 #+ ************** Asignaciones ************** +#
 
+#+ Asignacion de enteros +#
 a := 0
 a := 1
 a := -1
@@ -23,55 +33,67 @@ a := -150
 #+ a := 32768 +#
 #+ a := -32769 +#
 
-a := 19.1
-a := 18.
-a := .17
-a := -19.1
-a := -18.
-a := -.17
-a := 99999.99
-a := 99.
-a := .9999
+#+ Variable no declarada +#
+#+ z := 1 +#
+
+#+ Asignacion de flotantes +#
+e := 19.1
+e := 18.
+e := .17
+e := -19.1
+e := -18.
+e := -.17
+e := 99999.99
+e := 99.
+e := .9999
+
+#+ Variable no declarada +#
+#+ w := 3.14 +#
 
 #+ Variable fuera de rango +#
-#+ a := 350000000000000000000000000000000000000. +#
-#+ a := -350000000000000000000000000000000000000. +#
+#+ e := 350000000000000000000000000000000000000. +#
+#+ e := -350000000000000000000000000000000000000. +#
 
 
-a := "string"
-a := "string09"
-a := "string 09"
-a := "Hol@, Mundo"
-a := "Hola % Mundo"
-a := "        s t r i n g   "
-b := "@sdADaSjfla%dfg"
-b := "asldk  fh sjf"
+#+ Asignacion de strings +#
+i := "string"
+i := "string09"
+i := "string 09"
+i := "Hol@, Mundo"
+i := "Hola % Mundo"
+i := "        s t r i n g   "
+i := "@sdADaSjfla%dfg"
+i := "asldk  fh sjf"
 
 #+ Variable fuera de rango +#
-#+ b := "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +#
+#+ i := "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +#
+
 
 #+ ************** Operaciones Aritmeticas ************** +#
 
-x := 27 - c
-x := r + 500
-x := 34 * 3
-x := z / f
-x := d*(e - 21)/4
-x := d*(e + -21)/4
-x := d*(e+21)/2
+a := 27 - c
+a := b + 500
+a := 34 * 3
+a := c / d
+a := d*(b - 21)/4
+a := d*(a + -21)/4
+a := d*(c+21)/2
 
-x := .27 - c
-x := r + 50.0
-x := 3.4 * 3.
-x := z / f
-#+ x := d*(e - .21)/4 +#
-x := d*(e+2.1)/2
+
+e := .27 - f
+e := g + 50.0
+e := 3.4 * 3.
+e := g / h
+e := e*(e - .21)/4
+e := f*(g+2.1)/2
+
 
 #+ Falta de operador +#
-#+ x := 27 - +#
-#+ x := + 500 +#
-#+ x := 34 * +#
-#+ x := z / +#
+#+ a := 27 - +#
+#+ a := + 500 +#
+#+ a := 34 * +#
+#+ a := z / +#
+
 
 #+ ************** If / If - else ************** +#
 
@@ -114,17 +136,14 @@ if(a > 0){
 #+ If sin cuerpo +#
 #+ if (a > 3) {} +#
 
-#+ ************** While ************** +#
 
-a := 1
-b := 3
+#+ ************** While ************** +#
 
 while (a > b)
 {
     write("a es mas grande que b")
     a := a + 1
 }
-
 
 while(not a > b){a:=b}
 
@@ -169,7 +188,6 @@ while(a <= b or b >= a){
 
 while(a == b or b <> a){a:=b}
 
-
 while(a > 0){
     b := 1
     while(b < 10){
@@ -184,24 +202,26 @@ while(a > 0){
 #+ While sin cuerpo +#
 #+ while(b < a) +#
 
+
 #+ ************** Entrada y Salida ************** +#
 
-read(base)
+read(nombre)
 
 #+ Read sin variable +#
 #+ read() +#
 
+#+ Read variable no declarada +#
+#+ read(otra_variable) +#
+
+
 write("ewr")
-write(var1)
+write(nombre)
 
 #+ Write sin variable +#
 #+ write() +#
 
-#+ ************** Condiciones ************** +#
 
-a := 1
-b := 1
-c := 2
+#+ ************** Condiciones ************** +#
 
 if (a > b and c > b)
 {
@@ -257,11 +277,6 @@ if(a == b or b <> a){a:=b} else {a:=a}
 #+ And sin segundo parametro +#
 #+ if (a > b and) +#
 
-
-a := 1
-b := 1
-c := 2
-
 if (a > b or c > b)
 {
     write("a es mas grande que b o c es mas grande que b")
@@ -269,11 +284,6 @@ if (a > b or c > b)
 
 #+ Or sin segundo parametro +#
 #+ if (a > b or) +#
-
-
-a := 1
-b := 1
-c := 2
 
 if (not a > b)
 {
@@ -283,50 +293,73 @@ if (not a > b)
 #+ Not sin parametro +#
 #+ if (not) +#
 
-#+ ************** Ciclo Especial ************** +#
 
-while x in [1,2,3]
-do
-   write(x)
-endwhile
+#+ ************** Anidacion If / If - else / while / condiciones ************** +#
 
-while x in [1+1, 2+2, 3+3]
-do
-   write(x)
-endwhile
-
-while x in [1,2,3,4]
-do
-    if(x mod 2 == 0)
-    {
-      write(x)
+while (a <> b and c == d){
+    if(not e<f){
+        read(a)
     }
-endwhile
+    else{
+        if(g > h or 1 + 1 == 0){
+            a:=a
+        }
+    }
+    write(nombre)
+    
+    while(f == 0 or g <> 0){
+        if(a+b*c < 3 and (h div 0) == 1){
+            write(nombre)
+        }
+    }
+}
 
-#+ Ciclo con lista vacia +#
-#+ while x in [] +#
 
 #+ ************** MOD/DIV ************** +#
 
-if(x mod 2 == 0)
+if(a mod 2 == 0)
 {
   write("Par")
 }
 
-x := (10 div 3) + (10 mod 3)
+e := (10 div 3) + (10 mod 3)
 
 a := b mod c
 a := (b mod c)
 a := 35 + (b mod c) * 100
 a := 1 + 2 + 3 mod 4 + 5 + 6
 
-a := b div c
-a := (b div c)
-a := 35 + (b div c) * 100
-a := 1 + 2 + 3 div 4 + 5 + 6
+e := b div c
+e := (b div c)
+e := 35 + (b div c) * 100
+e := 1 + 2 + 3 div 4 + 5 + 6
 
 #+ Mod sin un parametro +#
-#+ x := mod 3 +#
+#+ a := mod 3 +#
 
 #+ Div sin un parametro +#
-#+ x := div 3 +#
+#+ e := div 3 +#
+
+
+#+ ************** Ciclo Especial ************** +#
+
+while a in [1,2,3]
+do
+   write(a)
+endwhile
+
+while a in [1+1, 2+2, 3+3]
+do
+   write(a)
+endwhile
+
+while a in [1,2,3,4]
+do
+    if(a mod 2 == 0)
+    {
+      write(a)
+    }
+endwhile
+
+#+ Ciclo con lista vacia +#
+#+ while x in [] +#

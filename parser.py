@@ -7,12 +7,6 @@ from pathlib import Path
 from i_token import Itoken
 from terceto import Terceto
 
-# TODO:
-# hacer la verificacion de tipos en operaciones aritmeticas y comparaciones
-# hacer el codigo intermedio para condiciones multiples
-# hacer el codigo intermedio para ciclo while especial
-# hacer el archivo de test unico, verificando la generacion de los tercetos
-
 diccionarioComparadores = {
     ">=":   "BLT",
     ">":   "BLE",
@@ -56,6 +50,9 @@ indice_comienzo_seleccion_else = []
 flag_ciclo_while = False
 indice_etiqueta_ciclo_while = []
 indice_comienzo_ciclo_while = []
+
+# para indicar ultimo flag utilizado ( flag_ciclo_seleccion, flag_ciclo_while ) para condiciones multiples
+ultimo_flag = None
 
 
 def p_start(p):
@@ -174,6 +171,9 @@ def p_asignacion(p):
         if tipo_a == 'String' and tipo_b != 'cte_string':
             raise Exception(f'Error: Asignación incompatible para "{p[1]}". Esperado {tipo_a} pero se obtuvo {tipo_b}. Línea {p.lineno(1)}')
     
+    if tipo_b == 'cte_string':
+        terceto.crear_terceto(f'"{p[3]}"')
+    
     indice = terceto.get_indice() - 1
     terceto.crear_terceto(':=',p[1],f'[{indice}]')
 
@@ -188,6 +188,11 @@ def p_seleccion_else(p):
     'seleccion_else : ELSE'
     indice = terceto.crear_terceto('BI')
     indice_comienzo_seleccion_else.append(indice)
+    """
+    print('#'*50)
+    print(f'p_seleccion_else - indice_bi: {indice} - icse: {indice_comienzo_seleccion_else}')
+    print('#'*50)
+    """
 
 
 def p_seleccion(p):
@@ -196,16 +201,44 @@ def p_seleccion(p):
                  | comienzo_seleccion_if A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE programa C_LLAVE
                  | comienzo_seleccion_if A_PARENTESIS condicion_multiple C_PARENTESIS A_LLAVE programa C_LLAVE seleccion_else A_LLAVE programa C_LLAVE
     '''
+    # if's sin else
     if len(p) == 8:
         print(f'if ( {p.slice[3].type} ) {{ {p.slice[6].type} }} -> seleccion')
         indice = terceto.get_indice()
-        terceto.modificar_terceto(indice_comienzo_seleccion.pop(),None,f'[{indice}]')
+        if p.slice[3].type == 'condicion_simple':
+            terceto.modificar_terceto(indice_comienzo_seleccion.pop(),None,f'[{indice}]')
+        elif p.slice[3].type == 'condicion_multiple':
+            terceto.modificar_terceto(indice_comienzo_seleccion.pop(),None,f'[{indice}]')
+            
+            if p[3]['conector'] == 'or':
+                terceto.modificar_terceto(indice_comienzo_seleccion.pop(),diccionarioComparadoresNot.get(p[3]['comparador']),f'[{indice - 1}]')
+            elif p[3]['conector'] == 'and':
+                terceto.modificar_terceto(indice_comienzo_seleccion.pop(),None,f'[{indice}]')
     else:
         print(f'if ( {p.slice[3].type} ) {{ {p.slice[6].type} }} else {{ {p.slice[10].type} }} -> seleccion')
         indice = terceto.get_indice()
+        """
+        print('#'*50)
+        print(f'p_seleccion - indice: {indice} - icse: {indice_comienzo_seleccion_else}')
+        print('#'*50)
+        """
         indice_else = indice_comienzo_seleccion_else.pop()
-        terceto.modificar_terceto(indice_comienzo_seleccion.pop(),None,f'[{indice_else + 1}]')
-        terceto.modificar_terceto(indice_else,None,f'[{indice}]')
+        
+        if p.slice[3].type == 'condicion_simple':
+            terceto.modificar_terceto(indice_comienzo_seleccion.pop(),None,f'[{indice_else + 1}]')
+            terceto.modificar_terceto(indice_else,None,f'[{indice}]')
+        elif p.slice[3].type == 'condicion_multiple':
+            indice_tmp = indice_comienzo_seleccion.pop()
+            terceto.modificar_terceto(indice_tmp,None,f'[{indice_else + 1}]')
+
+            if p[3]['conector'] == 'or':
+                terceto.modificar_terceto(indice_comienzo_seleccion.pop(),diccionarioComparadoresNot.get(p[3]['comparador']),f'[{indice_tmp + 1}]')
+                terceto.modificar_terceto(indice_else,None,f'[{indice}]')
+            elif p[3]['conector'] == 'and':
+                terceto.modificar_terceto(indice_comienzo_seleccion.pop(),None,f'[{indice_else + 1}]')
+                terceto.modificar_terceto(indice_else,None,f'[{indice}]')
+            elif p[3]['conector'] == None:
+                terceto.modificar_terceto(indice_else,None,f'[{indice}]')
 
 
 def p_comienzo_ciclo_while(p):
@@ -223,9 +256,31 @@ def p_ciclo_while(p):
     print(f'while ( {p.slice[3]} ) {{ {p.slice[6]} }} -> ciclo_while')
 
     indice = terceto.crear_terceto('BI')
+    """
+    print('#'*50)
+    print(f'p_ciclo_while - indice_bi: {indice} - iecw: {indice_etiqueta_ciclo_while}')
+    print('#'*50)
+    """
     terceto.modificar_terceto(indice,None,f'[{indice_etiqueta_ciclo_while.pop()}]')
-    indice = terceto.get_indice()
-    terceto.modificar_terceto(indice_comienzo_ciclo_while.pop(),None,f'[{indice}]')
+
+    if p.slice[3].type == 'condicion_simple':
+        indice = terceto.get_indice()
+        terceto.modificar_terceto(indice_comienzo_ciclo_while.pop(),None,f'[{indice}]')
+    elif p.slice[3].type == 'condicion_multiple':
+        indice = terceto.get_indice()
+        """
+        print('#'*50)
+        print(f'while_mult - indice: {indice} - iccw: {indice_comienzo_ciclo_while}')
+        print('#'*50)
+        """
+
+        indice_tmp = indice_comienzo_ciclo_while.pop()
+        terceto.modificar_terceto(indice_tmp,None,f'[{indice}]')
+        
+        if p[3]['conector'] == 'or':
+            terceto.modificar_terceto(indice_comienzo_ciclo_while.pop(),diccionarioComparadoresNot.get(p[3]['comparador']),f'[{indice_tmp + 1}]')
+        elif p[3]['conector'] == 'and':
+            terceto.modificar_terceto(indice_comienzo_ciclo_while.pop(),None,f'[{indice}]')
 
 
 def p_condicion_simple(p):
@@ -237,27 +292,63 @@ def p_condicion_simple(p):
 
     global flag_ciclo_seleccion
     global flag_ciclo_while
+    global ultimo_flag
+
+    ultimo_flag = None
+    """
+    print('#'*50)
+    print(f'p_condicion_simple flag_if: {flag_ciclo_seleccion} - flag_while: {flag_ciclo_while} - ultimo: {ultimo_flag}')
+    print('#'*50)
+    """
 
     if flag_ciclo_seleccion:
+        ultimo_flag = 'if'
         flag_ciclo_seleccion = False
         indice_comienzo_seleccion.append(indice)
     if flag_ciclo_while:
+        ultimo_flag = 'while'
         flag_ciclo_while = False
         indice_comienzo_ciclo_while.append(indice)
     p[0] = p[2]
 
 
+def p_contector_condicion_multiple(p):
+    '''contector_condicion_multiple : OR
+                                    | AND
+    '''
+    global flag_ciclo_seleccion
+    global flag_ciclo_while
+    """
+    print('#'*50)
+    print(f'p_contector_condicion_multiple flag_if: {flag_ciclo_seleccion} - flag_while: {flag_ciclo_while} - ultimo: {ultimo_flag}')
+    print('#'*50)
+    """
+    
+    if ultimo_flag == 'if':
+        flag_ciclo_seleccion = True
+    elif ultimo_flag == 'while':
+        flag_ciclo_while = True
+    
+    p[0] = p[1]
+
+
 def p_condicion_multiple(p):
     '''condicion_multiple : NOT condicion_simple
-                          | condicion_simple OR condicion_simple
-                          | condicion_simple AND condicion_simple
+                          | condicion_simple contector_condicion_multiple condicion_simple
     '''
     if len(p) == 4:
         print(f'condicion_simple {p.slice[2].type} condicion_simple -> condicion_multiple')
+        p[0] = {'comparador': p[1], 'conector': p[2]}
     else:
         print(f'NOT condicion_simple -> condicion_multiple')
         indice = terceto.get_indice()
+        """
+        print('#'*50)
+        print(f'p_condicion_multiple - indice {indice}')
+        print('#'*50)
+        """
         terceto.modificar_terceto(indice - 1,diccionarioComparadoresNot.get(p[2]))
+        p[0] = {'comparador': 'not', 'conector': None}
 
 
 # Temas especiales
@@ -415,7 +506,7 @@ def p_elemento(p):
                 | VARIABLE
     '''
     print(f'{p.slice[1].type} -> elemento')
-
+    
     if p.slice[1].type == 'VARIABLE':
         verificar_variable_declarada(p,p[1])
         tipo_dato = itoken.get_tipo(p[1])
@@ -475,7 +566,7 @@ def ejecutar_parser():
     # Build the parser
     itoken.cargar_tokens()
     parser = yacc.yacc()
-    path_parser = Path("./resources/test_tercetos.txt")
+    path_parser = Path("./resources/test.txt")
     code = path_parser.read_text()
     parser.parse(code)
     itoken.almacenar_tokens()
