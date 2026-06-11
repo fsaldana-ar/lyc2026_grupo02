@@ -655,5 +655,10 @@ def ejecutar_parser():
     path_parser = Path("./resources/test.txt")
     code = path_parser.read_text()
     parser.parse(code)
+
+    # Almacenamos las variables internas en la tabla de simbolos
+    for item in variables_auxiliares_ciclo_while_especial:
+        itoken.crear_token(item,'-')
+    
     itoken.almacenar_tokens()
     terceto.almacenar_tercetos()
