@@ -343,23 +343,48 @@ e := 1 + 2 + 3 div 4 + 5 + 6
 
 #+ ************** Ciclo Especial ************** +#
 
-while a in [1,2,3]
-do
-   write(a)
+#+ 1. Ciclo Especial Estandar con enteros +#
+while a in [1, 2, 3] do
+    write(a)
 endwhile
 
-while a in [1+1, 2+2, 3+3]
-do
-   write(a)
+#+ 2. Ciclo Especial con Expresiones Aritmeticas +#
+while b in [1 + 1, 2 * 2, 9 div 3] do
+    d := b * 2
+    write(d)
 endwhile
 
-while a in [1,2,3,4]
-do
-    if(a mod 2 == 0)
-    {
-      write(a)
+#+ 3. Ciclo Especial con Estructura Condicional y Cadenas +#
+while c in [1, 2, 3, 4] do
+    if (c mod 2 == 0) {
+        write("HolaMundo")
+        nombre := "ResultadoPar"
     }
 endwhile
 
+while a in [1*0,2/1,3,9]
+do
+   b := 55
+   if (b < a){
+     write(b)
+   }
+   else{
+    write("Test")
+   }
+endwhile
+
+#+ 4. Ciclo Especial anidado +#
+
+while a in [1, 2, 3] do
+  while c in [5*0, 7] do
+      if (c mod 9 == 0) {
+          write("HolaMundo")
+          nombre := "ResultadoPar"
+      }
+  endwhile
+
+  write(a)
+endwhile
+
 #+ Ciclo con lista vacia +#
-#+ while x in [] +#
+#+ while a in [] +#

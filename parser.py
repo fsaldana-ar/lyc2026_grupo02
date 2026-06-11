@@ -54,6 +54,25 @@ indice_comienzo_ciclo_while = []
 # para indicar ultimo flag utilizado ( flag_ciclo_seleccion, flag_ciclo_while ) para condiciones multiples
 ultimo_flag = None
 
+# para generar variables auxiliares con nombres unicos
+indice_variable_auxiliar = 0
+
+# para almacenar variables auxiliares utilizadas en ciclo while especial
+indice_etiqueta_ciclo_while_especial = []
+indice_comienzo_ciclo_while_especial = []
+variables_auxiliares_ciclo_while_especial = []
+
+# para indices de las expresiones del ciclo while especial
+indice_expresion_ciclo_while_especial = []
+
+
+# TODO: Almacenar la lista en la tabla de simbolos
+def crear_variable_auxiliar():
+    global indice_variable_auxiliar
+    indice_variable_auxiliar += 1
+    variables_auxiliares_ciclo_while_especial.append('@aux' + str(indice_variable_auxiliar))
+    return variables_auxiliares_ciclo_while_especial[-1]
+
 
 def p_start(p):
     '''start : bloque_init programa
@@ -153,29 +172,35 @@ def p_entrada(p):
     terceto.crear_terceto('READ',p[3])
 
 
+def p_variable_asignacion(p):
+    'variable_asignacion : VARIABLE'
+    terceto.crear_terceto(p[1])
+
+    p[0] = {'variable': p[1], 'indice': terceto.get_indice() - 1}
+
+
 def p_asignacion(p):
-    '''asignacion : VARIABLE ASIGNACION expresion
-                  | VARIABLE ASIGNACION CTE_STRING
+    '''asignacion : variable_asignacion ASIGNACION expresion
+                  | variable_asignacion ASIGNACION CTE_STRING
     '''
     print(f'VARIABLE ASIGNACION {p.slice[3].type} -> asignacion')
+    verificar_variable_declarada(p,p[1]['variable'])
 
-    verificar_variable_declarada(p,p[1])
-    tipo_a = itoken.get_tipo(p[1])
+    tipo_a = itoken.get_tipo(p[1]['variable'])
 
     if p.slice[3].type == 'CTE_STRING':
         tipo_b = 'cte_string'
     else:
         tipo_b = p[3]['tipo']
-    
+
     if tipo_a != tipo_b:
         if tipo_a == 'String' and tipo_b != 'cte_string':
-            raise Exception(f'Error: Asignación incompatible para "{p[1]}". Esperado {tipo_a} pero se obtuvo {tipo_b}. Línea {p.lineno(1)}')
+            raise Exception(f'Error: Asignación incompatible para "{p[1]['variable']}". Esperado {tipo_a} pero se obtuvo {tipo_b}. Línea {p.lineno(1)}')
     
     if tipo_b == 'cte_string':
         terceto.crear_terceto(f'"{p[3]}"')
     
-    indice = terceto.get_indice() - 1
-    terceto.crear_terceto(':=',p[1],f'[{indice}]')
+    terceto.crear_terceto(':=',f'[{p[1]['indice']}]',f'[{terceto.get_indice() - 1}]')
 
 
 def p_comienzo_seleccion_if(p):
@@ -382,20 +407,81 @@ def p_division(p):
     terceto.crear_terceto('DIV',f'[{t2}]',f'[{t1}]')
 
 
-# TODO: verificar la variable utilizada
+def p_variable_ciclo_while_especial(p):
+    'variable_ciclo_while_especial : VARIABLE'
+    global variable_ciclo_while_especial
+    variable_ciclo_while_especial = p[1]
+
+
+def p_expresiones_ciclo_while_especial(p):
+    'expresiones_ciclo_while_especial : A_CORCHETE lista_expresiones C_CORCHETE'
+    var_aux = crear_variable_auxiliar()
+    indices_saltos_expresiones = []
+    indices_saltos_incodicionales = []
+
+    terceto.crear_terceto(var_aux)
+    terceto.crear_terceto(0)
+    # TODO: Mirar como hacer para usar el valor del token para la asignacion
+    terceto.crear_terceto(':=',f'[{terceto.get_indice() - 2}]',f'[{terceto.get_indice() - 1}]')
+    
+    indice = terceto.crear_terceto('WHILE')
+    indice_etiqueta_ciclo_while_especial.append(indice)
+    terceto.crear_terceto(f'{var_aux}')
+    terceto.crear_terceto(len(indice_expresion_ciclo_while_especial))
+    terceto.crear_terceto('CMP')
+    terceto.crear_terceto('BGE')
+    indice_comienzo_ciclo_while_especial.append(terceto.get_indice() - 1)
+
+    for (i,item) in enumerate(indice_expresion_ciclo_while_especial):
+        terceto.crear_terceto(i)
+        terceto.crear_terceto(var_aux)
+        terceto.crear_terceto('CMP')
+        terceto.crear_terceto('BE')
+        indices_saltos_expresiones.append(terceto.get_indice() - 1)
+
+    for item in indice_expresion_ciclo_while_especial:
+        terceto.modificar_terceto(indices_saltos_expresiones.pop(0),None,f'[{terceto.get_indice()}]')
+        terceto.crear_terceto(variable_ciclo_while_especial)
+        terceto.crear_terceto(':=',f'[{terceto.get_indice() - 1}]',f'[{item}]')
+        terceto.crear_terceto('BI')
+        indices_saltos_incodicionales.append(terceto.get_indice() - 1)
+    
+    indice = terceto.get_indice()
+    terceto.crear_terceto(var_aux)
+    terceto.crear_terceto(1)
+    # TODO: Mirar como hacer para usar el valor del token para la suma
+    terceto.crear_terceto('+',f'[{terceto.get_indice() - 2}]',f'[{terceto.get_indice() - 1}]')
+    # TODO: Mirar como hacer para usar el valor del token para la asignacion
+    terceto.crear_terceto(var_aux)
+    terceto.crear_terceto(':=',f'[{terceto.get_indice() - 1}]',f'[{terceto.get_indice() - 2}]')
+
+    for item in indices_saltos_incodicionales:
+        terceto.modificar_terceto(item,None,f'[{indice}]')
+    
+    indice_expresion_ciclo_while_especial.clear()
+
+
 def p_ciclo_especial(p):
-    'ciclo_especial : WHILE VARIABLE IN A_CORCHETE lista_expresiones C_CORCHETE DO programa ENDWHILE'
+    'ciclo_especial : WHILE variable_ciclo_while_especial IN expresiones_ciclo_while_especial DO programa ENDWHILE'
     print(f'while VARIABLE in [ lista_expresiones ] do programa endwhile -> ciclo_especial')
+    terceto.crear_terceto('BI',f'[{indice_etiqueta_ciclo_while_especial.pop()}]')
+    terceto.modificar_terceto(indice_comienzo_ciclo_while_especial.pop(),None,f'[{terceto.get_indice()}]')
+
+
+def p_segunda_expresion(p):
+    'segunda_expresion : expresion'
+    indice_expresion_ciclo_while_especial.append(terceto.get_indice() - 1)
 
 
 def p_lista_expresiones(p):
-    '''lista_expresiones : lista_expresiones COMA expresion
+    '''lista_expresiones : lista_expresiones COMA segunda_expresion
                          | expresion
     '''
     if len(p) == 4:
         print(f'lista_expresiones COMA expresion -> lista_expresiones')
     else:
         print(f'expresion -> lista_expresiones')
+        indice_expresion_ciclo_while_especial.append(terceto.get_indice() - 1)
 
 
 def p_expresion_menos(p):
