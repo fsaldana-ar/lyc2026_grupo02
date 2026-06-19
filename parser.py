@@ -45,6 +45,7 @@ indice_terceto_expresion = []
 flag_ciclo_seleccion = False
 indice_comienzo_seleccion = []
 indice_comienzo_seleccion_else = []
+indice_expresion_izquierda_seleccion = None
 
 # para indices de ciclo while
 flag_ciclo_while = False
@@ -66,7 +67,6 @@ variables_auxiliares_ciclo_while_especial = []
 indice_expresion_ciclo_while_especial = []
 
 
-# TODO: Almacenar la lista en la tabla de simbolos
 def crear_variable_auxiliar():
     global indice_variable_auxiliar
     indice_variable_auxiliar += 1
@@ -308,11 +308,21 @@ def p_ciclo_while(p):
             terceto.modificar_terceto(indice_comienzo_ciclo_while.pop(),None,f'[{indice}]')
 
 
+def p_condicion_simple_expi(p):
+    'condicion_simple_expi : expresion'
+    # Expresion izquierda de la condicion simple
+    global indice_expresion_izquierda_seleccion
+    indice_expresion_izquierda_seleccion = terceto.get_indice() - 1
+
+
 def p_condicion_simple(p):
-    'condicion_simple : expresion comparador expresion'
+    'condicion_simple : condicion_simple_expi comparador expresion'
     print(f'expresion comparador expresion -> condicion_simple')
 
-    terceto.crear_terceto('CMP')
+    # Indice de la primera expresion
+    global indice_expresion_izquierda_seleccion
+
+    terceto.crear_terceto('CMP',f'[{indice_expresion_izquierda_seleccion}]',f'[{terceto.get_indice() - 1}]')
     indice = terceto.crear_terceto(diccionarioComparadores.get(p[2]))
 
     global flag_ciclo_seleccion
@@ -389,7 +399,7 @@ def p_modulo(p):
 
     t1 = indice_terceto_expresion.pop()
     t2 = indice_terceto_expresion.pop()
-    terceto.crear_terceto('MOD',f'[{t2}]',f'[{t1}]')
+    indice_terceto_expresion.append(terceto.crear_terceto('MOD',f'[{t2}]',f'[{t1}]'))
 
 
 def p_division(p):
@@ -404,7 +414,7 @@ def p_division(p):
 
     t1 = indice_terceto_expresion.pop()
     t2 = indice_terceto_expresion.pop()
-    terceto.crear_terceto('DIV',f'[{t2}]',f'[{t1}]')
+    indice_terceto_expresion.append(terceto.crear_terceto('DIV',f'[{t2}]',f'[{t1}]'))
 
 
 def p_variable_ciclo_while_especial(p):
@@ -428,14 +438,14 @@ def p_expresiones_ciclo_while_especial(p):
     indice_etiqueta_ciclo_while_especial.append(indice)
     terceto.crear_terceto(f'{var_aux}')
     terceto.crear_terceto(len(indice_expresion_ciclo_while_especial))
-    terceto.crear_terceto('CMP')
+    terceto.crear_terceto('CMP',f'[{terceto.get_indice() - 2}]',f'[{terceto.get_indice() - 1}]')
     terceto.crear_terceto('BGE')
     indice_comienzo_ciclo_while_especial.append(terceto.get_indice() - 1)
 
     for (i,item) in enumerate(indice_expresion_ciclo_while_especial):
         terceto.crear_terceto(i)
         terceto.crear_terceto(var_aux)
-        terceto.crear_terceto('CMP')
+        terceto.crear_terceto('CMP',f'[{terceto.get_indice() - 2}]',f'[{terceto.get_indice() - 1}]')
         terceto.crear_terceto('BE')
         indices_saltos_expresiones.append(terceto.get_indice() - 1)
 
