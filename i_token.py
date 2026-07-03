@@ -14,6 +14,12 @@ class Itoken():
     def get_token(self, nombre):
         return self.tokens.get(nombre)
     
+    def get_nombre(self, valor):
+        nombre = '_' + str(valor)
+        nombre = nombre.replace(' ','_')
+        nombre = nombre.replace('.','_')
+        return nombre
+    
     def cargar_tokens(self):
         with open('symbol-table.txt', 'rt') as f:
             i = True

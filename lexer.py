@@ -101,7 +101,8 @@ def t_CTE_STRING(t):
     t.value = contenido
 
     # creo y almaceno el token
-    itoken.crear_token("_" + t.value,t.value,"cte_str",len(t.value))
+    itoken.crear_token(itoken.get_nombre(t.value),t.value,"cte_str",len(t.value))
+    #itoken.crear_token("_" + t.value,t.value,"cte_str",len(t.value))
     return t
 
 
@@ -115,7 +116,8 @@ def t_N_FLOTANTE(t):
         raise Exception(f"ERROR: El número {valor} esta fuera de rango para un Float de 32 bits")
     
     # creo y almaceno el token
-    itoken.crear_token("_" + t.value,t.value,"cte_float")
+    itoken.crear_token(itoken.get_nombre(t.value),t.value,"cte_float")
+    #itoken.crear_token("_" + t.value,t.value,"cte_float")
     t.value = valor
     return t
 
@@ -130,7 +132,8 @@ def t_N_ENTERO(t):
         raise Exception(f"ERROR: El número {valor} esta fuera de rango para un Int de 16 bits")
 
     # creo y almaceno el token
-    itoken.crear_token("_" + t.value,t.value,"cte_int")
+    itoken.crear_token(itoken.get_nombre(t.value),t.value,"cte_int")
+    #itoken.crear_token("_" + t.value,t.value,"cte_int")
     t.value = valor
     return t
 

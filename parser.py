@@ -6,6 +6,7 @@ import ply.yacc as yacc  # analizador sintactico
 from pathlib import Path
 from i_token import Itoken
 from terceto import Terceto
+from assembler import Assembler
 
 diccionarioComparadores = {
     ">=":   "BLT",
@@ -158,7 +159,8 @@ def p_salida(p):
     print(f'write( {p.slice[3].type} ) -> salida')
 
     if p.slice[3].type == "CTE_STRING":
-        terceto.crear_terceto('WRITE',f'"{p[3]}"')
+        terceto.crear_terceto('WRITE',f'{itoken.get_nombre(p[3])}')
+        #terceto.crear_terceto('WRITE',f'"{p[3]}"')
     else:
         verificar_variable_declarada(p,p[3])
         terceto.crear_terceto('WRITE',p[3])
@@ -198,7 +200,8 @@ def p_asignacion(p):
             raise Exception(f'Error: Asignación incompatible para "{p[1]['variable']}". Esperado {tipo_a} pero se obtuvo {tipo_b}. Línea {p.lineno(1)}')
     
     if tipo_b == 'cte_string':
-        terceto.crear_terceto(f'"{p[3]}"')
+        terceto.crear_terceto(f'{itoken.get_nombre(p[3])}')
+        #terceto.crear_terceto(f'"{p[3]}"')
     
     terceto.crear_terceto(':=',f'[{p[1]['indice']}]',f'[{terceto.get_indice() - 1}]')
 
@@ -430,20 +433,29 @@ def p_expresiones_ciclo_while_especial(p):
     indices_saltos_incodicionales = []
 
     terceto.crear_terceto(var_aux)
-    terceto.crear_terceto(0)
+    nombre = itoken.get_nombre(0)
+    itoken.crear_token(nombre,'0',"cte_int")
+    terceto.crear_terceto(nombre)
+    #terceto.crear_terceto(0)
     # TODO: Mirar como hacer para usar el valor del token para la asignacion
     terceto.crear_terceto(':=',f'[{terceto.get_indice() - 2}]',f'[{terceto.get_indice() - 1}]')
     
     indice = terceto.crear_terceto('WHILE')
     indice_etiqueta_ciclo_while_especial.append(indice)
     terceto.crear_terceto(f'{var_aux}')
-    terceto.crear_terceto(len(indice_expresion_ciclo_while_especial))
+    nombre = itoken.get_nombre(len(indice_expresion_ciclo_while_especial))
+    itoken.crear_token(nombre,len(indice_expresion_ciclo_while_especial),"cte_int")
+    terceto.crear_terceto(nombre)
+    #terceto.crear_terceto(len(indice_expresion_ciclo_while_especial))
     terceto.crear_terceto('CMP',f'[{terceto.get_indice() - 2}]',f'[{terceto.get_indice() - 1}]')
     terceto.crear_terceto('BGE')
     indice_comienzo_ciclo_while_especial.append(terceto.get_indice() - 1)
 
     for (i,item) in enumerate(indice_expresion_ciclo_while_especial):
-        terceto.crear_terceto(i)
+        #terceto.crear_terceto(i)
+        nombre = itoken.get_nombre(i)
+        itoken.crear_token(nombre,i,"cte_int")
+        terceto.crear_terceto(nombre)
         terceto.crear_terceto(var_aux)
         terceto.crear_terceto('CMP',f'[{terceto.get_indice() - 2}]',f'[{terceto.get_indice() - 1}]')
         terceto.crear_terceto('BE')
@@ -458,7 +470,10 @@ def p_expresiones_ciclo_while_especial(p):
     
     indice = terceto.get_indice()
     terceto.crear_terceto(var_aux)
-    terceto.crear_terceto(1)
+    nombre = itoken.get_nombre(1)
+    itoken.crear_token(nombre,'1',"cte_int")
+    terceto.crear_terceto(nombre)
+    #terceto.crear_terceto(1)
     # TODO: Mirar como hacer para usar el valor del token para la suma
     terceto.crear_terceto('+',f'[{terceto.get_indice() - 2}]',f'[{terceto.get_indice() - 1}]')
     # TODO: Mirar como hacer para usar el valor del token para la asignacion
@@ -603,15 +618,20 @@ def p_elemento(p):
     '''
     print(f'{p.slice[1].type} -> elemento')
     
+    nombre = None
     if p.slice[1].type == 'VARIABLE':
         verificar_variable_declarada(p,p[1])
         tipo_dato = itoken.get_tipo(p[1])
+        nombre = p[1]
     elif p.slice[1].type == 'N_FLOTANTE':
         tipo_dato = 'Float'
+        nombre = itoken.get_nombre(p[1])
     elif p.slice[1].type == 'N_ENTERO':
         tipo_dato = 'Int'
+        nombre = itoken.get_nombre(p[1])
     
-    indice_terceto_expresion.append(terceto.crear_terceto(p[1]))
+    indice_terceto_expresion.append(terceto.crear_terceto(nombre))
+    #indice_terceto_expresion.append(terceto.crear_terceto(p[1]))
     p[0] = {'tipo': tipo_dato}
 
 
@@ -672,3 +692,5 @@ def ejecutar_parser():
     
     itoken.almacenar_tokens()
     terceto.almacenar_tercetos()
+    asm = Assembler()
+    asm.generar_assembler()
