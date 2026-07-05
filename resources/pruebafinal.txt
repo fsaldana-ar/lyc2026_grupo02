@@ -4,7 +4,13 @@ init {
     e, f, g, h : Float
     i, j, k : String
     nombre : String
+    
+    #+ PRUEBA DE VARIABLE DUPLICADA (Comentado para que el compilador no falle y genere el exe) +#
+    #+ a, a : Int +#
 }
+
+#+ PRUEBA DE VARIABLE NO DECLARADA (Comentado para que el compilador no falle y genere el exe) +#
+#+ z := 10 +#
 
 #+ 1. Inicializacion de Variables +#
 write("1. Inicializando variables...\n")
@@ -21,68 +27,172 @@ h := 2.0
 i := "Hola"
 j := "Mundo"
 
-#+ 2. Operaciones Aritmeticas Basicas (Enteros y Flotantes sin Division por Cero) +#
-write("2. Probando operaciones aritmeticas...\n")
+write("a inicial: ")
+write(a)
+write("\n")
+write("b inicial: ")
+write(b)
+write("\n")
+write("c inicial: ")
+write(c)
+write("\n")
+write("d inicial: ")
+write(d)
+write("\n")
+
+#+ 1.1 Pruebas de asignaciones semánticas con tipos distintos +#
+write("\nProbando asignaciones de tipos distintos...\n")
+
+#+ Asignacion id con id (Int a partir de Float) +#
+a := e
+write("Asignacion Int := Float (a := e):\n")
+write("Valor en a: ")
+write(a)
+write("\n")
+a := 10 #+ Restablecemos +#
+
+#+ Asignacion id con cte (Int a partir de Float literal) +#
+a := 1.5
+write("Asignacion Int := Float literal (a := 1.5):\n")
+write("Valor en a: ")
+write(a)
+write("\n")
+a := 10 #+ Restablecemos +#
+
+#+ Asignacion id con cte (Float a partir de Int literal) +#
+e := 100
+write("Asignacion Float := Int literal (e := 100):\n")
+#+ Nota: se muestra su representacion en binario/entero en pantalla +#
+
+write("Presione Enter para continuar...\n")
+read(d)
+
+#+ 2. Operaciones Aritmeticas Basicas +#
+write("\n2. Probando operaciones aritmeticas...\n")
+write("Variables a usar -> b: ")
+write(b)
+write(", c: ")
+write(c)
+write("\n")
+
 a := b + c
-write("Suma (3 + 2): ")
+write("Suma (b + c): ")
 write(a)
 write("\n")
 
 a := b - c
-write("Resta (3 - 2): ")
+write("Resta (b - c): ")
 write(a)
 write("\n")
 
 a := b * c
-write("Multiplicacion (3 * 2): ")
+write("Multiplicacion (b * c): ")
 write(a)
 write("\n")
 
 a := b div c
-write("Division entera (3 div 2): ")
+write("Division entera (b div c): ")
 write(a)
 write("\n")
 
 a := b mod c
-write("Modulo entero (3 mod 2): ")
+write("Modulo entero (b mod c): ")
 write(a)
 write("\n")
 
-#+ 3. Estructuras de Control (If / Else) +#
-write("\n3. Probando condicionales (If / Else)...\n")
+write("Presione Enter para continuar...\n")
+read(d)
+
+#+ 3. Estructuras de Control (If / Else y AND / OR) +#
+write("\n3. Probando condicionales (If/Else, AND/OR)...\n")
 a := 10
 b := 20
+write("Variables a usar -> a: ")
+write(a)
+write(", b: ")
+write(b)
+write("\n")
+
 if (a < b) {
     write("a es menor que b (Correcto)\n")
 } else {
     write("a no es menor que b (Incorrecto)\n")
 }
 
-if (a > b) {
-    write("a es mayor que b (Incorrecto)\n")
+#+ Prueba de igual tipo en condiciones (Int y Float en comparacion) +#
+if (a > e) {
+    write("Comparacion Int > Float: a es mayor que e\n")
 } else {
-    write("a no es mayor que b (Correcto)\n")
+    write("Comparacion Int > Float: a no es mayor que e\n")
 }
 
-#+ 4. Bucles Simples (While que terminan) +#
-write("\n4. Probando bucles while simples...\n")
-a := 3
+#+ Prueba de conector AND +#
+if (a > 0 and b > 0) {
+    write("AND funciona: ambos son mayores a 0 (Correcto)\n")
+}
+
+#+ Prueba de conector OR +#
+if (a > 100 or b > 0) {
+    write("OR funciona: al menos uno mayor a 0 (Correcto)\n")
+}
+
+write("Presione Enter para continuar...\n")
+read(d)
+
+#+ 4. IFs Anidados +#
+write("\n4. Probando IFs anidados...\n")
+a := 5
+b := 3
+write("Variables a usar -> a: ")
+write(a)
+write(", b: ")
+write(b)
+write("\n")
+
+if (a > 0) {
+    if (b > 0) {
+        write("Ambos a y b son mayores a 0 (Correcto)\n")
+    } else {
+        write("a es mayor a 0, pero b no (Incorrecto)\n")
+    }
+} else {
+    write("a no es mayor a 0 (Incorrecto)\n")
+}
+
+write("Presione Enter para continuar...\n")
+read(d)
+
+#+ 5. IF dentro de WHILE +#
+write("\n5. Probando IF dentro de WHILE...\n")
+a := 4
+write("Variable a usar -> a: ")
+write(a)
+write("\n")
+
 while (a > 0) {
-    write("Iteracion simple a: ")
+    write("Iteracion a: ")
     write(a)
     write("\n")
+    if (a mod 2 == 0) {
+        write("a es par (Correcto)\n")
+    } else {
+        write("a es impar (Correcto)\n")
+    }
     a := a - 1
 }
 
-#+ 5. Bucles Anidados +#
-write("\n5. Probando bucles while anidados...\n")
+write("Presione Enter para continuar...\n")
+read(d)
+
+#+ 6. Bucles Anidados +#
+write("\n6. Probando bucles while anidados...\n")
 a := 2
 while (a > 0) {
     b := 2
     while (b > 0) {
-        write("Anidado a y b: ")
+        write("Anidado a: ")
         write(a)
-        write(" ")
+        write(", b: ")
         write(b)
         write("\n")
         b := b - 1
@@ -90,28 +200,39 @@ while (a > 0) {
     a := a - 1
 }
 
-#+ 6. Ciclos Especiales (While in list) +#
-write("\n6. Probando ciclos especiales...\n")
+write("Presione Enter para continuar...\n")
+read(d)
+
+#+ 7. Ciclos Especiales +#
+write("\n7. Probando ciclos especiales...\n")
+write("Lista a usar: [10, 20, 30]\n")
 while a in [10, 20, 30] do
     write("Ciclo especial a: ")
     write(a)
     write("\n")
 endwhile
 
-#+ 7. Ciclos Especiales Anidados +#
-write("\n7. Probando ciclos especiales anidados...\n")
+write("Presione Enter para continuar...\n")
+read(d)
+
+#+ 8. Ciclos Especiales Anidados +#
+write("\n8. Probando ciclos especiales anidados...\n")
+write("Listas: a in [1, 2], b in [100, 200]\n")
 while a in [1, 2] do
     while b in [100, 200] do
-        write("Especial anidado a y b: ")
+        write("Especial anidado a: ")
         write(a)
-        write(" ")
+        write(", b: ")
         write(b)
         write("\n")
     endwhile
 endwhile
 
-#+ 8. Lecturas de Teclado con Prompts +#
-write("\n8. Probando lecturas de teclado...\n")
+write("Presione Enter para continuar...\n")
+read(d)
+
+#+ 9. Lecturas de Teclado con Prompts +#
+write("\n9. Probando lecturas de teclado...\n")
 write("Ingrese un numero entero para la variable a: ")
 read(a)
 write("El numero ingresado es: ")

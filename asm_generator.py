@@ -9,6 +9,7 @@ COND_MAP = {
     'BEQ': 'je',
     'BNE': 'jne',
     'BI': 'jmp',
+    'BE': 'je',
 }
 
 
