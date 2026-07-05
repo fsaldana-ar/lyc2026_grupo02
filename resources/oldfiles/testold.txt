@@ -1,0 +1,17 @@
+#+ ************** Prueba de IF-ELSE con notas ************** +#
+init {
+    a, b : Int
+}
+
+write("Ingrese la primera nota:")
+read(a)
+
+write("Ingrese la segunda nota:")
+read(b)
+
+#+ Verificamos si ambas notas son mayores a 7 +#
+if (a > 7 and b > 7) {
+    write("alumno aprobado")
+} else {
+    write("alumno desaprobado")
+}

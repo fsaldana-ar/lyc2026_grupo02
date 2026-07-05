@@ -22,7 +22,7 @@ class Itoken():
                     i = False
                     continue
                 
-                line = line.split()
+                line = line.split('|')
                 nombre = line[0].strip()
                 tipo = line[1].strip()
                 valor = line[2].strip()
@@ -45,4 +45,5 @@ class Itoken():
             
             # escribimos el resto de los datos
             for (k,v) in self.tokens.items():
-                f.write(f'{k: <{max_len_nombre}}{v['tipo']: <{max_len_tipo}}{v['valor']: <{max_len_valor}}{v['longitud']}\n')
+                #f.write(f'{k: <{max_len_nombre}}{v['tipo']: <{max_len_tipo}}{v['valor']: <{max_len_valor}}{v['longitud']}\n')
+                f.write(f'{k: <{max_len_nombre}}|{v['tipo']: <{max_len_tipo}}|{v['valor']: <{max_len_valor}}|{v['longitud']}\n')

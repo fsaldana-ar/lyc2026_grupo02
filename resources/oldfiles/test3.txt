@@ -1,0 +1,10 @@
+init {
+    a, b, c, d : Int
+    #+ aaaaaaaaaaaaaaaaaaaaa : Float +#
+}
+
+
+while(a < b and b > a){
+    a:=a
+    b:=b
+}

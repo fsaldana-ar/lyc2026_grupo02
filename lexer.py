@@ -175,9 +175,13 @@ def t_error(t):
 lexer = lex.lex(reflags=re.DOTALL)
 
 
-def ejecutar_lexer():
-    path_lexter = Path('./resources/test.txt')
-    data = path_lexter.read_text()
+def ejecutar_lexer(path_archivo=None):
+    if path_archivo is None:
+        path_archivo = Path('./resources/test.txt')
+    else:
+        path_archivo = Path(path_archivo)
+
+    data = path_archivo.read_text()
     lexer.input(data)
     while True:
         token = lexer.token()
