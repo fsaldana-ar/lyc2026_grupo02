@@ -193,9 +193,10 @@ def p_asignacion(p):
     else:
         tipo_b = p[3]['tipo']
 
-    if tipo_a != tipo_b:
-        if tipo_a == 'String' and tipo_b != 'cte_string':
-            raise Exception(f'Error: Asignación incompatible para "{p[1]['variable']}". Esperado {tipo_a} pero se obtuvo {tipo_b}. Línea {p.lineno(1)}')
+    tipo_b_normalized = 'String' if tipo_b == 'cte_string' else tipo_b
+
+    if tipo_a != tipo_b_normalized:
+        raise Exception(f'Error semántico: Asignación incompatible para "{p[1]["variable"]}". Esperado {tipo_a} pero se obtuvo {tipo_b_normalized}. Línea {p.lineno(2)}')
     
     if tipo_b == 'cte_string':
         terceto.crear_terceto(f'"{p[3]}"')
@@ -313,11 +314,18 @@ def p_condicion_simple_expi(p):
     # Expresion izquierda de la condicion simple
     global indice_expresion_izquierda_seleccion
     indice_expresion_izquierda_seleccion = terceto.get_indice() - 1
+    p[0] = p[1]
 
 
 def p_condicion_simple(p):
     'condicion_simple : condicion_simple_expi comparador expresion'
     print(f'expresion comparador expresion -> condicion_simple')
+
+    # Validate that types are equal
+    tipo_izq = p[1]['tipo']
+    tipo_der = p[3]['tipo']
+    if tipo_izq != tipo_der:
+        raise Exception(f'Error semántico: Comparación de distintos tipos de datos ({tipo_izq} y {tipo_der}) no permitida. Línea {p.lineno(2)}')
 
     # Indice de la primera expresion
     global indice_expresion_izquierda_seleccion
@@ -657,7 +665,7 @@ def verificar_variable_declarada(p,var):
 def p_error(p):
     if p is None:
         raise Exception("Error de sintaxis: fin de archivo inesperado")
-    raise Exception(f"Error en la linea {p.lineno or ''} at {p.value or ''}")
+    raise Exception(f"Error en la linea {p.lineno or ''} at token '{p.type}' with value '{p.value}'")
 
 
 def ejecutar_parser(path_archivo=None):

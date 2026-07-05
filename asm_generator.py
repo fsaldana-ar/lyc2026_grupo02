@@ -209,31 +209,64 @@ def build_data_section(symbols, tercetos, literal_labels):
     return lines
 
 
-def generate_expression_code(op, left, right, dest):
+def generate_expression_code(op, left, right, dest, dest_type):
     if left is None or right is None:
         raise ValueError(f'Expresion incompleta: {op} {left} {right}')
     code = []
-    code.append(f'    mov eax, {left}')
-    if op == '+':
-        code.append(f'    add eax, {right}')
-        code.append(f'    mov {dest}, eax')
-    elif op == '-':
-        code.append(f'    sub eax, {right}')
-        code.append(f'    mov {dest}, eax')
-    elif op == '*':
-        code.append(f'    imul eax, {right}')
-        code.append(f'    mov {dest}, eax')
-    elif op in ('/', 'DIV', 'MOD'):
-        code.append('    cdq')
-        code.append(f'    mov ebx, {right}')
-        code.append('    idiv ebx')
-        if op == 'MOD':
-            code.append(f'    mov {dest}, edx')
+    if dest_type == 'Float':
+        code.append(f'    fld dword ptr [{left}]')
+        if op == '+':
+            code.append(f'    fadd dword ptr [{right}]')
+        elif op == '-':
+            code.append(f'    fsub dword ptr [{right}]')
+        elif op == '*':
+            code.append(f'    fmul dword ptr [{right}]')
+        elif op == '/':
+            code.append(f'    fdiv dword ptr [{right}]')
         else:
-            code.append(f'    mov {dest}, eax')
+            raise ValueError(f'Operador Float no soportado: {op}')
+        code.append(f'    fstp dword ptr [{dest}]')
     else:
-        raise ValueError(f'Operador no soportado: {op}')
+        code.append(f'    mov eax, {left}')
+        if op == '+':
+            code.append(f'    add eax, {right}')
+            code.append(f'    mov {dest}, eax')
+        elif op == '-':
+            code.append(f'    sub eax, {right}')
+            code.append(f'    mov {dest}, eax')
+        elif op == '*':
+            code.append(f'    imul eax, {right}')
+            code.append(f'    mov {dest}, eax')
+        elif op in ('/', 'DIV', 'MOD'):
+            code.append('    cdq')
+            code.append(f'    mov ebx, {right}')
+            code.append('    idiv ebx')
+            if op == 'MOD':
+                code.append(f'    mov {dest}, edx')
+            else:
+                code.append(f'    mov {dest}, eax')
+        else:
+            raise ValueError(f'Operador no soportado: {op}')
     return code
+
+
+def get_operand_type(operand, symbols, tmp_types, literal_labels):
+    if not operand:
+        return 'Int'
+    if operand in tmp_types:
+        return tmp_types[operand]
+    # Check variables
+    if operand in symbols:
+        return symbols[operand]['tipo']
+    # Check literals
+    for lit, lbl in literal_labels.items():
+        if lbl == operand:
+            if '.' in lit:
+                return 'Float'
+            return 'Int'
+    if operand.startswith('tmp'):
+        return tmp_types.get(operand, 'Int')
+    return 'Int'
 
 
 def generate_asm(tercetos, symbols, output_path: Path):
@@ -252,10 +285,14 @@ def generate_asm(tercetos, symbols, output_path: Path):
     lines.append('    mov ax,@DATA')
     lines.append('    mov ds,ax')
     lines.append('    mov es,ax')
+    lines.append('    finit')
     lines.append('')
 
     literal_labels = {}
     jump_targets = set()
+    tmp_types = {}
+    last_cmp_was_float = False
+
     for idx, terceto in enumerate(tercetos):
         op, arg2, arg3 = terceto
         lines.append(f'{make_label(idx)}:')
@@ -265,14 +302,37 @@ def generate_asm(tercetos, symbols, output_path: Path):
         if op == 'CMP':
             left = operand_value(tercetos, arg2, literal_labels)
             right = operand_value(tercetos, arg3, literal_labels)
-            lines.append(f'    mov eax, {left}')
-            lines.append(f'    cmp eax, {right}')
+            type_left = get_operand_type(left, symbols, tmp_types, literal_labels)
+            type_right = get_operand_type(right, symbols, tmp_types, literal_labels)
+            
+            if type_left == 'Float' or type_right == 'Float':
+                last_cmp_was_float = True
+                lines.append(f'    fld dword ptr [{left}]')
+                lines.append(f'    fcomp dword ptr [{right}]')
+                lines.append('    fstsw ax')
+                lines.append('    sahf')
+            else:
+                last_cmp_was_float = False
+                lines.append(f'    mov eax, {left}')
+                lines.append(f'    cmp eax, {right}')
         elif op in COND_MAP:
             if not is_reference(arg2):
                 raise ValueError(f'Destino inválido en salto condicional en terceto {idx}')
             target = ref_index(arg2)
             jump_targets.add(target)
-            lines.append(f'    {COND_MAP[op]} {make_label(target)}')
+            
+            jump_instruction = COND_MAP[op]
+            if last_cmp_was_float:
+                unsigned_map = {
+                    'jle': 'jbe',
+                    'jge': 'jae',
+                    'jl': 'jb',
+                    'jg': 'ja',
+                    'je': 'je',
+                    'jne': 'jne'
+                }
+                jump_instruction = unsigned_map.get(jump_instruction, jump_instruction)
+            lines.append(f'    {jump_instruction} {make_label(target)}')
         elif op == 'BI':
             target = ref_index(arg2)
             jump_targets.add(target)
@@ -280,7 +340,6 @@ def generate_asm(tercetos, symbols, output_path: Path):
         elif op == ':=':
             destino = operand_value(tercetos, arg2, literal_labels)
             fuente = operand_value(tercetos, arg3, literal_labels)
-            # Check if fuente is a string label (STR_X format) or direct string literal
             if fuente and (fuente.startswith('STR_') or is_string_literal(arg3)):
                 lines.append(f'    mov si, OFFSET {fuente}')
                 lines.append(f'    mov di, OFFSET {destino}')
@@ -296,7 +355,19 @@ def generate_asm(tercetos, symbols, output_path: Path):
         elif op in ('+', '-', '*', '/', 'DIV', 'MOD'):
             left = operand_value(tercetos, arg2, literal_labels)
             right = operand_value(tercetos, arg3, literal_labels)
-            lines.extend(generate_expression_code(op, left, right, f'tmp{idx}'))
+            
+            type_left = get_operand_type(left, symbols, tmp_types, literal_labels)
+            type_right = get_operand_type(right, symbols, tmp_types, literal_labels)
+            
+            if op == '/':
+                dest_type = 'Float'
+            elif op in ('DIV', 'MOD'):
+                dest_type = 'Int'
+            else:
+                dest_type = 'Float' if (type_left == 'Float' or type_right == 'Float') else 'Int'
+                
+            tmp_types[f'tmp{idx}'] = dest_type
+            lines.extend(generate_expression_code(op, left, right, f'tmp{idx}', dest_type))
         elif op == 'WRITE':
             destino = operand_value(tercetos, arg2, literal_labels)
             if is_string_literal(arg2):
@@ -304,10 +375,27 @@ def generate_asm(tercetos, symbols, output_path: Path):
                 lines.append(f'    mov ah, 9')
                 lines.append(f'    int 21h')
             else:
-                lines.append(f'    DisplayInteger {destino}')
+                is_float = False
+                if arg2 in symbols and symbols[arg2]['tipo'] == 'Float':
+                    is_float = True
+                elif destino in symbols and symbols[destino]['tipo'] == 'Float':
+                    is_float = True
+                else:
+                    for lit, lbl in literal_labels.items():
+                        if lbl == destino and '.' in lit:
+                            is_float = True
+                            break
+                
+                if is_float:
+                    lines.append(f'    DisplayFloat {destino}, 2')
+                else:
+                    lines.append(f'    DisplayInteger {destino}')
         elif op == 'READ':
             variable = arg2
-            lines.append(f'    GetInteger {variable}')
+            if variable in symbols and symbols[variable]['tipo'] == 'Float':
+                lines.append(f'    GetFloat {variable}')
+            else:
+                lines.append(f'    GetInteger {variable}')
         elif is_literal_or_symbol(op):
             pass
         else:

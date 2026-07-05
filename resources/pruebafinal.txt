@@ -1,22 +1,22 @@
 #+ ************** Lote de Pruebas Completo ************** +#
 init {
-    a, b, c, d : Int
+    a, b, c, d, pausa : Int
     e, f, g, h : Float
     i, j, k : String
     nombre : String
     
-    #+ PRUEBA DE VARIABLE DUPLICADA (Comentado para que el compilador no falle y genere el exe) +#
+    #+ PRUEBA DE VARIABLE DUPLICADA (Comentado para que el compilador no falle) +#
     #+ a, a : Int +#
 }
 
-#+ PRUEBA DE VARIABLE NO DECLARADA (Comentado para que el compilador no falle y genere el exe) +#
+#+ PRUEBA DE VARIABLE NO DECLARADA (Comentado para que el compilador no falle) +#
 #+ z := 10 +#
 
 #+ 1. Inicializacion de Variables +#
 write("1. Inicializando variables...\n")
 a := 10
 b := 3
-c := 2
+c := -2
 d := 5
 
 e := 10.5
@@ -40,32 +40,27 @@ write("d inicial: ")
 write(d)
 write("\n")
 
+write("e inicial: ")
+write(e)
+write("\n")
+write("f inicial: ")
+write(f)
+write("\n")
+
 #+ 1.1 Pruebas de asignaciones semánticas con tipos distintos +#
 write("\nProbando asignaciones de tipos distintos...\n")
 
-#+ Asignacion id con id (Int a partir de Float) +#
-a := e
-write("Asignacion Int := Float (a := e):\n")
-write("Valor en a: ")
-write(a)
-write("\n")
-a := 10 #+ Restablecemos +#
+#+ Asignacion id con id (Int a partir de Float) (Comentado para que compile) +#
+#+ a := e +#
 
-#+ Asignacion id con cte (Int a partir de Float literal) +#
-a := 1.5
-write("Asignacion Int := Float literal (a := 1.5):\n")
-write("Valor en a: ")
-write(a)
-write("\n")
-a := 10 #+ Restablecemos +#
+#+ Asignacion id con cte (Int a partir de Float literal) (Comentado para que compile) +#
+#+ a := 1.5 +#
 
-#+ Asignacion id con cte (Float a partir de Int literal) +#
-e := 100
-write("Asignacion Float := Int literal (e := 100):\n")
-#+ Nota: se muestra su representacion en binario/entero en pantalla +#
+#+ Asignacion id con cte (Float a partir de Int literal) (Comentado para que compile) +#
+#+ e := 100 +#
 
 write("Presione Enter para continuar...\n")
-read(d)
+read(pausa)
 
 #+ 2. Operaciones Aritmeticas Basicas +#
 write("\n2. Probando operaciones aritmeticas...\n")
@@ -73,35 +68,56 @@ write("Variables a usar -> b: ")
 write(b)
 write(", c: ")
 write(c)
+write(", d: ")
+write(d)
 write("\n")
 
-a := b + c
-write("Suma (b + c): ")
+#+ Operacion basica sin parentesis (b * c + d = 3 * (-2) + 5 = -1) +#
+a := b * c + d
+write("b * c + d (deberia ser -1): ")
 write(a)
 write("\n")
 
-a := b - c
-write("Resta (b - c): ")
+#+ Operacion con parentesis (b * (c + d) = 3 * (-2 + 5) = 9) +#
+a := b * (c + d)
+write("b * (c + d) (deberia ser 9): ")
 write(a)
 write("\n")
 
-a := b * c
-write("Multiplicacion (b * c): ")
+#+ Expresion compleja con terminos: (b + c) * d - a = (3 + -2) * 5 - 9 = -4 +#
+a := (b + c) * d - a
+write("(b + c) * d - a (deberia ser -4): ")
 write(a)
 write("\n")
 
-a := b div c
-write("Division entera (b div c): ")
+#+ Expresion con division y precedencia: (d * (b + c)) div 2 = 2 +#
+a := (d * (b + c)) div 2
+write("(d * (b + c)) div 2 (deberia ser 2): ")
 write(a)
 write("\n")
 
+#+ Modulo y residuo simple (3 mod -2 = 1) +#
 a := b mod c
-write("Modulo entero (b mod c): ")
+write("b mod c (deberia ser 1): ")
 write(a)
+write("\n")
+
+#+ Operaciones con Floats +#
+write("Variables a usar -> e: ")
+write(e)
+write(", f: ")
+write(f)
+write(", g: ")
+write(g)
+write("\n")
+
+h := e + f * g
+write("e + f * g (deberia ser 15.30): ")
+write(h)
 write("\n")
 
 write("Presione Enter para continuar...\n")
-read(d)
+read(pausa)
 
 #+ 3. Estructuras de Control (If / Else y AND / OR) +#
 write("\n3. Probando condicionales (If/Else, AND/OR)...\n")
@@ -119,11 +135,18 @@ if (a < b) {
     write("a no es menor que b (Incorrecto)\n")
 }
 
-#+ Prueba de igual tipo en condiciones (Int y Float en comparacion) +#
-if (a > e) {
+#+ Prueba de igual tipo en condiciones (Int y Float) (Comentado para que compile) +#
+#+ if (a > e) {
     write("Comparacion Int > Float: a es mayor que e\n")
 } else {
     write("Comparacion Int > Float: a no es mayor que e\n")
+} +#
+
+#+ Condicionales con Float +#
+if (e > f) {
+    write("Float e es mayor que f (Correcto)\n")
+} else {
+    write("Float e no es mayor que f (Incorrecto)\n")
 }
 
 #+ Prueba de conector AND +#
@@ -137,7 +160,7 @@ if (a > 100 or b > 0) {
 }
 
 write("Presione Enter para continuar...\n")
-read(d)
+read(pausa)
 
 #+ 4. IFs Anidados +#
 write("\n4. Probando IFs anidados...\n")
@@ -159,8 +182,15 @@ if (a > 0) {
     write("a no es mayor a 0 (Incorrecto)\n")
 }
 
+#+ IFs Anidados con Float +#
+if (e > 0.0) {
+    if (f > 0.0) {
+        write("Floats e y f mayores a 0.0 (Correcto)\n")
+    }
+}
+
 write("Presione Enter para continuar...\n")
-read(d)
+read(pausa)
 
 #+ 5. IF dentro de WHILE +#
 write("\n5. Probando IF dentro de WHILE...\n")
@@ -181,8 +211,21 @@ while (a > 0) {
     a := a - 1
 }
 
+#+ IF dentro de WHILE con Float +#
+write("Ejecutando bucle while con float...\n")
+while (e > 8.0) {
+    write("e actual: ")
+    write(e)
+    write("\n")
+    if (e > 9.0) {
+        write("e es mayor que 9.0 (Correcto)\n")
+    }
+    e := e - 1.0
+}
+e := 10.5 #+ Restablecemos +#
+
 write("Presione Enter para continuar...\n")
-read(d)
+read(pausa)
 
 #+ 6. Bucles Anidados +#
 write("\n6. Probando bucles while anidados...\n")
@@ -200,8 +243,26 @@ while (a > 0) {
     a := a - 1
 }
 
+#+ Bucles Anidados con Float +#
+write("Bucles anidados con float...\n")
+e := 7.0
+while (e > 5.0) {
+    f := 2.0
+    while (f > 0.0) {
+        write("Float anidado e: ")
+        write(e)
+        write(", f: ")
+        write(f)
+        write("\n")
+        f := f - 1.0
+    }
+    e := e - 1.0
+}
+e := 10.5
+f := 3.2
+
 write("Presione Enter para continuar...\n")
-read(d)
+read(pausa)
 
 #+ 7. Ciclos Especiales +#
 write("\n7. Probando ciclos especiales...\n")
@@ -212,8 +273,17 @@ while a in [10, 20, 30] do
     write("\n")
 endwhile
 
+#+ Ciclo Especial Float +#
+write("Ciclo especial Float in [10.5, 20.5, 30.5]:\n")
+while e in [10.5, 20.5, 30.5] do
+    write("Especial Float e: ")
+    write(e)
+    write("\n")
+endwhile
+e := 10.5
+
 write("Presione Enter para continuar...\n")
-read(d)
+read(pausa)
 
 #+ 8. Ciclos Especiales Anidados +#
 write("\n8. Probando ciclos especiales anidados...\n")
@@ -228,8 +298,22 @@ while a in [1, 2] do
     endwhile
 endwhile
 
+#+ Ciclos Especiales Anidados con Float +#
+write("Ciclos Float especiales anidados...\n")
+while e in [1.5, 2.5] do
+    while f in [100.5, 200.5] do
+        write("Float especial e: ")
+        write(e)
+        write(", f: ")
+        write(f)
+        write("\n")
+    endwhile
+endwhile
+e := 10.5
+f := 3.2
+
 write("Presione Enter para continuar...\n")
-read(d)
+read(pausa)
 
 #+ 9. Lecturas de Teclado con Prompts +#
 write("\n9. Probando lecturas de teclado...\n")

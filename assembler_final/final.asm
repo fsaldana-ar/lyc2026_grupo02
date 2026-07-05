@@ -9,6 +9,7 @@ include number.asm
     b dd ?
     c dd ?
     d dd ?
+    pausa dd ?
     e dd ?
     f dd ?
     g dd ?
@@ -19,22 +20,37 @@ include number.asm
     nombre db 51 dup(?), "$"
     _10 dd 10
     _3 dd 3
-    _2 dd 2
+    _n2 dd -2
     _5 dd 5
     _10_5 dd 10.5
     _3_2 dd 3.2
     _1_5 dd 1.5
     _2_0 dd 2.0
-    _100 dd 100
+    _2 dd 2
     _20 dd 20
     _0 dd 0
+    _100 dd 100
+    _0_0 dd 0.0
     _4 dd 4
     _1 dd 1
+    _8_0 dd 8.0
+    _9_0 dd 9.0
+    _1_0 dd 1.0
+    _7_0 dd 7.0
+    _5_0 dd 5.0
     _30 dd 30
+    _20_5 dd 20.5
+    _30_5 dd 30.5
     _200 dd 200
+    _2_5 dd 2.5
+    _100_5 dd 100.5
+    _200_5 dd 200.5
     @aux1 dd ?
     @aux2 dd ?
     @aux3 dd ?
+    @aux4 dd ?
+    @aux5 dd ?
+    @aux6 dd ?
     STR_0 db "1. Inicializando variables...", 13, 10,"$"
     STR_1 db "Hola","$"
     STR_2 db "Mundo","$"
@@ -43,63 +59,90 @@ include number.asm
     STR_5 db "b inicial: ","$"
     STR_6 db "c inicial: ","$"
     STR_7 db "d inicial: ","$"
-    STR_8 db 13, 10, "Probando asignaciones de tipos distintos...", 13, 10,"$"
-    STR_9 db "Asignacion Int := Float (a := e):", 13, 10,"$"
-    STR_10 db "Valor en a: ","$"
-    STR_11 db "Asignacion Int := Float literal (a := 1.5):", 13, 10,"$"
-    STR_12 db "Asignacion Float := Int literal (e := 100):", 13, 10,"$"
-    STR_13 db "Presione Enter para continuar...", 13, 10,"$"
-    STR_14 db 13, 10, "2. Probando operaciones aritmeticas...", 13, 10,"$"
-    STR_15 db "Variables a usar -> b: ","$"
-    STR_16 db ", c: ","$"
-    STR_17 db "Suma (b + c): ","$"
-    STR_18 db "Resta (b - c): ","$"
-    STR_19 db "Multiplicacion (b * c): ","$"
-    STR_20 db "Division entera (b div c): ","$"
-    STR_21 db "Modulo entero (b mod c): ","$"
-    STR_22 db 13, 10, "3. Probando condicionales (If/Else, AND/OR)...", 13, 10,"$"
-    STR_23 db "Variables a usar -> a: ","$"
-    STR_24 db ", b: ","$"
-    STR_25 db "a es menor que b (Correcto)", 13, 10,"$"
-    STR_26 db "a no es menor que b (Incorrecto)", 13, 10,"$"
-    STR_27 db "Comparacion Int > Float: a es mayor que e", 13, 10,"$"
-    STR_28 db "Comparacion Int > Float: a no es mayor que e", 13, 10,"$"
-    STR_29 db "AND funciona: ambos son mayores a 0 (Correcto)", 13, 10,"$"
-    STR_30 db "OR funciona: al menos uno mayor a 0 (Correcto)", 13, 10,"$"
-    STR_31 db 13, 10, "4. Probando IFs anidados...", 13, 10,"$"
-    STR_32 db "Ambos a y b son mayores a 0 (Correcto)", 13, 10,"$"
-    STR_33 db "a es mayor a 0, pero b no (Incorrecto)", 13, 10,"$"
-    STR_34 db "a no es mayor a 0 (Incorrecto)", 13, 10,"$"
-    STR_35 db 13, 10, "5. Probando IF dentro de WHILE...", 13, 10,"$"
-    STR_36 db "Variable a usar -> a: ","$"
-    STR_37 db "Iteracion a: ","$"
-    STR_38 db "a es par (Correcto)", 13, 10,"$"
-    STR_39 db "a es impar (Correcto)", 13, 10,"$"
-    STR_40 db 13, 10, "6. Probando bucles while anidados...", 13, 10,"$"
-    STR_41 db "Anidado a: ","$"
-    STR_42 db 13, 10, "7. Probando ciclos especiales...", 13, 10,"$"
-    STR_43 db "Lista a usar: [10, 20, 30]", 13, 10,"$"
-    STR_44 db "Ciclo especial a: ","$"
-    STR_45 db 13, 10, "8. Probando ciclos especiales anidados...", 13, 10,"$"
-    STR_46 db "Listas: a in [1, 2], b in [100, 200]", 13, 10,"$"
-    STR_47 db "Especial anidado a: ","$"
-    STR_48 db 13, 10, "9. Probando lecturas de teclado...", 13, 10,"$"
-    STR_49 db "Ingrese un numero entero para la variable a: ","$"
-    STR_50 db "El numero ingresado es: ","$"
-    STR_51 db 13, 10, 13, 10,"$"
-    STR_52 db "Pruebas completadas de manera exitosa!", 13, 10,"$"
-    tmp79 dd ?
+    STR_8 db "e inicial: ","$"
+    STR_9 db "f inicial: ","$"
+    STR_10 db 13, 10, "Probando asignaciones de tipos distintos...", 13, 10,"$"
+    STR_11 db "Presione Enter para continuar...", 13, 10,"$"
+    STR_12 db 13, 10, "2. Probando operaciones aritmeticas...", 13, 10,"$"
+    STR_13 db "Variables a usar -> b: ","$"
+    STR_14 db ", c: ","$"
+    STR_15 db ", d: ","$"
+    STR_16 db "b * c + d (deberia ser -1): ","$"
+    STR_17 db "b * (c + d) (deberia ser 9): ","$"
+    STR_18 db "(b + c) * d - a (deberia ser -4): ","$"
+    STR_19 db "(d * (b + c)) div 2 (deberia ser 2): ","$"
+    STR_20 db "b mod c (deberia ser 1): ","$"
+    STR_21 db "Variables a usar -> e: ","$"
+    STR_22 db ", f: ","$"
+    STR_23 db ", g: ","$"
+    STR_24 db "e + f * g (deberia ser 15.30): ","$"
+    STR_25 db 13, 10, "3. Probando condicionales (If/Else, AND/OR)...", 13, 10,"$"
+    STR_26 db "Variables a usar -> a: ","$"
+    STR_27 db ", b: ","$"
+    STR_28 db "a es menor que b (Correcto)", 13, 10,"$"
+    STR_29 db "a no es menor que b (Incorrecto)", 13, 10,"$"
+    STR_30 db "Float e es mayor que f (Correcto)", 13, 10,"$"
+    STR_31 db "Float e no es mayor que f (Incorrecto)", 13, 10,"$"
+    STR_32 db "AND funciona: ambos son mayores a 0 (Correcto)", 13, 10,"$"
+    STR_33 db "OR funciona: al menos uno mayor a 0 (Correcto)", 13, 10,"$"
+    STR_34 db 13, 10, "4. Probando IFs anidados...", 13, 10,"$"
+    STR_35 db "Ambos a y b son mayores a 0 (Correcto)", 13, 10,"$"
+    STR_36 db "a es mayor a 0, pero b no (Incorrecto)", 13, 10,"$"
+    STR_37 db "a no es mayor a 0 (Incorrecto)", 13, 10,"$"
+    STR_38 db "Floats e y f mayores a 0.0 (Correcto)", 13, 10,"$"
+    STR_39 db 13, 10, "5. Probando IF dentro de WHILE...", 13, 10,"$"
+    STR_40 db "Variable a usar -> a: ","$"
+    STR_41 db "Iteracion a: ","$"
+    STR_42 db "a es par (Correcto)", 13, 10,"$"
+    STR_43 db "a es impar (Correcto)", 13, 10,"$"
+    STR_44 db "Ejecutando bucle while con float...", 13, 10,"$"
+    STR_45 db "e actual: ","$"
+    STR_46 db "e es mayor que 9.0 (Correcto)", 13, 10,"$"
+    STR_47 db 13, 10, "6. Probando bucles while anidados...", 13, 10,"$"
+    STR_48 db "Anidado a: ","$"
+    STR_49 db "Bucles anidados con float...", 13, 10,"$"
+    STR_50 db "Float anidado e: ","$"
+    STR_51 db 13, 10, "7. Probando ciclos especiales...", 13, 10,"$"
+    STR_52 db "Lista a usar: [10, 20, 30]", 13, 10,"$"
+    STR_53 db "Ciclo especial a: ","$"
+    STR_54 db "Ciclo especial Float in [10.5, 20.5, 30.5]:", 13, 10,"$"
+    STR_55 db "Especial Float e: ","$"
+    STR_56 db 13, 10, "8. Probando ciclos especiales anidados...", 13, 10,"$"
+    STR_57 db "Listas: a in [1, 2], b in [100, 200]", 13, 10,"$"
+    STR_58 db "Especial anidado a: ","$"
+    STR_59 db "Ciclos Float especiales anidados...", 13, 10,"$"
+    STR_60 db "Float especial e: ","$"
+    STR_61 db 13, 10, "9. Probando lecturas de teclado...", 13, 10,"$"
+    STR_62 db "Ingrese un numero entero para la variable a: ","$"
+    STR_63 db "El numero ingresado es: ","$"
+    STR_64 db 13, 10, 13, 10,"$"
+    STR_65 db "Pruebas completadas de manera exitosa!", 13, 10,"$"
+    tmp63 dd ?
+    tmp65 dd ?
+    tmp74 dd ?
+    tmp75 dd ?
+    tmp83 dd ?
+    tmp85 dd ?
     tmp87 dd ?
-    tmp95 dd ?
-    tmp103 dd ?
-    tmp111 dd ?
-    tmp208 dd ?
-    tmp218 dd ?
-    tmp248 dd ?
-    tmp254 dd ?
-    tmp295 dd ?
-    tmp332 dd ?
-    tmp361 dd ?
+    tmp96 dd ?
+    tmp97 dd ?
+    tmp99 dd ?
+    tmp107 dd ?
+    tmp123 dd ?
+    tmp124 dd ?
+    tmp230 dd ?
+    tmp240 dd ?
+    tmp260 dd ?
+    tmp293 dd ?
+    tmp299 dd ?
+    tmp327 dd ?
+    tmp333 dd ?
+    tmp380 dd ?
+    tmp422 dd ?
+    tmp462 dd ?
+    tmp491 dd ?
+    tmp528 dd ?
+    tmp557 dd ?
 
 .CODE
 
@@ -107,6 +150,7 @@ START:
     mov ax,@DATA
     mov ds,ax
     mov es,ax
+    finit
 
 L0:
     mov dx, OFFSET STR_0
@@ -134,7 +178,7 @@ L7:
 L8:
 
 L9:
-    mov eax, _2
+    mov eax, _n2
     mov c, eax
 
 L10:
@@ -263,157 +307,166 @@ L43:
     int 21h
 
 L44:
+    DisplayFloat e, 2
 
 L45:
+    mov dx, OFFSET STR_4
+    mov ah, 9
+    int 21h
 
 L46:
-    mov eax, e
-    mov a, eax
-
-L47:
     mov dx, OFFSET STR_9
     mov ah, 9
     int 21h
 
+L47:
+    DisplayFloat f, 2
+
 L48:
-    mov dx, OFFSET STR_10
+    mov dx, OFFSET STR_4
     mov ah, 9
     int 21h
 
 L49:
-    DisplayInteger a
-
-L50:
-    mov dx, OFFSET STR_4
-    mov ah, 9
-    int 21h
-
-L51:
-
-L52:
-
-L53:
-    mov eax, _10
-    mov a, eax
-
-L54:
-
-L55:
-
-L56:
-    mov eax, _1_5
-    mov a, eax
-
-L57:
-    mov dx, OFFSET STR_11
-    mov ah, 9
-    int 21h
-
-L58:
     mov dx, OFFSET STR_10
     mov ah, 9
     int 21h
 
-L59:
-    DisplayInteger a
+L50:
+    mov dx, OFFSET STR_11
+    mov ah, 9
+    int 21h
 
-L60:
+L51:
+    GetInteger pausa
+
+L52:
+    mov dx, OFFSET STR_12
+    mov ah, 9
+    int 21h
+
+L53:
+    mov dx, OFFSET STR_13
+    mov ah, 9
+    int 21h
+
+L54:
+    DisplayInteger b
+
+L55:
+    mov dx, OFFSET STR_14
+    mov ah, 9
+    int 21h
+
+L56:
+    DisplayInteger c
+
+L57:
+    mov dx, OFFSET STR_15
+    mov ah, 9
+    int 21h
+
+L58:
+    DisplayInteger d
+
+L59:
     mov dx, OFFSET STR_4
     mov ah, 9
     int 21h
+
+L60:
 
 L61:
 
 L62:
 
 L63:
-    mov eax, _10
-    mov a, eax
+    mov eax, b
+    imul eax, c
+    mov tmp63, eax
 
 L64:
 
 L65:
+    mov eax, tmp63
+    add eax, d
+    mov tmp65, eax
 
 L66:
-    mov eax, _100
-    mov e, eax
+    mov eax, tmp65
+    mov a, eax
 
 L67:
-    mov dx, OFFSET STR_12
-    mov ah, 9
-    int 21h
-
-L68:
-    mov dx, OFFSET STR_13
-    mov ah, 9
-    int 21h
-
-L69:
-    GetInteger d
-
-L70:
-    mov dx, OFFSET STR_14
-    mov ah, 9
-    int 21h
-
-L71:
-    mov dx, OFFSET STR_15
-    mov ah, 9
-    int 21h
-
-L72:
-    DisplayInteger b
-
-L73:
     mov dx, OFFSET STR_16
     mov ah, 9
     int 21h
 
-L74:
-    DisplayInteger c
+L68:
+    DisplayInteger a
 
-L75:
+L69:
     mov dx, OFFSET STR_4
     mov ah, 9
     int 21h
 
-L76:
+L70:
 
-L77:
+L71:
 
-L78:
+L72:
 
-L79:
+L73:
+
+L74:
+    mov eax, c
+    add eax, d
+    mov tmp74, eax
+
+L75:
     mov eax, b
-    add eax, c
-    mov tmp79, eax
+    imul eax, tmp74
+    mov tmp75, eax
 
-L80:
-    mov eax, tmp79
+L76:
+    mov eax, tmp75
     mov a, eax
 
-L81:
+L77:
     mov dx, OFFSET STR_17
     mov ah, 9
     int 21h
 
-L82:
+L78:
     DisplayInteger a
 
-L83:
+L79:
     mov dx, OFFSET STR_4
     mov ah, 9
     int 21h
 
+L80:
+
+L81:
+
+L82:
+
+L83:
+    mov eax, b
+    add eax, c
+    mov tmp83, eax
+
 L84:
 
 L85:
+    mov eax, tmp83
+    imul eax, d
+    mov tmp85, eax
 
 L86:
 
 L87:
-    mov eax, b
-    sub eax, c
+    mov eax, tmp85
+    sub eax, a
     mov tmp87, eax
 
 L88:
@@ -440,97 +493,99 @@ L93:
 L94:
 
 L95:
-    mov eax, b
-    imul eax, c
-    mov tmp95, eax
 
 L96:
-    mov eax, tmp95
-    mov a, eax
+    mov eax, b
+    add eax, c
+    mov tmp96, eax
 
 L97:
+    mov eax, d
+    imul eax, tmp96
+    mov tmp97, eax
+
+L98:
+
+L99:
+    mov eax, tmp97
+    cdq
+    mov ebx, _2
+    idiv ebx
+    mov tmp99, eax
+
+L100:
+    mov eax, tmp99
+    mov a, eax
+
+L101:
     mov dx, OFFSET STR_19
     mov ah, 9
     int 21h
 
-L98:
+L102:
     DisplayInteger a
 
-L99:
+L103:
     mov dx, OFFSET STR_4
     mov ah, 9
     int 21h
 
-L100:
+L104:
 
-L101:
+L105:
 
-L102:
+L106:
 
-L103:
+L107:
     mov eax, b
     cdq
     mov ebx, c
     idiv ebx
-    mov tmp103, eax
+    mov tmp107, edx
 
-L104:
-    mov eax, tmp103
+L108:
+    mov eax, tmp107
     mov a, eax
 
-L105:
+L109:
     mov dx, OFFSET STR_20
     mov ah, 9
     int 21h
 
-L106:
+L110:
     DisplayInteger a
 
-L107:
+L111:
     mov dx, OFFSET STR_4
     mov ah, 9
     int 21h
 
-L108:
-
-L109:
-
-L110:
-
-L111:
-    mov eax, b
-    cdq
-    mov ebx, c
-    idiv ebx
-    mov tmp111, edx
-
 L112:
-    mov eax, tmp111
-    mov a, eax
-
-L113:
     mov dx, OFFSET STR_21
     mov ah, 9
     int 21h
 
-L114:
-    DisplayInteger a
+L113:
+    DisplayFloat e, 2
 
-L115:
-    mov dx, OFFSET STR_4
+L114:
+    mov dx, OFFSET STR_22
     mov ah, 9
     int 21h
 
+L115:
+    DisplayFloat f, 2
+
 L116:
-    mov dx, OFFSET STR_13
+    mov dx, OFFSET STR_23
     mov ah, 9
     int 21h
 
 L117:
-    GetInteger d
+    DisplayFloat g, 2
 
 L118:
-    mov dx, OFFSET STR_22
+    mov dx, OFFSET STR_4
     mov ah, 9
     int 21h
 
@@ -539,827 +594,1442 @@ L119:
 L120:
 
 L121:
-    mov eax, _10
-    mov a, eax
 
 L122:
 
 L123:
+    fld dword ptr [f]
+    fmul dword ptr [g]
+    fstp dword ptr [tmp123]
 
 L124:
-    mov eax, _20
-    mov b, eax
+    fld dword ptr [e]
+    fadd dword ptr [tmp123]
+    fstp dword ptr [tmp124]
 
 L125:
-    mov dx, OFFSET STR_23
-    mov ah, 9
-    int 21h
+    mov eax, tmp124
+    mov h, eax
 
 L126:
-    DisplayInteger a
-
-L127:
     mov dx, OFFSET STR_24
     mov ah, 9
     int 21h
 
-L128:
-    DisplayInteger b
+L127:
+    DisplayFloat h, 2
 
-L129:
+L128:
     mov dx, OFFSET STR_4
     mov ah, 9
     int 21h
 
+L129:
+    mov dx, OFFSET STR_11
+    mov ah, 9
+    int 21h
+
 L130:
+    GetInteger pausa
 
 L131:
-
-L132:
-    mov eax, a
-    cmp eax, b
-
-L133:
-    jge L136
-
-L134:
     mov dx, OFFSET STR_25
     mov ah, 9
     int 21h
 
+L132:
+
+L133:
+
+L134:
+    mov eax, _10
+    mov a, eax
+
 L135:
-    jmp L137
 
 L136:
+
+L137:
+    mov eax, _20
+    mov b, eax
+
+L138:
     mov dx, OFFSET STR_26
     mov ah, 9
     int 21h
 
-L137:
-
-L138:
-
 L139:
-    mov eax, a
-    cmp eax, e
+    DisplayInteger a
 
 L140:
-    jle L143
-
-L141:
     mov dx, OFFSET STR_27
     mov ah, 9
     int 21h
 
-L142:
-    jmp L144
+L141:
+    DisplayInteger b
 
-L143:
-    mov dx, OFFSET STR_28
+L142:
+    mov dx, OFFSET STR_4
     mov ah, 9
     int 21h
+
+L143:
 
 L144:
 
 L145:
+    mov eax, a
+    cmp eax, b
 
 L146:
-    mov eax, a
-    cmp eax, _0
+    jge L149
 
 L147:
-    jle L153
+    mov dx, OFFSET STR_28
+    mov ah, 9
+    int 21h
 
 L148:
+    jmp L150
 
 L149:
-
-L150:
-    mov eax, b
-    cmp eax, _0
-
-L151:
-    jle L153
-
-L152:
     mov dx, OFFSET STR_29
     mov ah, 9
     int 21h
 
+L150:
+
+L151:
+
+L152:
+    fld dword ptr [e]
+    fcomp dword ptr [f]
+    fstsw ax
+    sahf
+
 L153:
+    jbe L156
 
 L154:
+    mov dx, OFFSET STR_30
+    mov ah, 9
+    int 21h
 
 L155:
-    mov eax, a
-    cmp eax, _100
+    jmp L157
 
 L156:
-    jg L161
+    mov dx, OFFSET STR_31
+    mov ah, 9
+    int 21h
 
 L157:
 
 L158:
 
 L159:
-    mov eax, b
-    cmp eax, _0
-
-L160:
-    jle L162
-
-L161:
-    mov dx, OFFSET STR_30
-    mov ah, 9
-    int 21h
-
-L162:
-    mov dx, OFFSET STR_13
-    mov ah, 9
-    int 21h
-
-L163:
-    GetInteger d
-
-L164:
-    mov dx, OFFSET STR_31
-    mov ah, 9
-    int 21h
-
-L165:
-
-L166:
-
-L167:
-    mov eax, _5
-    mov a, eax
-
-L168:
-
-L169:
-
-L170:
-    mov eax, _3
-    mov b, eax
-
-L171:
-    mov dx, OFFSET STR_23
-    mov ah, 9
-    int 21h
-
-L172:
-    DisplayInteger a
-
-L173:
-    mov dx, OFFSET STR_24
-    mov ah, 9
-    int 21h
-
-L174:
-    DisplayInteger b
-
-L175:
-    mov dx, OFFSET STR_4
-    mov ah, 9
-    int 21h
-
-L176:
-
-L177:
-
-L178:
     mov eax, a
     cmp eax, _0
 
-L179:
-    jle L188
+L160:
+    jle L166
 
-L180:
+L161:
 
-L181:
+L162:
 
-L182:
+L163:
     mov eax, b
     cmp eax, _0
 
-L183:
-    jle L186
+L164:
+    jle L166
 
-L184:
+L165:
     mov dx, OFFSET STR_32
     mov ah, 9
     int 21h
 
-L185:
-    jmp L187
+L166:
 
-L186:
+L167:
+
+L168:
+    mov eax, a
+    cmp eax, _100
+
+L169:
+    jg L174
+
+L170:
+
+L171:
+
+L172:
+    mov eax, b
+    cmp eax, _0
+
+L173:
+    jle L175
+
+L174:
     mov dx, OFFSET STR_33
     mov ah, 9
     int 21h
 
-L187:
-    jmp L189
+L175:
+    mov dx, OFFSET STR_11
+    mov ah, 9
+    int 21h
 
-L188:
+L176:
+    GetInteger pausa
+
+L177:
     mov dx, OFFSET STR_34
     mov ah, 9
     int 21h
 
-L189:
-    mov dx, OFFSET STR_13
+L178:
+
+L179:
+
+L180:
+    mov eax, _5
+    mov a, eax
+
+L181:
+
+L182:
+
+L183:
+    mov eax, _3
+    mov b, eax
+
+L184:
+    mov dx, OFFSET STR_26
     mov ah, 9
     int 21h
+
+L185:
+    DisplayInteger a
+
+L186:
+    mov dx, OFFSET STR_27
+    mov ah, 9
+    int 21h
+
+L187:
+    DisplayInteger b
+
+L188:
+    mov dx, OFFSET STR_4
+    mov ah, 9
+    int 21h
+
+L189:
 
 L190:
-    GetInteger d
 
 L191:
-    mov dx, OFFSET STR_35
-    mov ah, 9
-    int 21h
+    mov eax, a
+    cmp eax, _0
 
 L192:
+    jle L201
 
 L193:
 
 L194:
-    mov eax, _4
-    mov a, eax
 
 L195:
-    mov dx, OFFSET STR_36
-    mov ah, 9
-    int 21h
+    mov eax, b
+    cmp eax, _0
 
 L196:
-    DisplayInteger a
+    jle L199
 
 L197:
-    mov dx, OFFSET STR_4
+    mov dx, OFFSET STR_35
     mov ah, 9
     int 21h
 
 L198:
+    jmp L200
+
 L199:
+    mov dx, OFFSET STR_36
+    mov ah, 9
+    int 21h
 
 L200:
+    jmp L202
 
 L201:
-    mov eax, a
-    cmp eax, _0
-
-L202:
-    jle L221
-
-L203:
     mov dx, OFFSET STR_37
     mov ah, 9
     int 21h
 
+L202:
+
+L203:
+
 L204:
-    DisplayInteger a
+    fld dword ptr [e]
+    fcomp dword ptr [_0_0]
+    fstsw ax
+    sahf
 
 L205:
-    mov dx, OFFSET STR_4
-    mov ah, 9
-    int 21h
+    jbe L211
 
 L206:
 
 L207:
 
 L208:
-    mov eax, a
-    cdq
-    mov ebx, _2
-    idiv ebx
-    mov tmp208, edx
+    fld dword ptr [f]
+    fcomp dword ptr [_0_0]
+    fstsw ax
+    sahf
 
 L209:
+    jbe L211
 
 L210:
-    mov eax, tmp208
-    cmp eax, _0
-
-L211:
-    jne L214
-
-L212:
     mov dx, OFFSET STR_38
     mov ah, 9
     int 21h
 
-L213:
-    jmp L215
+L211:
+    mov dx, OFFSET STR_11
+    mov ah, 9
+    int 21h
 
-L214:
+L212:
+    GetInteger pausa
+
+L213:
     mov dx, OFFSET STR_39
     mov ah, 9
     int 21h
 
+L214:
+
 L215:
 
 L216:
-
-L217:
-
-L218:
-    mov eax, a
-    sub eax, _1
-    mov tmp218, eax
-
-L219:
-    mov eax, tmp218
+    mov eax, _4
     mov a, eax
 
-L220:
-    jmp L198
-
-L221:
-    mov dx, OFFSET STR_13
-    mov ah, 9
-    int 21h
-
-L222:
-    GetInteger d
-
-L223:
+L217:
     mov dx, OFFSET STR_40
     mov ah, 9
     int 21h
 
+L218:
+    DisplayInteger a
+
+L219:
+    mov dx, OFFSET STR_4
+    mov ah, 9
+    int 21h
+
+L220:
+L221:
+
+L222:
+
+L223:
+    mov eax, a
+    cmp eax, _0
+
 L224:
+    jle L243
 
 L225:
+    mov dx, OFFSET STR_41
+    mov ah, 9
+    int 21h
 
 L226:
-    mov eax, _2
-    mov a, eax
+    DisplayInteger a
 
 L227:
+    mov dx, OFFSET STR_4
+    mov ah, 9
+    int 21h
+
 L228:
 
 L229:
 
 L230:
     mov eax, a
-    cmp eax, _0
+    cdq
+    mov ebx, _2
+    idiv ebx
+    mov tmp230, edx
 
 L231:
-    jle L257
 
 L232:
+    mov eax, tmp230
+    cmp eax, _0
 
 L233:
+    jne L236
 
 L234:
-    mov eax, _2
-    mov b, eax
+    mov dx, OFFSET STR_42
+    mov ah, 9
+    int 21h
 
 L235:
+    jmp L237
+
 L236:
+    mov dx, OFFSET STR_43
+    mov ah, 9
+    int 21h
 
 L237:
 
 L238:
-    mov eax, b
-    cmp eax, _0
 
 L239:
-    jle L251
 
 L240:
-    mov dx, OFFSET STR_41
-    mov ah, 9
-    int 21h
+    mov eax, a
+    sub eax, _1
+    mov tmp240, eax
 
 L241:
-    DisplayInteger a
+    mov eax, tmp240
+    mov a, eax
 
 L242:
-    mov dx, OFFSET STR_24
-    mov ah, 9
-    int 21h
+    jmp L220
 
 L243:
-    DisplayInteger b
-
-L244:
-    mov dx, OFFSET STR_4
+    mov dx, OFFSET STR_44
     mov ah, 9
     int 21h
 
+L244:
 L245:
 
 L246:
 
 L247:
+    fld dword ptr [e]
+    fcomp dword ptr [_8_0]
+    fstsw ax
+    sahf
 
 L248:
-    mov eax, b
-    sub eax, _1
-    mov tmp248, eax
+    jbe L263
 
 L249:
-    mov eax, tmp248
-    mov b, eax
+    mov dx, OFFSET STR_45
+    mov ah, 9
+    int 21h
 
 L250:
-    jmp L235
+    DisplayFloat e, 2
 
 L251:
+    mov dx, OFFSET STR_4
+    mov ah, 9
+    int 21h
 
 L252:
 
 L253:
 
 L254:
-    mov eax, a
-    sub eax, _1
-    mov tmp254, eax
+    fld dword ptr [e]
+    fcomp dword ptr [_9_0]
+    fstsw ax
+    sahf
 
 L255:
-    mov eax, tmp254
-    mov a, eax
+    jbe L257
 
 L256:
-    jmp L227
+    mov dx, OFFSET STR_46
+    mov ah, 9
+    int 21h
 
 L257:
-    mov dx, OFFSET STR_13
-    mov ah, 9
-    int 21h
 
 L258:
-    GetInteger d
 
 L259:
-    mov dx, OFFSET STR_42
-    mov ah, 9
-    int 21h
 
 L260:
-    mov dx, OFFSET STR_43
-    mov ah, 9
-    int 21h
+    fld dword ptr [e]
+    fsub dword ptr [_1_0]
+    fstp dword ptr [tmp260]
 
 L261:
+    mov eax, tmp260
+    mov e, eax
 
 L262:
+    jmp L244
 
 L263:
 
 L264:
 
 L265:
+    mov eax, _10_5
+    mov e, eax
 
 L266:
-    mov eax, _0
-    mov @aux1, eax
+    mov dx, OFFSET STR_11
+    mov ah, 9
+    int 21h
 
 L267:
+    GetInteger pausa
+
 L268:
+    mov dx, OFFSET STR_47
+    mov ah, 9
+    int 21h
 
 L269:
 
 L270:
-    mov eax, @aux1
-    cmp eax, _3
 
 L271:
-    jge L302
+    mov eax, _2
+    mov a, eax
 
 L272:
-
 L273:
 
 L274:
-    mov eax, _0
-    cmp eax, @aux1
 
 L275:
-    je L284
+    mov eax, a
+    cmp eax, _0
 
 L276:
+    jle L302
 
 L277:
 
 L278:
-    mov eax, _1
-    cmp eax, @aux1
 
 L279:
-    je L287
+    mov eax, _2
+    mov b, eax
 
 L280:
-
 L281:
 
 L282:
-    mov eax, _2
-    cmp eax, @aux1
 
 L283:
-    je L290
+    mov eax, b
+    cmp eax, _0
 
 L284:
+    jle L296
 
 L285:
-    mov eax, _10
-    mov a, eax
-
-L286:
-    jmp L293
-
-L287:
-
-L288:
-    mov eax, _20
-    mov a, eax
-
-L289:
-    jmp L293
-
-L290:
-
-L291:
-    mov eax, _30
-    mov a, eax
-
-L292:
-    jmp L293
-
-L293:
-
-L294:
-
-L295:
-    mov eax, @aux1
-    add eax, _1
-    mov tmp295, eax
-
-L296:
-
-L297:
-    mov eax, tmp295
-    mov @aux1, eax
-
-L298:
-    mov dx, OFFSET STR_44
+    mov dx, OFFSET STR_48
     mov ah, 9
     int 21h
 
-L299:
+L286:
     DisplayInteger a
 
-L300:
+L287:
+    mov dx, OFFSET STR_27
+    mov ah, 9
+    int 21h
+
+L288:
+    DisplayInteger b
+
+L289:
     mov dx, OFFSET STR_4
     mov ah, 9
     int 21h
 
+L290:
+
+L291:
+
+L292:
+
+L293:
+    mov eax, b
+    sub eax, _1
+    mov tmp293, eax
+
+L294:
+    mov eax, tmp293
+    mov b, eax
+
+L295:
+    jmp L280
+
+L296:
+
+L297:
+
+L298:
+
+L299:
+    mov eax, a
+    sub eax, _1
+    mov tmp299, eax
+
+L300:
+    mov eax, tmp299
+    mov a, eax
+
 L301:
-    jmp L267
+    jmp L272
 
 L302:
-    mov dx, OFFSET STR_13
+    mov dx, OFFSET STR_49
     mov ah, 9
     int 21h
 
 L303:
-    GetInteger d
 
 L304:
-    mov dx, OFFSET STR_45
-    mov ah, 9
-    int 21h
 
 L305:
-    mov dx, OFFSET STR_46
-    mov ah, 9
-    int 21h
+    mov eax, _7_0
+    mov e, eax
 
 L306:
-
 L307:
 
 L308:
 
 L309:
+    fld dword ptr [e]
+    fcomp dword ptr [_5_0]
+    fstsw ax
+    sahf
 
 L310:
-    mov eax, _0
-    mov @aux2, eax
+    jbe L336
 
 L311:
+
 L312:
 
 L313:
+    mov eax, _2_0
+    mov f, eax
 
 L314:
-    mov eax, @aux2
-    cmp eax, _2
-
 L315:
-    jge L371
 
 L316:
 
 L317:
+    fld dword ptr [f]
+    fcomp dword ptr [_0_0]
+    fstsw ax
+    sahf
 
 L318:
-    mov eax, _0
-    cmp eax, @aux2
+    jbe L330
 
 L319:
-    je L324
+    mov dx, OFFSET STR_50
+    mov ah, 9
+    int 21h
 
 L320:
+    DisplayFloat e, 2
 
 L321:
+    mov dx, OFFSET STR_22
+    mov ah, 9
+    int 21h
 
 L322:
-    mov eax, _1
-    cmp eax, @aux2
+    DisplayFloat f, 2
 
 L323:
-    je L327
+    mov dx, OFFSET STR_4
+    mov ah, 9
+    int 21h
 
 L324:
 
 L325:
-    mov eax, _1
-    mov a, eax
 
 L326:
-    jmp L330
 
 L327:
+    fld dword ptr [f]
+    fsub dword ptr [_1_0]
+    fstp dword ptr [tmp327]
 
 L328:
-    mov eax, _2
-    mov a, eax
+    mov eax, tmp327
+    mov f, eax
 
 L329:
-    jmp L330
+    jmp L314
 
 L330:
 
 L331:
 
 L332:
-    mov eax, @aux2
-    add eax, _1
-    mov tmp332, eax
 
 L333:
+    fld dword ptr [e]
+    fsub dword ptr [_1_0]
+    fstp dword ptr [tmp333]
 
 L334:
-    mov eax, tmp332
-    mov @aux2, eax
+    mov eax, tmp333
+    mov e, eax
 
 L335:
+    jmp L306
 
 L336:
 
 L337:
 
 L338:
+    mov eax, _10_5
+    mov e, eax
 
 L339:
-    mov eax, _0
-    mov @aux3, eax
 
 L340:
+
 L341:
+    mov eax, _3_2
+    mov f, eax
 
 L342:
+    mov dx, OFFSET STR_11
+    mov ah, 9
+    int 21h
 
 L343:
-    mov eax, @aux3
-    cmp eax, _2
+    GetInteger pausa
 
 L344:
-    jge L370
+    mov dx, OFFSET STR_51
+    mov ah, 9
+    int 21h
 
 L345:
+    mov dx, OFFSET STR_52
+    mov ah, 9
+    int 21h
 
 L346:
 
 L347:
-    mov eax, _0
-    cmp eax, @aux3
 
 L348:
-    je L353
 
 L349:
 
 L350:
 
 L351:
-    mov eax, _1
-    cmp eax, @aux3
+    mov eax, _0
+    mov @aux1, eax
 
 L352:
-    je L356
-
 L353:
 
 L354:
-    mov eax, _100
-    mov b, eax
 
 L355:
-    jmp L359
+    mov eax, @aux1
+    cmp eax, _3
 
 L356:
+    jge L387
 
 L357:
-    mov eax, _200
-    mov b, eax
 
 L358:
-    jmp L359
 
 L359:
+    mov eax, _0
+    cmp eax, @aux1
 
 L360:
+    je L369
 
 L361:
-    mov eax, @aux3
-    add eax, _1
-    mov tmp361, eax
 
 L362:
 
 L363:
-    mov eax, tmp361
-    mov @aux3, eax
+    mov eax, _1
+    cmp eax, @aux1
 
 L364:
-    mov dx, OFFSET STR_47
-    mov ah, 9
-    int 21h
+    je L372
 
 L365:
-    DisplayInteger a
 
 L366:
-    mov dx, OFFSET STR_24
+
+L367:
+    mov eax, _2
+    cmp eax, @aux1
+
+L368:
+    je L375
+
+L369:
+
+L370:
+    mov eax, _10
+    mov a, eax
+
+L371:
+    jmp L378
+
+L372:
+
+L373:
+    mov eax, _20
+    mov a, eax
+
+L374:
+    jmp L378
+
+L375:
+
+L376:
+    mov eax, _30
+    mov a, eax
+
+L377:
+    jmp L378
+
+L378:
+
+L379:
+
+L380:
+    mov eax, @aux1
+    add eax, _1
+    mov tmp380, eax
+
+L381:
+
+L382:
+    mov eax, tmp380
+    mov @aux1, eax
+
+L383:
+    mov dx, OFFSET STR_53
     mov ah, 9
     int 21h
 
-L367:
-    DisplayInteger b
+L384:
+    DisplayInteger a
 
-L368:
+L385:
     mov dx, OFFSET STR_4
     mov ah, 9
     int 21h
 
-L369:
-    jmp L340
+L386:
+    jmp L352
 
-L370:
-    jmp L311
-
-L371:
-    mov dx, OFFSET STR_13
+L387:
+    mov dx, OFFSET STR_54
     mov ah, 9
     int 21h
 
-L372:
-    GetInteger d
+L388:
 
-L373:
-    mov dx, OFFSET STR_48
+L389:
+
+L390:
+
+L391:
+
+L392:
+
+L393:
+    mov eax, _0
+    mov @aux2, eax
+
+L394:
+L395:
+
+L396:
+
+L397:
+    mov eax, @aux2
+    cmp eax, _3
+
+L398:
+    jge L429
+
+L399:
+
+L400:
+
+L401:
+    mov eax, _0
+    cmp eax, @aux2
+
+L402:
+    je L411
+
+L403:
+
+L404:
+
+L405:
+    mov eax, _1
+    cmp eax, @aux2
+
+L406:
+    je L414
+
+L407:
+
+L408:
+
+L409:
+    mov eax, _2
+    cmp eax, @aux2
+
+L410:
+    je L417
+
+L411:
+
+L412:
+    mov eax, _10_5
+    mov e, eax
+
+L413:
+    jmp L420
+
+L414:
+
+L415:
+    mov eax, _20_5
+    mov e, eax
+
+L416:
+    jmp L420
+
+L417:
+
+L418:
+    mov eax, _30_5
+    mov e, eax
+
+L419:
+    jmp L420
+
+L420:
+
+L421:
+
+L422:
+    mov eax, @aux2
+    add eax, _1
+    mov tmp422, eax
+
+L423:
+
+L424:
+    mov eax, tmp422
+    mov @aux2, eax
+
+L425:
+    mov dx, OFFSET STR_55
     mov ah, 9
     int 21h
 
-L374:
-    mov dx, OFFSET STR_49
+L426:
+    DisplayFloat e, 2
+
+L427:
+    mov dx, OFFSET STR_4
     mov ah, 9
     int 21h
 
-L375:
-    GetInteger a
+L428:
+    jmp L394
 
-L376:
-    mov dx, OFFSET STR_50
+L429:
+
+L430:
+
+L431:
+    mov eax, _10_5
+    mov e, eax
+
+L432:
+    mov dx, OFFSET STR_11
     mov ah, 9
     int 21h
 
-L377:
+L433:
+    GetInteger pausa
+
+L434:
+    mov dx, OFFSET STR_56
+    mov ah, 9
+    int 21h
+
+L435:
+    mov dx, OFFSET STR_57
+    mov ah, 9
+    int 21h
+
+L436:
+
+L437:
+
+L438:
+
+L439:
+
+L440:
+    mov eax, _0
+    mov @aux3, eax
+
+L441:
+L442:
+
+L443:
+
+L444:
+    mov eax, @aux3
+    cmp eax, _2
+
+L445:
+    jge L501
+
+L446:
+
+L447:
+
+L448:
+    mov eax, _0
+    cmp eax, @aux3
+
+L449:
+    je L454
+
+L450:
+
+L451:
+
+L452:
+    mov eax, _1
+    cmp eax, @aux3
+
+L453:
+    je L457
+
+L454:
+
+L455:
+    mov eax, _1
+    mov a, eax
+
+L456:
+    jmp L460
+
+L457:
+
+L458:
+    mov eax, _2
+    mov a, eax
+
+L459:
+    jmp L460
+
+L460:
+
+L461:
+
+L462:
+    mov eax, @aux3
+    add eax, _1
+    mov tmp462, eax
+
+L463:
+
+L464:
+    mov eax, tmp462
+    mov @aux3, eax
+
+L465:
+
+L466:
+
+L467:
+
+L468:
+
+L469:
+    mov eax, _0
+    mov @aux4, eax
+
+L470:
+L471:
+
+L472:
+
+L473:
+    mov eax, @aux4
+    cmp eax, _2
+
+L474:
+    jge L500
+
+L475:
+
+L476:
+
+L477:
+    mov eax, _0
+    cmp eax, @aux4
+
+L478:
+    je L483
+
+L479:
+
+L480:
+
+L481:
+    mov eax, _1
+    cmp eax, @aux4
+
+L482:
+    je L486
+
+L483:
+
+L484:
+    mov eax, _100
+    mov b, eax
+
+L485:
+    jmp L489
+
+L486:
+
+L487:
+    mov eax, _200
+    mov b, eax
+
+L488:
+    jmp L489
+
+L489:
+
+L490:
+
+L491:
+    mov eax, @aux4
+    add eax, _1
+    mov tmp491, eax
+
+L492:
+
+L493:
+    mov eax, tmp491
+    mov @aux4, eax
+
+L494:
+    mov dx, OFFSET STR_58
+    mov ah, 9
+    int 21h
+
+L495:
     DisplayInteger a
 
-L378:
-    mov dx, OFFSET STR_51
+L496:
+    mov dx, OFFSET STR_27
     mov ah, 9
     int 21h
 
-L379:
-    mov dx, OFFSET STR_52
+L497:
+    DisplayInteger b
+
+L498:
+    mov dx, OFFSET STR_4
+    mov ah, 9
+    int 21h
+
+L499:
+    jmp L470
+
+L500:
+    jmp L441
+
+L501:
+    mov dx, OFFSET STR_59
+    mov ah, 9
+    int 21h
+
+L502:
+
+L503:
+
+L504:
+
+L505:
+
+L506:
+    mov eax, _0
+    mov @aux5, eax
+
+L507:
+L508:
+
+L509:
+
+L510:
+    mov eax, @aux5
+    cmp eax, _2
+
+L511:
+    jge L567
+
+L512:
+
+L513:
+
+L514:
+    mov eax, _0
+    cmp eax, @aux5
+
+L515:
+    je L520
+
+L516:
+
+L517:
+
+L518:
+    mov eax, _1
+    cmp eax, @aux5
+
+L519:
+    je L523
+
+L520:
+
+L521:
+    mov eax, _1_5
+    mov e, eax
+
+L522:
+    jmp L526
+
+L523:
+
+L524:
+    mov eax, _2_5
+    mov e, eax
+
+L525:
+    jmp L526
+
+L526:
+
+L527:
+
+L528:
+    mov eax, @aux5
+    add eax, _1
+    mov tmp528, eax
+
+L529:
+
+L530:
+    mov eax, tmp528
+    mov @aux5, eax
+
+L531:
+
+L532:
+
+L533:
+
+L534:
+
+L535:
+    mov eax, _0
+    mov @aux6, eax
+
+L536:
+L537:
+
+L538:
+
+L539:
+    mov eax, @aux6
+    cmp eax, _2
+
+L540:
+    jge L566
+
+L541:
+
+L542:
+
+L543:
+    mov eax, _0
+    cmp eax, @aux6
+
+L544:
+    je L549
+
+L545:
+
+L546:
+
+L547:
+    mov eax, _1
+    cmp eax, @aux6
+
+L548:
+    je L552
+
+L549:
+
+L550:
+    mov eax, _100_5
+    mov f, eax
+
+L551:
+    jmp L555
+
+L552:
+
+L553:
+    mov eax, _200_5
+    mov f, eax
+
+L554:
+    jmp L555
+
+L555:
+
+L556:
+
+L557:
+    mov eax, @aux6
+    add eax, _1
+    mov tmp557, eax
+
+L558:
+
+L559:
+    mov eax, tmp557
+    mov @aux6, eax
+
+L560:
+    mov dx, OFFSET STR_60
+    mov ah, 9
+    int 21h
+
+L561:
+    DisplayFloat e, 2
+
+L562:
+    mov dx, OFFSET STR_22
+    mov ah, 9
+    int 21h
+
+L563:
+    DisplayFloat f, 2
+
+L564:
+    mov dx, OFFSET STR_4
+    mov ah, 9
+    int 21h
+
+L565:
+    jmp L536
+
+L566:
+    jmp L507
+
+L567:
+
+L568:
+
+L569:
+    mov eax, _10_5
+    mov e, eax
+
+L570:
+
+L571:
+
+L572:
+    mov eax, _3_2
+    mov f, eax
+
+L573:
+    mov dx, OFFSET STR_11
+    mov ah, 9
+    int 21h
+
+L574:
+    GetInteger pausa
+
+L575:
+    mov dx, OFFSET STR_61
+    mov ah, 9
+    int 21h
+
+L576:
+    mov dx, OFFSET STR_62
+    mov ah, 9
+    int 21h
+
+L577:
+    GetInteger a
+
+L578:
+    mov dx, OFFSET STR_63
+    mov ah, 9
+    int 21h
+
+L579:
+    DisplayInteger a
+
+L580:
+    mov dx, OFFSET STR_64
+    mov ah, 9
+    int 21h
+
+L581:
+    mov dx, OFFSET STR_65
     mov ah, 9
     int 21h
 

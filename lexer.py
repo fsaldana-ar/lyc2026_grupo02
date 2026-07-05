@@ -106,7 +106,7 @@ def t_CTE_STRING(t):
 
 
 def t_N_FLOTANTE(t):
-    r'-?[.]\d+|-?[1-9]+\d*[.]\d*'
+    r'-?\d+[.]\d*|-?[.]\d+'
     
     valor = float(t.value)
     
