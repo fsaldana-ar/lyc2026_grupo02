@@ -282,20 +282,6 @@ while e in [10.5, 20.5, 30.5] do
 endwhile
 e := 10.5
 
-#+ Ciclo Especial Tipos Incompatibles +#
-#+ while e in [10.5, nombre, 30.5] do
-    write("Especial Float e: ")
-    write(e)
-    write("\n")
-endwhile +#
-
-#+ Ciclo Especial Variable no Declarada +#
-#+ while w in [10.5, nombre, 30.5] do
-    write("Especial Float e: ")
-    write(e)
-    write("\n")
-endwhile +#
-
 write("Presione Enter para continuar...\n")
 read(pausa)
 

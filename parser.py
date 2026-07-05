@@ -45,6 +45,7 @@ indice_terceto_expresion = []
 flag_ciclo_seleccion = False
 indice_comienzo_seleccion = []
 indice_comienzo_seleccion_else = []
+indice_expresion_izquierda_seleccion = None
 
 # para indices de ciclo while
 flag_ciclo_while = False
@@ -65,8 +66,10 @@ variables_auxiliares_ciclo_while_especial = []
 # para indices de las expresiones del ciclo while especial
 indice_expresion_ciclo_while_especial = []
 
+# para verificar tipos de datos de las expresiones del ciclo while especial
+tipos_expresiones_ciclo_while_especial = []
 
-# TODO: Almacenar la lista en la tabla de simbolos
+
 def crear_variable_auxiliar():
     global indice_variable_auxiliar
     indice_variable_auxiliar += 1
@@ -193,9 +196,10 @@ def p_asignacion(p):
     else:
         tipo_b = p[3]['tipo']
 
-    if tipo_a != tipo_b:
-        if tipo_a == 'String' and tipo_b != 'cte_string':
-            raise Exception(f'Error: Asignación incompatible para "{p[1]['variable']}". Esperado {tipo_a} pero se obtuvo {tipo_b}. Línea {p.lineno(1)}')
+    tipo_b_normalized = 'String' if tipo_b == 'cte_string' else tipo_b
+
+    if tipo_a != tipo_b_normalized:
+        raise Exception(f'Error semántico: Asignación incompatible para "{p[1]["variable"]}". Esperado {tipo_a} pero se obtuvo {tipo_b_normalized}. Línea {p.lineno(2)}')
     
     if tipo_b == 'cte_string':
         terceto.crear_terceto(f'"{p[3]}"')
@@ -308,11 +312,28 @@ def p_ciclo_while(p):
             terceto.modificar_terceto(indice_comienzo_ciclo_while.pop(),None,f'[{indice}]')
 
 
+def p_condicion_simple_expi(p):
+    'condicion_simple_expi : expresion'
+    # Expresion izquierda de la condicion simple
+    global indice_expresion_izquierda_seleccion
+    indice_expresion_izquierda_seleccion = terceto.get_indice() - 1
+    p[0] = p[1]
+
+
 def p_condicion_simple(p):
-    'condicion_simple : expresion comparador expresion'
+    'condicion_simple : condicion_simple_expi comparador expresion'
     print(f'expresion comparador expresion -> condicion_simple')
 
-    terceto.crear_terceto('CMP')
+    # Validate that types are equal
+    tipo_izq = p[1]['tipo']
+    tipo_der = p[3]['tipo']
+    if tipo_izq != tipo_der:
+        raise Exception(f'Error semántico: Comparación de distintos tipos de datos ({tipo_izq} y {tipo_der}) no permitida. Línea {p.lineno(2)}')
+
+    # Indice de la primera expresion
+    global indice_expresion_izquierda_seleccion
+
+    terceto.crear_terceto('CMP',f'[{indice_expresion_izquierda_seleccion}]',f'[{terceto.get_indice() - 1}]')
     indice = terceto.crear_terceto(diccionarioComparadores.get(p[2]))
 
     global flag_ciclo_seleccion
@@ -389,7 +410,7 @@ def p_modulo(p):
 
     t1 = indice_terceto_expresion.pop()
     t2 = indice_terceto_expresion.pop()
-    terceto.crear_terceto('MOD',f'[{t2}]',f'[{t1}]')
+    indice_terceto_expresion.append(terceto.crear_terceto('MOD',f'[{t2}]',f'[{t1}]'))
 
 
 def p_division(p):
@@ -404,13 +425,15 @@ def p_division(p):
 
     t1 = indice_terceto_expresion.pop()
     t2 = indice_terceto_expresion.pop()
-    terceto.crear_terceto('DIV',f'[{t2}]',f'[{t1}]')
+    indice_terceto_expresion.append(terceto.crear_terceto('DIV',f'[{t2}]',f'[{t1}]'))
 
 
 def p_variable_ciclo_while_especial(p):
     'variable_ciclo_while_especial : VARIABLE'
     global variable_ciclo_while_especial
-    variable_ciclo_while_especial = p[1]
+
+    verificar_variable_declarada(p,p[1])
+    variable_ciclo_while_especial = {'tipo': itoken.get_tipo(p[1]), 'valor': p[1]}
 
 
 def p_expresiones_ciclo_while_especial(p):
@@ -418,6 +441,10 @@ def p_expresiones_ciclo_while_especial(p):
     var_aux = crear_variable_auxiliar()
     indices_saltos_expresiones = []
     indices_saltos_incodicionales = []
+
+    for i in tipos_expresiones_ciclo_while_especial:
+        if i != variable_ciclo_while_especial['tipo']:
+            raise Exception(f'Error: Tipos de datos incompatibles "{variable_ciclo_while_especial['tipo']}" - {i}. Línea {p.lineno(2)}')
 
     terceto.crear_terceto(var_aux)
     terceto.crear_terceto(0)
@@ -428,20 +455,20 @@ def p_expresiones_ciclo_while_especial(p):
     indice_etiqueta_ciclo_while_especial.append(indice)
     terceto.crear_terceto(f'{var_aux}')
     terceto.crear_terceto(len(indice_expresion_ciclo_while_especial))
-    terceto.crear_terceto('CMP')
+    terceto.crear_terceto('CMP',f'[{terceto.get_indice() - 2}]',f'[{terceto.get_indice() - 1}]')
     terceto.crear_terceto('BGE')
     indice_comienzo_ciclo_while_especial.append(terceto.get_indice() - 1)
 
     for (i,item) in enumerate(indice_expresion_ciclo_while_especial):
         terceto.crear_terceto(i)
         terceto.crear_terceto(var_aux)
-        terceto.crear_terceto('CMP')
+        terceto.crear_terceto('CMP',f'[{terceto.get_indice() - 2}]',f'[{terceto.get_indice() - 1}]')
         terceto.crear_terceto('BE')
         indices_saltos_expresiones.append(terceto.get_indice() - 1)
 
     for item in indice_expresion_ciclo_while_especial:
         terceto.modificar_terceto(indices_saltos_expresiones.pop(0),None,f'[{terceto.get_indice()}]')
-        terceto.crear_terceto(variable_ciclo_while_especial)
+        terceto.crear_terceto(variable_ciclo_while_especial['valor'])
         terceto.crear_terceto(':=',f'[{terceto.get_indice() - 1}]',f'[{item}]')
         terceto.crear_terceto('BI')
         indices_saltos_incodicionales.append(terceto.get_indice() - 1)
@@ -459,6 +486,7 @@ def p_expresiones_ciclo_while_especial(p):
         terceto.modificar_terceto(item,None,f'[{indice}]')
     
     indice_expresion_ciclo_while_especial.clear()
+    tipos_expresiones_ciclo_while_especial.clear()
 
 
 def p_ciclo_especial(p):
@@ -471,6 +499,7 @@ def p_ciclo_especial(p):
 def p_segunda_expresion(p):
     'segunda_expresion : expresion'
     indice_expresion_ciclo_while_especial.append(terceto.get_indice() - 1)
+    p[0] = p[1]
 
 
 def p_lista_expresiones(p):
@@ -479,8 +508,10 @@ def p_lista_expresiones(p):
     '''
     if len(p) == 4:
         print(f'lista_expresiones COMA expresion -> lista_expresiones')
+        tipos_expresiones_ciclo_while_especial.append(p[3]['tipo'])
     else:
         print(f'expresion -> lista_expresiones')
+        tipos_expresiones_ciclo_while_especial.append(p[1]['tipo'])
         indice_expresion_ciclo_while_especial.append(terceto.get_indice() - 1)
 
 
@@ -645,15 +676,20 @@ def verificar_variable_declarada(p,var):
 
 # Error rule for syntax errors
 def p_error(p):
-    raise Exception(f"Error en la linea {p.lineno or ''} at {p.value or ''}")
+    if p is None:
+        raise Exception("Error de sintaxis: fin de archivo inesperado")
+    raise Exception(f"Error en la linea {p.lineno or ''} at token '{p.type}' with value '{p.value}'")
 
 
-def ejecutar_parser():
+def ejecutar_parser(path_archivo=None):
     # Build the parser
     itoken.cargar_tokens()
     parser = yacc.yacc()
-    path_parser = Path("./resources/test.txt")
-    code = path_parser.read_text()
+    if path_archivo is None:
+        path_archivo = Path("./resources/test.txt")
+    else:
+        path_archivo = Path(path_archivo)
+    code = path_archivo.read_text()
     parser.parse(code)
 
     # Almacenamos las variables internas en la tabla de simbolos
