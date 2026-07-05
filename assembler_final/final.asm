@@ -1,7 +1,7 @@
 include macros2.asm
 include number.asm
 
-.MODEL  SMALL
+.MODEL  LARGE
 .386
 .STACK 200h
 .DATA
@@ -19,31 +19,31 @@ include number.asm
     nombre db 51 dup(?), "$"
     _0 dd 0
     _1 dd 1
-    _-1 dd -1
-    _-150 dd -150
-    _19.1 dd 19.1
-    _18. dd 18.
-    _.17 dd .17
-    _-19.1 dd -19.1
-    _-18. dd -18.
-    _-.17 dd -.17
-    _99999.99 dd 99999.99
-    _99. dd 99.
-    _.9999 dd .9999
+    _n1 dd -1
+    _n150 dd -150
+    _19_1 dd 19.1
+    _18_ dd 18.
+    __17 dd .17
+    _n19_1 dd -19.1
+    _n18_ dd -18.
+    _n_17 dd -.17
+    _99999_99 dd 99999.99
+    _99_ dd 99.
+    __9999 dd .9999
     _27 dd 27
     _500 dd 500
     _34 dd 34
     _3 dd 3
     _21 dd 21
     _4 dd 4
-    _-21 dd -21
+    _n21 dd -21
     _2 dd 2
-    _.27 dd .27
-    _50.0 dd 50.0
-    _3.4 dd 3.4
-    _3. dd 3.
-    _.21 dd .21
-    _2.1 dd 2.1
+    __27 dd .27
+    _50_0 dd 50.0
+    _3_4 dd 3.4
+    _3_ dd 3.
+    __21 dd .21
+    _2_1 dd 2.1
     _10 dd 10
     _35 dd 35
     _100 dd 100
@@ -58,15 +58,33 @@ include number.asm
     @aux4 dd ?
     @aux5 dd ?
     @aux6 dd ?
-    STR_0 db "a es mas grande que b","$"
-    STR_1 db "a es mas chico o igual a b","$"
-    STR_2 db "ewr","$"
-    STR_3 db "a es mas grande que b y c es mas grande que b","$"
-    STR_4 db "a es mas grande que b o c es mas grande que b","$"
-    STR_5 db "a no es mas grande que b","$"
-    STR_6 db "Par","$"
-    STR_7 db "HolaMundo","$"
-    STR_8 db "Test","$"
+    _18_0 dd 18.0
+    _0_17 dd 0.17
+    _n18_0 dd -18.0
+    _n0_17 dd -0.17
+    _99_0 dd 99.0
+    _0_9999 dd 0.9999
+    STR_0 db "string","$"
+    STR_1 db "string09","$"
+    STR_2 db "string 09","$"
+    STR_3 db "Hol@, Mundo","$"
+    STR_4 db "Hola % Mundo","$"
+    STR_5 db "        s t r i n g   ","$"
+    STR_6 db "@sdADaSjfla%dfg","$"
+    STR_7 db "asldk  fh sjf","$"
+    _0_27 dd 0.27
+    _3_0 dd 3.0
+    _0_21 dd 0.21
+    STR_8 db "a es mas grande que b","$"
+    STR_9 db "a es mas chico o igual a b","$"
+    STR_10 db "ewr","$"
+    STR_11 db "a es mas grande que b y c es mas grande que b","$"
+    STR_12 db "a es mas grande que b o c es mas grande que b","$"
+    STR_13 db "a no es mas grande que b","$"
+    STR_14 db "Par","$"
+    STR_15 db "HolaMundo","$"
+    STR_16 db "ResultadoPar","$"
+    STR_17 db "Test","$"
     tmp66 dd ?
     tmp71 dd ?
     tmp76 dd ?
@@ -100,31 +118,46 @@ include number.asm
     tmp649 dd ?
     tmp669 dd ?
     tmp670 dd ?
+    tmp676 dd ?
+    tmp685 dd ?
+    tmp693 dd ?
+    tmp696 dd ?
     tmp697 dd ?
+    tmp702 dd ?
+    tmp707 dd ?
+    tmp713 dd ?
     tmp715 dd ?
     tmp716 dd ?
     tmp721 dd ?
     tmp723 dd ?
     tmp726 dd ?
     tmp728 dd ?
+    tmp729 dd ?
+    tmp734 dd ?
+    tmp739 dd ?
+    tmp745 dd ?
     tmp747 dd ?
     tmp748 dd ?
     tmp753 dd ?
     tmp755 dd ?
     tmp758 dd ?
     tmp760 dd ?
+    tmp761 dd ?
     tmp797 dd ?
     tmp804 dd ?
     tmp807 dd ?
+    tmp810 dd ?
     tmp842 dd ?
     tmp848 dd ?
     tmp894 dd ?
+    tmp899 dd ?
     tmp910 dd ?
     tmp913 dd ?
     tmp954 dd ?
     tmp1002 dd ?
     tmp1007 dd ?
     tmp1033 dd ?
+    tmp1038 dd ?
 
 .CODE
 
@@ -138,7 +171,7 @@ L0:
 L1:
 
 L2:
-    mov eax, 0
+    mov eax, _0
     mov a, eax
 
 L3:
@@ -146,7 +179,7 @@ L3:
 L4:
 
 L5:
-    mov eax, 1
+    mov eax, _1
     mov a, eax
 
 L6:
@@ -154,7 +187,7 @@ L6:
 L7:
 
 L8:
-    mov eax, -1
+    mov eax, _n1
     mov a, eax
 
 L9:
@@ -162,7 +195,7 @@ L9:
 L10:
 
 L11:
-    mov eax, -150
+    mov eax, _n150
     mov a, eax
 
 L12:
@@ -170,7 +203,7 @@ L12:
 L13:
 
 L14:
-    mov eax, 19.1
+    mov eax, _19_1
     mov e, eax
 
 L15:
@@ -178,7 +211,7 @@ L15:
 L16:
 
 L17:
-    mov eax, 18.0
+    mov eax, _18_0
     mov e, eax
 
 L18:
@@ -186,7 +219,7 @@ L18:
 L19:
 
 L20:
-    mov eax, 0.17
+    mov eax, _0_17
     mov e, eax
 
 L21:
@@ -194,7 +227,7 @@ L21:
 L22:
 
 L23:
-    mov eax, -19.1
+    mov eax, _n19_1
     mov e, eax
 
 L24:
@@ -202,7 +235,7 @@ L24:
 L25:
 
 L26:
-    mov eax, -18.0
+    mov eax, _n18_0
     mov e, eax
 
 L27:
@@ -210,7 +243,7 @@ L27:
 L28:
 
 L29:
-    mov eax, -0.17
+    mov eax, _n0_17
     mov e, eax
 
 L30:
@@ -218,7 +251,7 @@ L30:
 L31:
 
 L32:
-    mov eax, 99999.99
+    mov eax, _99999_99
     mov e, eax
 
 L33:
@@ -226,7 +259,7 @@ L33:
 L34:
 
 L35:
-    mov eax, 99.0
+    mov eax, _99_0
     mov e, eax
 
 L36:
@@ -234,7 +267,7 @@ L36:
 L37:
 
 L38:
-    mov eax, 0.9999
+    mov eax, _0_9999
     mov e, eax
 
 L39:
@@ -242,64 +275,112 @@ L39:
 L40:
 
 L41:
-    mov eax, "string"
-    mov i, eax
+    lea esi, OFFSET STR_0
+    lea edi, OFFSET i
+    cld
+copy_string_41:
+    lodsb
+    stosb
+    cmp al, '$'
+    jne copy_string_41
 
 L42:
 
 L43:
 
 L44:
-    mov eax, "string09"
-    mov i, eax
+    lea esi, OFFSET STR_1
+    lea edi, OFFSET i
+    cld
+copy_string_44:
+    lodsb
+    stosb
+    cmp al, '$'
+    jne copy_string_44
 
 L45:
 
 L46:
 
 L47:
-    mov eax, "string 09"
-    mov i, eax
+    lea esi, OFFSET STR_2
+    lea edi, OFFSET i
+    cld
+copy_string_47:
+    lodsb
+    stosb
+    cmp al, '$'
+    jne copy_string_47
 
 L48:
 
 L49:
 
 L50:
-    mov eax, "Hol@, Mundo"
-    mov i, eax
+    lea esi, OFFSET STR_3
+    lea edi, OFFSET i
+    cld
+copy_string_50:
+    lodsb
+    stosb
+    cmp al, '$'
+    jne copy_string_50
 
 L51:
 
 L52:
 
 L53:
-    mov eax, "Hola % Mundo"
-    mov i, eax
+    lea esi, OFFSET STR_4
+    lea edi, OFFSET i
+    cld
+copy_string_53:
+    lodsb
+    stosb
+    cmp al, '$'
+    jne copy_string_53
 
 L54:
 
 L55:
 
 L56:
-    mov eax, "        s t r i n g   "
-    mov i, eax
+    lea esi, OFFSET STR_5
+    lea edi, OFFSET i
+    cld
+copy_string_56:
+    lodsb
+    stosb
+    cmp al, '$'
+    jne copy_string_56
 
 L57:
 
 L58:
 
 L59:
-    mov eax, "@sdADaSjfla%dfg"
-    mov i, eax
+    lea esi, OFFSET STR_6
+    lea edi, OFFSET i
+    cld
+copy_string_59:
+    lodsb
+    stosb
+    cmp al, '$'
+    jne copy_string_59
 
 L60:
 
 L61:
 
 L62:
-    mov eax, "asldk  fh sjf"
-    mov i, eax
+    lea esi, OFFSET STR_7
+    lea edi, OFFSET i
+    cld
+copy_string_62:
+    lodsb
+    stosb
+    cmp al, '$'
+    jne copy_string_62
 
 L63:
 
@@ -308,7 +389,7 @@ L64:
 L65:
 
 L66:
-    mov eax, 27
+    mov eax, _27
     sub eax, c
     mov tmp66, eax
 
@@ -324,7 +405,7 @@ L70:
 
 L71:
     mov eax, b
-    add eax, 500
+    add eax, _500
     mov tmp71, eax
 
 L72:
@@ -338,8 +419,8 @@ L74:
 L75:
 
 L76:
-    mov eax, 34
-    imul eax, 3
+    mov eax, _34
+    imul eax, _3
     mov tmp76, eax
 
 L77:
@@ -373,7 +454,7 @@ L86:
 
 L87:
     mov eax, b
-    sub eax, 21
+    sub eax, _21
     mov tmp87, eax
 
 L88:
@@ -386,7 +467,7 @@ L89:
 L90:
     mov eax, tmp88
     cdq
-    mov ebx, 4
+    mov ebx, _4
     idiv ebx
     mov tmp90, eax
 
@@ -404,7 +485,7 @@ L95:
 
 L96:
     mov eax, a
-    add eax, -21
+    add eax, _n21
     mov tmp96, eax
 
 L97:
@@ -417,7 +498,7 @@ L98:
 L99:
     mov eax, tmp97
     cdq
-    mov ebx, 4
+    mov ebx, _4
     idiv ebx
     mov tmp99, eax
 
@@ -435,7 +516,7 @@ L104:
 
 L105:
     mov eax, c
-    add eax, 21
+    add eax, _21
     mov tmp105, eax
 
 L106:
@@ -448,7 +529,7 @@ L107:
 L108:
     mov eax, tmp106
     cdq
-    mov ebx, 2
+    mov ebx, _2
     idiv ebx
     mov tmp108, eax
 
@@ -463,7 +544,7 @@ L111:
 L112:
 
 L113:
-    mov eax, 0.27
+    mov eax, _0_27
     sub eax, f
     mov tmp113, eax
 
@@ -479,7 +560,7 @@ L117:
 
 L118:
     mov eax, g
-    add eax, 50.0
+    add eax, _50_0
     mov tmp118, eax
 
 L119:
@@ -493,8 +574,8 @@ L121:
 L122:
 
 L123:
-    mov eax, 3.4
-    imul eax, 3.0
+    mov eax, _3_4
+    imul eax, _3_0
     mov tmp123, eax
 
 L124:
@@ -528,7 +609,7 @@ L133:
 
 L134:
     mov eax, e
-    sub eax, 0.21
+    sub eax, _0_21
     mov tmp134, eax
 
 L135:
@@ -541,7 +622,7 @@ L136:
 L137:
     mov eax, tmp135
     cdq
-    mov ebx, 4
+    mov ebx, _4
     idiv ebx
     mov tmp137, eax
 
@@ -559,7 +640,7 @@ L142:
 
 L143:
     mov eax, g
-    add eax, 2.1
+    add eax, _2_1
     mov tmp143, eax
 
 L144:
@@ -572,7 +653,7 @@ L145:
 L146:
     mov eax, tmp144
     cdq
-    mov ebx, 2
+    mov ebx, _2
     idiv ebx
     mov tmp146, eax
 
@@ -592,13 +673,17 @@ L151:
     jle L154
 
 L152:
-    displayString STR_0
+    mov dx, OFFSET STR_8
+    mov ah, 9
+    int 21h
 
 L153:
     jmp L155
 
 L154:
-    displayString STR_1
+    mov dx, OFFSET STR_9
+    mov ah, 9
+    int 21h
 
 L155:
 
@@ -661,7 +746,7 @@ L176:
 
 L177:
     mov eax, b
-    add eax, 2
+    add eax, _2
     mov tmp177, eax
 
 L178:
@@ -698,7 +783,7 @@ L189:
 
 L190:
     mov eax, b
-    imul eax, 0
+    imul eax, _0
     mov tmp190, eax
 
 L191:
@@ -741,7 +826,7 @@ L204:
 
 L205:
     mov eax, a
-    cmp eax, 0
+    cmp eax, _0
 
 L206:
     jle L219
@@ -752,7 +837,7 @@ L208:
 
 L209:
     mov eax, b
-    cmp eax, 0
+    cmp eax, _0
 
 L210:
     jle L215
@@ -762,7 +847,7 @@ L211:
 L212:
 
 L213:
-    mov eax, 1
+    mov eax, _1
     mov c, eax
 
 L214:
@@ -773,7 +858,7 @@ L215:
 L216:
 
 L217:
-    mov eax, 0
+    mov eax, _0
     mov c, eax
 
 L218:
@@ -807,7 +892,9 @@ L228:
     jle L236
 
 L229:
-    displayString STR_0
+    mov dx, OFFSET STR_8
+    mov ah, 9
+    int 21h
 
 L230:
 
@@ -817,7 +904,7 @@ L232:
 
 L233:
     mov eax, a
-    add eax, 1
+    add eax, _1
     mov tmp233, eax
 
 L234:
@@ -1284,7 +1371,7 @@ L411:
 
 L412:
     mov eax, a
-    cmp eax, 0
+    cmp eax, _0
 
 L413:
     jle L434
@@ -1294,7 +1381,7 @@ L414:
 L415:
 
 L416:
-    mov eax, 1
+    mov eax, _1
     mov b, eax
 
 L417:
@@ -1304,7 +1391,7 @@ L419:
 
 L420:
     mov eax, b
-    cmp eax, 10
+    cmp eax, _10
 
 L421:
     jge L428
@@ -1317,7 +1404,7 @@ L424:
 
 L425:
     mov eax, b
-    add eax, 1
+    add eax, _1
     mov tmp425, eax
 
 L426:
@@ -1335,7 +1422,7 @@ L430:
 
 L431:
     mov eax, a
-    sub eax, 1
+    sub eax, _1
     mov tmp431, eax
 
 L432:
@@ -1349,7 +1436,9 @@ L434:
     GetInteger nombre
 
 L435:
-    displayString STR_2
+    mov dx, OFFSET STR_10
+    mov ah, 9
+    int 21h
 
 L436:
     DisplayInteger nombre
@@ -1377,7 +1466,9 @@ L444:
     jle L446
 
 L445:
-    displayString STR_3
+    mov dx, OFFSET STR_11
+    mov ah, 9
+    int 21h
 
 L446:
 
@@ -1859,7 +1950,9 @@ L621:
     jle L623
 
 L622:
-    displayString STR_4
+    mov dx, OFFSET STR_12
+    mov ah, 9
+    int 21h
 
 L623:
 
@@ -1873,7 +1966,9 @@ L626:
     jg L628
 
 L627:
-    displayString STR_5
+    mov dx, OFFSET STR_13
+    mov ah, 9
+    int 21h
 
 L628:
 L629:
@@ -1931,15 +2026,15 @@ L647:
 L648:
 
 L649:
-    mov eax, 1
-    add eax, 1
+    mov eax, _1
+    add eax, _1
     mov tmp649, eax
 
 L650:
 
 L651:
     mov eax, tmp649
-    cmp eax, 0
+    cmp eax, _0
 
 L652:
     jne L656
@@ -1962,7 +2057,7 @@ L659:
 
 L660:
     mov eax, f
-    cmp eax, 0
+    cmp eax, _0
 
 L661:
     je L666
@@ -1973,7 +2068,7 @@ L663:
 
 L664:
     mov eax, g
-    cmp eax, 0
+    cmp eax, _0
 
 L665:
     je L682
@@ -1998,7 +2093,7 @@ L671:
 
 L672:
     mov eax, tmp670
-    cmp eax, 3
+    cmp eax, _3
 
 L673:
     jge L681
@@ -2008,12 +2103,17 @@ L674:
 L675:
 
 L676:
+    mov eax, h
+    cdq
+    mov ebx, _0
+    idiv ebx
+    mov tmp676, eax
 
 L677:
 
 L678:
-    mov eax, DIV
-    cmp eax, 1
+    mov eax, tmp676
+    cmp eax, _1
 
 L679:
     jne L681
@@ -2032,18 +2132,25 @@ L683:
 L684:
 
 L685:
+    mov eax, a
+    cdq
+    mov ebx, _2
+    idiv ebx
+    mov tmp685, edx
 
 L686:
 
 L687:
-    mov eax, MOD
-    cmp eax, 0
+    mov eax, tmp685
+    cmp eax, _0
 
 L688:
     jne L690
 
 L689:
-    displayString STR_6
+    mov dx, OFFSET STR_14
+    mov ah, 9
+    int 21h
 
 L690:
 
@@ -2052,16 +2159,26 @@ L691:
 L692:
 
 L693:
+    mov eax, _10
+    cdq
+    mov ebx, _3
+    idiv ebx
+    mov tmp693, eax
 
 L694:
 
 L695:
 
 L696:
+    mov eax, _10
+    cdq
+    mov ebx, _3
+    idiv ebx
+    mov tmp696, edx
 
 L697:
-    mov eax, DIV
-    add eax, MOD
+    mov eax, tmp693
+    add eax, tmp696
     mov tmp697, eax
 
 L698:
@@ -2075,9 +2192,14 @@ L700:
 L701:
 
 L702:
+    mov eax, b
+    cdq
+    mov ebx, c
+    idiv ebx
+    mov tmp702, edx
 
 L703:
-    mov eax, MOD
+    mov eax, tmp702
     mov a, eax
 
 L704:
@@ -2087,9 +2209,14 @@ L705:
 L706:
 
 L707:
+    mov eax, b
+    cdq
+    mov ebx, c
+    idiv ebx
+    mov tmp707, edx
 
 L708:
-    mov eax, MOD
+    mov eax, tmp707
     mov a, eax
 
 L709:
@@ -2101,16 +2228,21 @@ L711:
 L712:
 
 L713:
+    mov eax, b
+    cdq
+    mov ebx, c
+    idiv ebx
+    mov tmp713, edx
 
 L714:
 
 L715:
-    mov eax, MOD
-    imul eax, 100
+    mov eax, tmp713
+    imul eax, _100
     mov tmp715, eax
 
 L716:
-    mov eax, 35
+    mov eax, _35
     add eax, tmp715
     mov tmp716, eax
 
@@ -2125,15 +2257,15 @@ L719:
 L720:
 
 L721:
-    mov eax, 1
-    add eax, 2
+    mov eax, _1
+    add eax, _2
     mov tmp721, eax
 
 L722:
 
 L723:
     mov eax, tmp721
-    add eax, 3
+    add eax, _3
     mov tmp723, eax
 
 L724:
@@ -2141,21 +2273,26 @@ L724:
 L725:
 
 L726:
-    mov eax, 4
-    add eax, 5
+    mov eax, _4
+    add eax, _5
     mov tmp726, eax
 
 L727:
 
 L728:
     mov eax, tmp726
-    add eax, 6
+    add eax, _6
     mov tmp728, eax
 
 L729:
+    mov eax, tmp723
+    cdq
+    mov ebx, tmp728
+    idiv ebx
+    mov tmp729, edx
 
 L730:
-    mov eax, MOD
+    mov eax, tmp729
     mov a, eax
 
 L731:
@@ -2165,9 +2302,14 @@ L732:
 L733:
 
 L734:
+    mov eax, b
+    cdq
+    mov ebx, c
+    idiv ebx
+    mov tmp734, eax
 
 L735:
-    mov eax, DIV
+    mov eax, tmp734
     mov e, eax
 
 L736:
@@ -2177,9 +2319,14 @@ L737:
 L738:
 
 L739:
+    mov eax, b
+    cdq
+    mov ebx, c
+    idiv ebx
+    mov tmp739, eax
 
 L740:
-    mov eax, DIV
+    mov eax, tmp739
     mov e, eax
 
 L741:
@@ -2191,16 +2338,21 @@ L743:
 L744:
 
 L745:
+    mov eax, b
+    cdq
+    mov ebx, c
+    idiv ebx
+    mov tmp745, eax
 
 L746:
 
 L747:
-    mov eax, DIV
-    imul eax, 100
+    mov eax, tmp745
+    imul eax, _100
     mov tmp747, eax
 
 L748:
-    mov eax, 35
+    mov eax, _35
     add eax, tmp747
     mov tmp748, eax
 
@@ -2215,15 +2367,15 @@ L751:
 L752:
 
 L753:
-    mov eax, 1
-    add eax, 2
+    mov eax, _1
+    add eax, _2
     mov tmp753, eax
 
 L754:
 
 L755:
     mov eax, tmp753
-    add eax, 3
+    add eax, _3
     mov tmp755, eax
 
 L756:
@@ -2231,21 +2383,26 @@ L756:
 L757:
 
 L758:
-    mov eax, 4
-    add eax, 5
+    mov eax, _4
+    add eax, _5
     mov tmp758, eax
 
 L759:
 
 L760:
     mov eax, tmp758
-    add eax, 6
+    add eax, _6
     mov tmp760, eax
 
 L761:
+    mov eax, tmp755
+    cdq
+    mov ebx, tmp760
+    idiv ebx
+    mov tmp761, eax
 
 L762:
-    mov eax, DIV
+    mov eax, tmp761
     mov e, eax
 
 L763:
@@ -2259,7 +2416,7 @@ L766:
 L767:
 
 L768:
-    mov eax, 0
+    mov eax, _0
     mov @aux1, eax
 
 L769:
@@ -2269,7 +2426,7 @@ L771:
 
 L772:
     mov eax, @aux1
-    cmp eax, 3
+    cmp eax, _3
 
 L773:
     jge L802
@@ -2279,7 +2436,7 @@ L774:
 L775:
 
 L776:
-    mov eax, 0
+    mov eax, _0
     cmp eax, @aux1
 
 L777:
@@ -2289,7 +2446,7 @@ L778:
 L779:
 
 L780:
-    mov eax, 1
+    mov eax, _1
     cmp eax, @aux1
 
 L781:
@@ -2299,7 +2456,7 @@ L782:
 L783:
 
 L784:
-    mov eax, 2
+    mov eax, _2
     cmp eax, @aux1
 
 L785:
@@ -2307,7 +2464,7 @@ L785:
 L786:
 
 L787:
-    mov eax, 1
+    mov eax, _1
     mov a, eax
 
 L788:
@@ -2316,7 +2473,7 @@ L788:
 L789:
 
 L790:
-    mov eax, 2
+    mov eax, _2
     mov a, eax
 
 L791:
@@ -2325,7 +2482,7 @@ L791:
 L792:
 
 L793:
-    mov eax, 3
+    mov eax, _3
     mov a, eax
 
 L794:
@@ -2337,7 +2494,7 @@ L796:
 
 L797:
     mov eax, @aux1
-    add eax, 1
+    add eax, _1
     mov tmp797, eax
 
 L798:
@@ -2357,8 +2514,8 @@ L802:
 L803:
 
 L804:
-    mov eax, 1
-    add eax, 1
+    mov eax, _1
+    add eax, _1
     mov tmp804, eax
 
 L805:
@@ -2366,8 +2523,8 @@ L805:
 L806:
 
 L807:
-    mov eax, 2
-    imul eax, 2
+    mov eax, _2
+    imul eax, _2
     mov tmp807, eax
 
 L808:
@@ -2375,13 +2532,18 @@ L808:
 L809:
 
 L810:
+    mov eax, _9
+    cdq
+    mov ebx, _3
+    idiv ebx
+    mov tmp810, eax
 
 L811:
 
 L812:
 
 L813:
-    mov eax, 0
+    mov eax, _0
     mov @aux2, eax
 
 L814:
@@ -2391,7 +2553,7 @@ L816:
 
 L817:
     mov eax, @aux2
-    cmp eax, 3
+    cmp eax, _3
 
 L818:
     jge L852
@@ -2401,7 +2563,7 @@ L819:
 L820:
 
 L821:
-    mov eax, 0
+    mov eax, _0
     cmp eax, @aux2
 
 L822:
@@ -2411,7 +2573,7 @@ L823:
 L824:
 
 L825:
-    mov eax, 1
+    mov eax, _1
     cmp eax, @aux2
 
 L826:
@@ -2421,7 +2583,7 @@ L827:
 L828:
 
 L829:
-    mov eax, 2
+    mov eax, _2
     cmp eax, @aux2
 
 L830:
@@ -2447,7 +2609,7 @@ L836:
 L837:
 
 L838:
-    mov eax, DIV
+    mov eax, tmp810
     mov b, eax
 
 L839:
@@ -2459,7 +2621,7 @@ L841:
 
 L842:
     mov eax, @aux2
-    add eax, 1
+    add eax, _1
     mov tmp842, eax
 
 L843:
@@ -2476,7 +2638,7 @@ L847:
 
 L848:
     mov eax, b
-    imul eax, 2
+    imul eax, _2
     mov tmp848, eax
 
 L849:
@@ -2502,7 +2664,7 @@ L856:
 L857:
 
 L858:
-    mov eax, 0
+    mov eax, _0
     mov @aux3, eax
 
 L859:
@@ -2512,7 +2674,7 @@ L861:
 
 L862:
     mov eax, @aux3
-    cmp eax, 4
+    cmp eax, _4
 
 L863:
     jge L908
@@ -2522,7 +2684,7 @@ L864:
 L865:
 
 L866:
-    mov eax, 0
+    mov eax, _0
     cmp eax, @aux3
 
 L867:
@@ -2532,7 +2694,7 @@ L868:
 L869:
 
 L870:
-    mov eax, 1
+    mov eax, _1
     cmp eax, @aux3
 
 L871:
@@ -2542,7 +2704,7 @@ L872:
 L873:
 
 L874:
-    mov eax, 2
+    mov eax, _2
     cmp eax, @aux3
 
 L875:
@@ -2552,7 +2714,7 @@ L876:
 L877:
 
 L878:
-    mov eax, 3
+    mov eax, _3
     cmp eax, @aux3
 
 L879:
@@ -2560,7 +2722,7 @@ L879:
 L880:
 
 L881:
-    mov eax, 1
+    mov eax, _1
     mov c, eax
 
 L882:
@@ -2569,7 +2731,7 @@ L882:
 L883:
 
 L884:
-    mov eax, 2
+    mov eax, _2
     mov c, eax
 
 L885:
@@ -2578,7 +2740,7 @@ L885:
 L886:
 
 L887:
-    mov eax, 3
+    mov eax, _3
     mov c, eax
 
 L888:
@@ -2587,7 +2749,7 @@ L888:
 L889:
 
 L890:
-    mov eax, 4
+    mov eax, _4
     mov c, eax
 
 L891:
@@ -2599,7 +2761,7 @@ L893:
 
 L894:
     mov eax, @aux3
-    add eax, 1
+    add eax, _1
     mov tmp894, eax
 
 L895:
@@ -2613,26 +2775,39 @@ L897:
 L898:
 
 L899:
+    mov eax, c
+    cdq
+    mov ebx, _2
+    idiv ebx
+    mov tmp899, edx
 
 L900:
 
 L901:
-    mov eax, MOD
-    cmp eax, 0
+    mov eax, tmp899
+    cmp eax, _0
 
 L902:
     jne L907
 
 L903:
-    displayString STR_7
+    mov dx, OFFSET STR_15
+    mov ah, 9
+    int 21h
 
 L904:
 
 L905:
 
 L906:
-    mov eax, "ResultadoPar"
-    mov nombre, eax
+    lea esi, OFFSET STR_16
+    lea edi, OFFSET nombre
+    cld
+copy_string_906:
+    lodsb
+    stosb
+    cmp al, '$'
+    jne copy_string_906
 
 L907:
     jmp L859
@@ -2642,8 +2817,8 @@ L908:
 L909:
 
 L910:
-    mov eax, 1
-    imul eax, 0
+    mov eax, _1
+    imul eax, _0
     mov tmp910, eax
 
 L911:
@@ -2651,9 +2826,9 @@ L911:
 L912:
 
 L913:
-    mov eax, 2
+    mov eax, _2
     cdq
-    mov ebx, 1
+    mov ebx, _1
     idiv ebx
     mov tmp913, eax
 
@@ -2666,7 +2841,7 @@ L916:
 L917:
 
 L918:
-    mov eax, 0
+    mov eax, _0
     mov @aux4, eax
 
 L919:
@@ -2676,7 +2851,7 @@ L921:
 
 L922:
     mov eax, @aux4
-    cmp eax, 4
+    cmp eax, _4
 
 L923:
     jge L968
@@ -2686,7 +2861,7 @@ L924:
 L925:
 
 L926:
-    mov eax, 0
+    mov eax, _0
     cmp eax, @aux4
 
 L927:
@@ -2696,7 +2871,7 @@ L928:
 L929:
 
 L930:
-    mov eax, 1
+    mov eax, _1
     cmp eax, @aux4
 
 L931:
@@ -2706,7 +2881,7 @@ L932:
 L933:
 
 L934:
-    mov eax, 2
+    mov eax, _2
     cmp eax, @aux4
 
 L935:
@@ -2716,7 +2891,7 @@ L936:
 L937:
 
 L938:
-    mov eax, 3
+    mov eax, _3
     cmp eax, @aux4
 
 L939:
@@ -2742,7 +2917,7 @@ L945:
 L946:
 
 L947:
-    mov eax, 3
+    mov eax, _3
     mov a, eax
 
 L948:
@@ -2751,7 +2926,7 @@ L948:
 L949:
 
 L950:
-    mov eax, 9
+    mov eax, _9
     mov a, eax
 
 L951:
@@ -2763,7 +2938,7 @@ L953:
 
 L954:
     mov eax, @aux4
-    add eax, 1
+    add eax, _1
     mov tmp954, eax
 
 L955:
@@ -2777,7 +2952,7 @@ L957:
 L958:
 
 L959:
-    mov eax, 55
+    mov eax, _55
     mov b, eax
 
 L960:
@@ -2798,7 +2973,9 @@ L965:
     jmp L967
 
 L966:
-    displayString STR_8
+    mov dx, OFFSET STR_17
+    mov ah, 9
+    int 21h
 
 L967:
     jmp L919
@@ -2814,7 +2991,7 @@ L971:
 L972:
 
 L973:
-    mov eax, 0
+    mov eax, _0
     mov @aux5, eax
 
 L974:
@@ -2824,7 +3001,7 @@ L976:
 
 L977:
     mov eax, @aux5
-    cmp eax, 3
+    cmp eax, _3
 
 L978:
     jge L1049
@@ -2834,7 +3011,7 @@ L979:
 L980:
 
 L981:
-    mov eax, 0
+    mov eax, _0
     cmp eax, @aux5
 
 L982:
@@ -2844,7 +3021,7 @@ L983:
 L984:
 
 L985:
-    mov eax, 1
+    mov eax, _1
     cmp eax, @aux5
 
 L986:
@@ -2854,7 +3031,7 @@ L987:
 L988:
 
 L989:
-    mov eax, 2
+    mov eax, _2
     cmp eax, @aux5
 
 L990:
@@ -2862,7 +3039,7 @@ L990:
 L991:
 
 L992:
-    mov eax, 1
+    mov eax, _1
     mov a, eax
 
 L993:
@@ -2871,7 +3048,7 @@ L993:
 L994:
 
 L995:
-    mov eax, 2
+    mov eax, _2
     mov a, eax
 
 L996:
@@ -2880,7 +3057,7 @@ L996:
 L997:
 
 L998:
-    mov eax, 3
+    mov eax, _3
     mov a, eax
 
 L999:
@@ -2892,7 +3069,7 @@ L1001:
 
 L1002:
     mov eax, @aux5
-    add eax, 1
+    add eax, _1
     mov tmp1002, eax
 
 L1003:
@@ -2906,8 +3083,8 @@ L1005:
 L1006:
 
 L1007:
-    mov eax, 5
-    imul eax, 0
+    mov eax, _5
+    imul eax, _0
     mov tmp1007, eax
 
 L1008:
@@ -2917,7 +3094,7 @@ L1009:
 L1010:
 
 L1011:
-    mov eax, 0
+    mov eax, _0
     mov @aux6, eax
 
 L1012:
@@ -2927,7 +3104,7 @@ L1014:
 
 L1015:
     mov eax, @aux6
-    cmp eax, 2
+    cmp eax, _2
 
 L1016:
     jge L1047
@@ -2937,7 +3114,7 @@ L1017:
 L1018:
 
 L1019:
-    mov eax, 0
+    mov eax, _0
     cmp eax, @aux6
 
 L1020:
@@ -2947,7 +3124,7 @@ L1021:
 L1022:
 
 L1023:
-    mov eax, 1
+    mov eax, _1
     cmp eax, @aux6
 
 L1024:
@@ -2964,7 +3141,7 @@ L1027:
 L1028:
 
 L1029:
-    mov eax, 7
+    mov eax, _7
     mov c, eax
 
 L1030:
@@ -2976,7 +3153,7 @@ L1032:
 
 L1033:
     mov eax, @aux6
-    add eax, 1
+    add eax, _1
     mov tmp1033, eax
 
 L1034:
@@ -2990,26 +3167,39 @@ L1036:
 L1037:
 
 L1038:
+    mov eax, c
+    cdq
+    mov ebx, _9
+    idiv ebx
+    mov tmp1038, edx
 
 L1039:
 
 L1040:
-    mov eax, MOD
-    cmp eax, 0
+    mov eax, tmp1038
+    cmp eax, _0
 
 L1041:
     jne L1046
 
 L1042:
-    displayString STR_7
+    mov dx, OFFSET STR_15
+    mov ah, 9
+    int 21h
 
 L1043:
 
 L1044:
 
 L1045:
-    mov eax, "ResultadoPar"
-    mov nombre, eax
+    lea esi, OFFSET STR_16
+    lea edi, OFFSET nombre
+    cld
+copy_string_1045:
+    lodsb
+    stosb
+    cmp al, '$'
+    jne copy_string_1045
 
 L1046:
     jmp L1012

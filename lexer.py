@@ -138,7 +138,11 @@ def t_N_ENTERO(t):
 def t_VARIABLE(t):
     r'[a-zA-Z](\w|_)*'
     
-    t.type = reserved.get(t.value, 'VARIABLE')
+    # Check reserved words (exact match first, then case-insensitive for operators)
+    t.type = reserved.get(t.value, None)
+    if t.type is None:
+        # Try case-insensitive lookup for operators like DIV and MOD
+        t.type = reserved.get(t.value.lower(), 'VARIABLE')
 
     # verifico que es una variable
     if t.type == "VARIABLE":

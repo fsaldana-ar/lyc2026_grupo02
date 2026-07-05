@@ -96,18 +96,36 @@ def is_literal_or_symbol(value: str) -> bool:
     return value.isidentifier()
 
 
+def sanitize_literal_name(literal: str) -> str:
+    """Convert number literal to valid TASM identifier by replacing special chars"""
+    # Handle negative numbers by replacing leading minus with 'n'
+    if literal.startswith('-'):
+        # Replace leading minus with 'n' prefix
+        sanitized = 'n' + literal[1:].replace('.', '_')
+    else:
+        # Replace all dots with underscores
+        sanitized = literal.replace('.', '_')
+    return f'_{sanitized}'
+
 def operand_value(tercetos, operand: str, literal_labels: dict):
     if is_reference(operand):
         idx = ref_index(operand)
         arg1, arg2, arg3 = tercetos[idx]
         if arg1 in ('+', '-', '*', '/', 'DIV', 'MOD', 'CMP', 'BGE', 'BLE', 'BGT', 'BLT', 'BEQ', 'BNE', 'BI', 'WHILE'):
             return f'tmp{idx}'
+        # Check if arg1 is a string literal - if so, return the STR label
+        if is_string_literal(arg1):
+            return literal_labels.setdefault(arg1, f'STR_{len([v for v in literal_labels.values() if v.startswith("STR_")])}')
+        # Check if arg1 is a number literal - if so, return the sanitized underscore-prefixed name
+        if is_number_literal(arg1):
+            return literal_labels.setdefault(arg1, sanitize_literal_name(arg1))
         return arg1
     if is_string_literal(operand):
-        return literal_labels.setdefault(operand, f'STR_{len(literal_labels)}')
+        return literal_labels.setdefault(operand, f'STR_{len([v for v in literal_labels.values() if v.startswith("STR_")])}')
     if is_number_literal(operand):
-        return operand
-    if operand == '_':
+        # Store in literal_labels and return the sanitized variable name
+        return literal_labels.setdefault(operand, sanitize_literal_name(operand))
+    if not operand or operand == '_':
         return None
     return operand
 
@@ -115,35 +133,65 @@ def operand_value(tercetos, operand: str, literal_labels: dict):
 def build_data_section(symbols, tercetos, literal_labels):
     lines = []
     lines.append('.DATA')
+    declared = set()  # Track what we've already declared
+    
     for name, info in symbols.items():
         tipo = info['tipo']
+        # Sanitize the name - handle negative signs and dots
+        if name.startswith('_-'):
+            # For names like _-21, convert to _n21
+            safe_name = '_n' + name[2:].replace('.', '_')
+        elif name.startswith('-'):
+            # For names like -21, convert to n21
+            safe_name = 'n' + name[1:].replace('.', '_')
+        else:
+            # Replace dots with underscores
+            safe_name = name.replace('.', '_')
+        
+        declared.add(safe_name)  # Mark as declared
+        
         if tipo == 'Int':
-            lines.append(f'    {name} dd ?')
+            lines.append(f'    {safe_name} dd ?')
         elif tipo == 'Float':
-            lines.append(f'    {name} dd ?')
+            lines.append(f'    {safe_name} dd ?')
         elif tipo == 'String':
-            lines.append(f'    {name} db 51 dup(?), "$"')
+            lines.append(f'    {safe_name} db 51 dup(?), "$"')
         elif tipo == 'cte_int':
-            lines.append(f'    {name} dd {info["valor"]}')
+            lines.append(f'    {safe_name} dd {info["valor"]}')
         elif tipo == 'cte_float':
-            lines.append(f'    {name} dd {info["valor"]}')
+            lines.append(f'    {safe_name} dd {info["valor"]}')
         elif tipo == 'cte_str':
             continue
         else:
-            lines.append(f'    {name} dd ?')
+            lines.append(f'    {safe_name} dd ?')
 
-    for label, literal in literal_labels.items():
-        if is_string_literal(label):
-            text = label[1:-1].replace('"', '"')
-            lines.append(f'    {literal} db "{text}","$"')
+    for literal, label in literal_labels.items():
+        # Skip if already declared from symbols
+        if label in declared:
+            continue
+        declared.add(label)
+        
+        if is_string_literal(literal):
+            text = literal[1:-1]  # Remove quotes
+            lines.append(f'    {label} db "{text}","$"')
         else:
-            lines.append(f'    {literal} dd {label}')
-
-    declared = set(symbols.keys())
+            # It's a number literal - declare it as dd with the value
+            lines.append(f'    {label} dd {literal}')
+    
+    # Track which symbols we've already processed
+    declared_from_symbols = set(
+        ('_n' + name[2:].replace('.', '_')) if name.startswith('_-') else
+        ('n' + name[1:].replace('.', '_')) if name.startswith('-') else
+        name.replace('.', '_') 
+        for name in symbols.keys()
+    )
+    
     for idx, terceto in enumerate(tercetos):
         op = terceto[0]
         if op in ('+', '-', '*', '/', 'DIV', 'MOD'):
-            lines.append(f'    tmp{idx} dd ?')
+            if f'tmp{idx}' not in declared:
+                lines.append(f'    tmp{idx} dd ?')
+                declared.add(f'tmp{idx}')
         elif op.startswith('@') and op not in declared:
             lines.append(f'    {op} dd ?')
             declared.add(op)
@@ -183,7 +231,7 @@ def generate_asm(tercetos, symbols, output_path: Path):
     lines.append('include macros2.asm')
     lines.append('include number.asm')
     lines.append('')
-    lines.append('.MODEL  SMALL')
+    lines.append('.MODEL  LARGE')
     lines.append('.386')
     lines.append('.STACK 200h')
     lines.append('')
@@ -221,9 +269,10 @@ def generate_asm(tercetos, symbols, output_path: Path):
         elif op == ':=':
             destino = operand_value(tercetos, arg2, literal_labels)
             fuente = operand_value(tercetos, arg3, literal_labels)
-            if is_string_literal(arg3):
-                lines.append(f'    lea esi, {fuente}')
-                lines.append(f'    lea edi, {destino}')
+            # Check if fuente is a string label (STR_X format) or direct string literal
+            if fuente and (fuente.startswith('STR_') or is_string_literal(arg3)):
+                lines.append(f'    lea esi, OFFSET {fuente}')
+                lines.append(f'    lea edi, OFFSET {destino}')
                 lines.append('    cld')
                 lines.append(f'copy_string_{idx}:')
                 lines.append('    lodsb')
@@ -240,7 +289,9 @@ def generate_asm(tercetos, symbols, output_path: Path):
         elif op == 'WRITE':
             destino = operand_value(tercetos, arg2, literal_labels)
             if is_string_literal(arg2):
-                lines.append(f'    displayString {destino}')
+                lines.append(f'    mov dx, OFFSET {destino}')
+                lines.append(f'    mov ah, 9')
+                lines.append(f'    int 21h')
             else:
                 lines.append(f'    DisplayInteger {destino}')
         elif op == 'READ':
