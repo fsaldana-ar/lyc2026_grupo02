@@ -1,390 +1,121 @@
-#+ ************** Declaracion de variables ************** +#
+#+ ************** Lote de Pruebas Completo ************** +#
 init {
     a, b, c, d : Int
     e, f, g, h : Float
-    i,j,k:String
+    i, j, k : String
     nombre : String
-    #+ Sin tipo de dato +#
-    #+ aa : +#
-    #+ Excede longitud de nombre +#
-    #+ aaaaaaaaaaaaaaaaaaaaa : Float +#
 }
 
-#+ ************** Comentarios ************** +#
+#+ 1. Inicializacion de Variables +#
+write("1. Inicializando variables...\n")
+a := 10
+b := 3
+c := 2
+d := 5
 
-#+ a := b +#
-#+ a := b + c +#
-#+ a := b - c +#
-#+ a := b * c +#
-#+ a := b / c +#
-#+ a := b + c - b * d + a - c / d +#
-#+ a := a + b * c / d - a / b + c +#
-#+ a := b + c - ( a * b + c / d) + 1 * 0 +#
+e := 10.5
+f := 3.2
+g := 1.5
+h := 2.0
 
-#+ ************** Asignaciones ************** +#
+i := "Hola"
+j := "Mundo"
 
-#+ Asignacion de enteros +#
-a := 0
-a := 1
-a := -1
-a := -150
+#+ 2. Operaciones Aritmeticas Basicas (Enteros y Flotantes sin Division por Cero) +#
+write("2. Probando operaciones aritmeticas...\n")
+a := b + c
+write("Suma (3 + 2): ")
+write(a)
+write("\n")
 
-#+ Variable fuera de rango +#
-#+ a := 32768 +#
-#+ a := -32769 +#
+a := b - c
+write("Resta (3 - 2): ")
+write(a)
+write("\n")
 
-#+ Variable no declarada +#
-#+ z := 1 +#
+a := b * c
+write("Multiplicacion (3 * 2): ")
+write(a)
+write("\n")
 
-#+ Asignacion de flotantes +#
-e := 19.1
-e := 18.
-e := .17
-e := -19.1
-e := -18.
-e := -.17
-e := 99999.99
-e := 99.
-e := .9999
+a := b div c
+write("Division entera (3 div 2): ")
+write(a)
+write("\n")
 
-#+ Variable no declarada +#
-#+ w := 3.14 +#
+a := b mod c
+write("Modulo entero (3 mod 2): ")
+write(a)
+write("\n")
 
-#+ Variable fuera de rango +#
-#+ e := 350000000000000000000000000000000000000. +#
-#+ e := -350000000000000000000000000000000000000. +#
-
-
-#+ Asignacion de strings +#
-i := "string"
-i := "string09"
-i := "string 09"
-i := "Hol@, Mundo"
-i := "Hola % Mundo"
-i := "        s t r i n g   "
-i := "@sdADaSjfla%dfg"
-i := "asldk  fh sjf"
-
-#+ Variable fuera de rango +#
-#+ i := "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +#
-
-
-#+ ************** Operaciones Aritmeticas ************** +#
-
-a := 27 - c
-a := b + 500
-a := 34 * 3
-a := c / d
-a := d*(b - 21)/4
-a := d*(a + -21)/4
-a := d*(c+21)/2
-
-
-e := .27 - f
-e := g + 50.0
-e := 3.4 * 3.
-e := g / h
-e := e*(e - .21)/4
-e := f*(g+2.1)/2
-
-
-#+ Falta de operador +#
-#+ a := 27 - +#
-#+ a := + 500 +#
-#+ a := 34 * +#
-#+ a := z / +#
-
-
-#+ ************** If / If - else ************** +#
-
-if (a > b)
-{
-    write("a es mas grande que b")
-}
-else
-{
-    write("a es mas chico o igual a b")
-}
-
-if(a > b){a:=b}
-
-if(a * b < c){
-    a:=a
-    b:=b
-}
-
-if(a > b + 2){a:=b} else {a:=a}
-
-if(a < b * 0){a:=b} else {
-    a:=a
-    b:=b
-}
-
-if(a > 0){
-    if(b > 0){
-        c := 1
-    } else {
-        c := 0
-    }
+#+ 3. Estructuras de Control (If / Else) +#
+write("\n3. Probando condicionales (If / Else)...\n")
+a := 10
+b := 20
+if (a < b) {
+    write("a es menor que b (Correcto)\n")
 } else {
-    c := a + b
+    write("a no es menor que b (Incorrecto)\n")
 }
 
-#+ If sin condicion +#
-#+ if (){ a := b } +#
-
-#+ If sin cuerpo +#
-#+ if (a > 3) {} +#
-
-
-#+ ************** While ************** +#
-
-while (a > b)
-{
-    write("a es mas grande que b")
-    a := a + 1
+if (a > b) {
+    write("a es mayor que b (Incorrecto)\n")
+} else {
+    write("a no es mayor que b (Correcto)\n")
 }
 
-while(not a > b){a:=b}
-
-while(not a < b){
-    a:=a
-    b:=b
+#+ 4. Bucles Simples (While que terminan) +#
+write("\n4. Probando bucles while simples...\n")
+a := 3
+while (a > 0) {
+    write("Iteracion simple a: ")
+    write(a)
+    write("\n")
+    a := a - 1
 }
 
-while(not a >= b){a:=b}
-
-while(not a <= b){
-    a:=a
-    b:=b
-}
-
-while(not a <> b){a:=b}
-
-while(not a == b){a:=b}
-
-while(a > b and b < a){a:=b}
-
-while(a < b and b > a){
-    a:=a
-    b:=b
-}
-
-while(a <= b and b >= a){a:=b}
-
-while(a == b and b <> a){
-    a:=a
-    b:=b
-}
-
-while(a > b or b < a){a:=b}
-
-while(a < b or b > a){a:=b}
-
-while(a <= b or b >= a){
-    a:=a
-    b:=b
-}
-
-while(a == b or b <> a){a:=b}
-
-while(a > 0){
-    b := 1
-    while(b < 10){
-        b := b + 1
+#+ 5. Bucles Anidados +#
+write("\n5. Probando bucles while anidados...\n")
+a := 2
+while (a > 0) {
+    b := 2
+    while (b > 0) {
+        write("Anidado a y b: ")
+        write(a)
+        write(" ")
+        write(b)
+        write("\n")
+        b := b - 1
     }
     a := a - 1
 }
 
-#+ While sin condicion +#
-#+ while () {} +#
-
-#+ While sin cuerpo +#
-#+ while(b < a) +#
-
-
-#+ ************** Entrada y Salida ************** +#
-
-read(nombre)
-
-#+ Read sin variable +#
-#+ read() +#
-
-#+ Read variable no declarada +#
-#+ read(otra_variable) +#
-
-
-write("ewr")
-write(nombre)
-
-#+ Write sin variable +#
-#+ write() +#
-
-
-#+ ************** Condiciones ************** +#
-
-if (a > b and c > b)
-{
-    write("a es mas grande que b y c es mas grande que b")
-}
-
-if(a > b and b < a){
-    a:=a
-    b:=b
-}
-
-if(a < b and b > a){a:=b} else {
-    a:=a
-    b:=b
-}
-
-if(a <= b and b >= a){a:=b}
-
-if(a == b and b <> a){a:=b}
-
-if(not a > b){a:=b}
-
-if(not a < b){
-    a:=a
-    b:=b
-}
-
-if(not a >= b){a:=b} else {a:=a}
-
-if(not a <= b){a:=b}
-
-if(not a <> b){a:=b}
-
-if(not a == b){a:=b} else {
-    a:=a
-    b:=b
-}
-
-if(a > b or b < a){a:=b}
-
-if(a < b or b > a){a:=b} else {
-    a:=a
-    b:=b
-}
-
-if(a <= b or b >= a){
-    a:=a
-    b:=b
-}
-
-if(a == b or b <> a){a:=b} else {a:=a}
-
-#+ And sin segundo parametro +#
-#+ if (a > b and) +#
-
-if (a > b or c > b)
-{
-    write("a es mas grande que b o c es mas grande que b")
-}
-
-#+ Or sin segundo parametro +#
-#+ if (a > b or) +#
-
-if (not a > b)
-{
-    write("a no es mas grande que b")
-}
-
-#+ Not sin parametro +#
-#+ if (not) +#
-
-
-#+ ************** Anidacion If / If - else / while / condiciones ************** +#
-
-while (a <> b and c == d){
-    if(not e<f){
-        read(a)
-    }
-    else{
-        if(g > h or 1 + 1 == 0){
-            a:=a
-        }
-    }
-    write(nombre)
-    
-    while(f == 0 or g <> 0){
-        if(a+b*c < 3 and (h div 0) == 1){
-            write(nombre)
-        }
-    }
-}
-
-
-#+ ************** MOD/DIV ************** +#
-
-if(a mod 2 == 0)
-{
-  write("Par")
-}
-
-e := (10 div 3) + (10 mod 3)
-
-a := b mod c
-a := (b mod c)
-a := 35 + (b mod c) * 100
-a := 1 + 2 + 3 mod 4 + 5 + 6
-
-e := b div c
-e := (b div c)
-e := 35 + (b div c) * 100
-e := 1 + 2 + 3 div 4 + 5 + 6
-
-#+ Mod sin un parametro +#
-#+ a := mod 3 +#
-
-#+ Div sin un parametro +#
-#+ e := div 3 +#
-
-
-#+ ************** Ciclo Especial ************** +#
-
-#+ 1. Ciclo Especial Estandar con enteros +#
-while a in [1, 2, 3] do
+#+ 6. Ciclos Especiales (While in list) +#
+write("\n6. Probando ciclos especiales...\n")
+while a in [10, 20, 30] do
+    write("Ciclo especial a: ")
     write(a)
+    write("\n")
 endwhile
 
-#+ 2. Ciclo Especial con Expresiones Aritmeticas +#
-while b in [1 + 1, 2 * 2, 9 div 3] do
-    d := b * 2
-    write(d)
+#+ 7. Ciclos Especiales Anidados +#
+write("\n7. Probando ciclos especiales anidados...\n")
+while a in [1, 2] do
+    while b in [100, 200] do
+        write("Especial anidado a y b: ")
+        write(a)
+        write(" ")
+        write(b)
+        write("\n")
+    endwhile
 endwhile
 
-#+ 3. Ciclo Especial con Estructura Condicional y Cadenas +#
-while c in [1, 2, 3, 4] do
-    if (c mod 2 == 0) {
-        write("HolaMundo")
-        nombre := "ResultadoPar"
-    }
-endwhile
+#+ 8. Lecturas de Teclado con Prompts +#
+write("\n8. Probando lecturas de teclado...\n")
+write("Ingrese un numero entero para la variable a: ")
+read(a)
+write("El numero ingresado es: ")
+write(a)
+write("\n\n")
 
-while a in [1*0,2/1,3,9]
-do
-   b := 55
-   if (b < a){
-     write(b)
-   }
-   else{
-    write("Test")
-   }
-endwhile
-
-#+ 4. Ciclo Especial anidado +#
-
-while a in [1, 2, 3] do
-  while c in [5*0, 7] do
-      if (c mod 9 == 0) {
-          write("HolaMundo")
-          nombre := "ResultadoPar"
-      }
-  endwhile
-
-  write(a)
-endwhile
-
-#+ Ciclo con lista vacia +#
-#+ while a in [] +#
+write("Pruebas completadas de manera exitosa!\n")

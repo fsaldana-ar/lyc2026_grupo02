@@ -173,7 +173,17 @@ def build_data_section(symbols, tercetos, literal_labels):
         
         if is_string_literal(literal):
             text = literal[1:-1]  # Remove quotes
-            lines.append(f'    {label} db "{text}","$"')
+            if '\\n' in text:
+                parts = text.split('\\n')
+                asm_segments = []
+                for i, p in enumerate(parts):
+                    if p:
+                        asm_segments.append(f'"{p}"')
+                    if i < len(parts) - 1:
+                        asm_segments.append("13, 10")
+                lines.append(f'    {label} db ' + ', '.join(asm_segments) + ',"$"')
+            else:
+                lines.append(f'    {label} db "{text}","$"')
         else:
             # It's a number literal - declare it as dd with the value
             lines.append(f'    {label} dd {literal}')
