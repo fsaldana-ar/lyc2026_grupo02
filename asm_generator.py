@@ -271,8 +271,8 @@ def generate_asm(tercetos, symbols, output_path: Path):
             fuente = operand_value(tercetos, arg3, literal_labels)
             # Check if fuente is a string label (STR_X format) or direct string literal
             if fuente and (fuente.startswith('STR_') or is_string_literal(arg3)):
-                lines.append(f'    lea esi, OFFSET {fuente}')
-                lines.append(f'    lea edi, OFFSET {destino}')
+                lines.append(f'    mov si, OFFSET {fuente}')
+                lines.append(f'    mov di, OFFSET {destino}')
                 lines.append('    cld')
                 lines.append(f'copy_string_{idx}:')
                 lines.append('    lodsb')

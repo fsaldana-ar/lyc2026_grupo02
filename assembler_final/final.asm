@@ -275,8 +275,8 @@ L39:
 L40:
 
 L41:
-    lea esi, OFFSET STR_0
-    lea edi, OFFSET i
+    mov si, OFFSET STR_0
+    mov di, OFFSET i
     cld
 copy_string_41:
     lodsb
@@ -289,8 +289,8 @@ L42:
 L43:
 
 L44:
-    lea esi, OFFSET STR_1
-    lea edi, OFFSET i
+    mov si, OFFSET STR_1
+    mov di, OFFSET i
     cld
 copy_string_44:
     lodsb
@@ -303,8 +303,8 @@ L45:
 L46:
 
 L47:
-    lea esi, OFFSET STR_2
-    lea edi, OFFSET i
+    mov si, OFFSET STR_2
+    mov di, OFFSET i
     cld
 copy_string_47:
     lodsb
@@ -317,8 +317,8 @@ L48:
 L49:
 
 L50:
-    lea esi, OFFSET STR_3
-    lea edi, OFFSET i
+    mov si, OFFSET STR_3
+    mov di, OFFSET i
     cld
 copy_string_50:
     lodsb
@@ -331,8 +331,8 @@ L51:
 L52:
 
 L53:
-    lea esi, OFFSET STR_4
-    lea edi, OFFSET i
+    mov si, OFFSET STR_4
+    mov di, OFFSET i
     cld
 copy_string_53:
     lodsb
@@ -345,8 +345,8 @@ L54:
 L55:
 
 L56:
-    lea esi, OFFSET STR_5
-    lea edi, OFFSET i
+    mov si, OFFSET STR_5
+    mov di, OFFSET i
     cld
 copy_string_56:
     lodsb
@@ -359,8 +359,8 @@ L57:
 L58:
 
 L59:
-    lea esi, OFFSET STR_6
-    lea edi, OFFSET i
+    mov si, OFFSET STR_6
+    mov di, OFFSET i
     cld
 copy_string_59:
     lodsb
@@ -373,8 +373,8 @@ L60:
 L61:
 
 L62:
-    lea esi, OFFSET STR_7
-    lea edi, OFFSET i
+    mov si, OFFSET STR_7
+    mov di, OFFSET i
     cld
 copy_string_62:
     lodsb
@@ -2800,8 +2800,8 @@ L904:
 L905:
 
 L906:
-    lea esi, OFFSET STR_16
-    lea edi, OFFSET nombre
+    mov si, OFFSET STR_16
+    mov di, OFFSET nombre
     cld
 copy_string_906:
     lodsb
@@ -3192,8 +3192,8 @@ L1043:
 L1044:
 
 L1045:
-    lea esi, OFFSET STR_16
-    lea edi, OFFSET nombre
+    mov si, OFFSET STR_16
+    mov di, OFFSET nombre
     cld
 copy_string_1045:
     lodsb
