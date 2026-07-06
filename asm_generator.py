@@ -158,7 +158,7 @@ def build_data_section(symbols, tercetos, literal_labels):
         elif tipo == 'String':
             lines.append(f'    {safe_name} db 51 dup(?), "$"')
         elif tipo == 'cte_int':
-            lines.append(f'    {safe_name} dd {info["valor"]}')
+            lines.append(f'    {safe_name} dd {info["valor"]}.0')
         elif tipo == 'cte_float':
             lines.append(f'    {safe_name} dd {info["valor"]}')
         elif tipo == 'cte_str':
@@ -213,20 +213,65 @@ def generate_expression_code(op, left, right, dest, dest_type):
     if left is None or right is None:
         raise ValueError(f'Expresion incompleta: {op} {left} {right}')
     code = []
-    if dest_type == 'Float':
-        code.append(f'    fld dword ptr [{left}]')
+    if op == 'DIV':
+        code.append(f'    fld   dword ptr [{left}]')
+        code.append(f'    fld   dword ptr [{right}]')
+        code.append('    fdiv')
+        code.append('    frndint')
+        code.append(f'    fstp  dword ptr [{dest}]')
+    elif op == 'MOD':
+        code.append(f'    fld   dword ptr [{left}]')
+        code.append(f'    fld   dword ptr [{right}]')
+        code.append('    fdiv')
+        code.append('    frndint')
+        code.append(f'    fld   dword ptr [{right}]')
+        code.append('    fmul')
+        code.append(f'    fld   dword ptr [{left}]')
+        code.append('    fsubr')
+        code.append(f'    fstp  dword ptr [{dest}]')
+    else:
+        # resto de operadores (Float)
+        code.append(f'    fld   dword ptr [{left}]')
         if op == '+':
-            code.append(f'    fadd dword ptr [{right}]')
+            code.append(f'    fadd  dword ptr [{right}]')
         elif op == '-':
-            code.append(f'    fsub dword ptr [{right}]')
+            code.append(f'    fsub  dword ptr [{right}]')
         elif op == '*':
-            code.append(f'    fmul dword ptr [{right}]')
+            code.append(f'    fmul  dword ptr [{right}]')
         elif op == '/':
-            code.append(f'    fdiv dword ptr [{right}]')
+            code.append(f'    fdiv  dword ptr [{right}]')
         else:
             raise ValueError(f'Operador Float no soportado: {op}')
-        code.append(f'    fstp dword ptr [{dest}]')
+        code.append(f'    fstp  dword ptr [{dest}]')
+
+    """
+    #if dest_type == 'Float':
+    code.append(f'    fld dword ptr [{left}]')
+    if op == '+':
+        code.append(f'    fadd dword ptr [{right}]')
+    elif op == '-':
+        code.append(f'    fsub dword ptr [{right}]')
+    elif op == '*':
+        code.append(f'    fmul dword ptr [{right}]')
+    elif op == '/':
+        code.append(f'    fdiv dword ptr [{right}]')
+    elif op == 'MOD':
+        code.pop(-1)
+        code.append(f'    mov eax, {left}')
+        code.append('    cdq')
+        code.append(f'    mov ebx, {right}')
+        code.append('    idiv ebx')
+        code.append(f'    mov {dest}, edx')
+    elif op == 'DIV':
+        code.append(f'    mov eax, {left}')
+        code.append('    cdq')
+        code.append(f'    mov ebx, {right}')
+        code.append('    idiv ebx')
+        code.append(f'    mov {dest}, eax')
     else:
+        raise ValueError(f'Operador Float no soportado: {op}')
+    code.append(f'    fstp dword ptr [{dest}]')
+    else: 
         code.append(f'    mov eax, {left}')
         if op == '+':
             code.append(f'    add eax, {right}')
@@ -247,6 +292,7 @@ def generate_expression_code(op, left, right, dest, dest_type):
                 code.append(f'    mov {dest}, eax')
         else:
             raise ValueError(f'Operador no soportado: {op}')
+    """
     return code
 
 
@@ -386,16 +432,22 @@ def generate_asm(tercetos, symbols, output_path: Path):
                             is_float = True
                             break
                 
+                lines.append(f'    DisplayFloat {destino}, 2')
+                """
                 if is_float:
                     lines.append(f'    DisplayFloat {destino}, 2')
                 else:
                     lines.append(f'    DisplayInteger {destino}')
+                """
         elif op == 'READ':
             variable = arg2
+            lines.append(f'    GetFloat {variable}')
+            """
             if variable in symbols and symbols[variable]['tipo'] == 'Float':
                 lines.append(f'    GetFloat {variable}')
             else:
                 lines.append(f'    GetInteger {variable}')
+            """
         elif is_literal_or_symbol(op):
             pass
         else:
